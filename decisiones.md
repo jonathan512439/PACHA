@@ -134,6 +134,15 @@
 - **Contrato:** `construirMensajeAlerta` acepta `tarjeta: null`.
 - **Pruebas:** 35/35 unitarias (7 nuevas). De punta a punta contra el boletín real: 18/18 chequeos (autenticación, alerta en borrador con riesgo medio, sin duplicados, aprobación bloqueada sin tarjeta, aprobación firmada, envío con fallo registrado y reintento, entrega). Limpieza completa: el boletín de nov sigue disponible para detectarlo en vivo en el demo.
 
+## Interfaz y datos de ejemplo (sáb 21/11, 17:15)
+- **A construyó la interfaz P0**, porque B no había subido pantallas.
+  - Páginas: layout en español, mapa `/`, `/probar`, `/entregas` y `/suscribirse`.
+  - Panel con `proxy.ts` y Server Actions: resumen y prioridad, alertas, reportes y entregas.
+  - Plan en `docs/plan-interfaz.md`. B pule encima: no la rehace.
+- **Seed de demo** (`npm run seed:demo` y botón "Reiniciar demo"): 9 comunidades con UUID fijos, 6 reportes y 3 entregas EJEMPLO. Kantuta Pampa queda sin reportes para el cambio de color en vivo.
+- **Probado en producción** por el canal web: registro → reporte → confirmación → la "Comunidad de prueba" pasó de gris a 49,4 en el mapa. Después se reinició el demo.
+- **Pasos restantes por persona** y los dos caminos para WhatsApp (número de prueba o número propio): `docs/pasos-restantes.md`.
+
 ## Pendientes
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
 - **PDF faltantes para verificar:** FIDA PRO-CAMÉLIDOS (6 tarjetas) y Practical Action (2 tarjetas).
