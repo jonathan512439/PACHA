@@ -2,6 +2,7 @@ import "server-only";
 import type { Canal } from "@/contratos/tipos";
 import { db } from "@/lib/supabase";
 import { CanalSinEnvio, enviarPorCanal } from "@/lib/canales/enviar";
+import { validarFoto } from "@/lib/storage/foto";
 
 /*
  * Entregas (cisterna / forraje): las registra el panel y se publican en /entregas.
@@ -13,7 +14,6 @@ export class ErrorEntrega extends Error {
 }
 
 const UNIDAD = { cisterna: "cisternas", forraje: "kg" } as const;
-const FOTO_MAX_BYTES = 5 * 1024 * 1024; // límite del bucket 'entregas'
 const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
 export type NuevaEntrega = {
@@ -42,11 +42,12 @@ export async function registrarEntrega(e: NuevaEntrega, usuario: string) {
 
   let photo_path: string | null = null;
   if (e.foto) {
-    const ext = EXT[e.foto.mime];
-    if (!ext) throw new ErrorEntrega("La foto debe ser JPG, PNG o WEBP");
-    if (e.foto.bytes.length > FOTO_MAX_BYTES) throw new ErrorEntrega("La foto supera 5 MB");
-    photo_path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.${ext}`;
-    const sub = await db().storage.from("entregas").upload(photo_path, e.foto.bytes, { contentType: e.foto.mime });
+    // Formato por sus bytes (no por lo que dice el navegador), ≤ 5 MB y SIN EXIF: si no, se rechaza.
+    let mime: string;
+    try { mime = validarFoto(Buffer.from(e.foto.bytes), "La foto"); }
+    catch (err) { throw new ErrorEntrega(err instanceof Error ? err.message : String(err)); }
+    photo_path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.${EXT[mime]}`;
+    const sub = await db().storage.from("entregas").upload(photo_path, e.foto.bytes, { contentType: mime });
     if (sub.error) throw new Error(`No se pudo guardar la foto: ${sub.error.message}`);
   }
 

@@ -4,12 +4,17 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { reiniciarDemo, type FotosEjemplo } from "@/lib/demo-datos";
+import { validarFoto } from "@/lib/storage/foto";
 import { RAIZ, clienteSupabase, falla } from "./_comun";
 
 const fotos: FotosEjemplo = {};
 for (const n of [1, 2, 3] as const) {
   const p = path.join(RAIZ, "assets", "entregas-ejemplo", `${n}.jpg`);
-  if (existsSync(p)) fotos[n] = new Uint8Array(readFileSync(p));
+  if (!existsSync(p)) continue;
+  const bytes = readFileSync(p);
+  try { validarFoto(bytes, `assets/entregas-ejemplo/${n}.jpg`); } // formato real, ≤ 5 MB y SIN EXIF
+  catch (e) { falla(`${e instanceof Error ? e.message : e} (quita los metadatos: exiftool -all= archivo.jpg)`); }
+  fotos[n] = new Uint8Array(bytes);
 }
 
 // Sin await de nivel superior: tsx compila estos scripts como CommonJS.

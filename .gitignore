@@ -47,3 +47,6 @@ paquete_tarjetas/
 # Citas literales de verificación: solo en Drive, nunca en el repo público
 verificacion_paso_a_paso.csv
 **/verificacion_paso_a_paso.csv
+
+# Hoja de verificación de tarjetas: contiene citas literales de las fuentes (van solo a Drive, nunca al repo)
+scratch/verificacion/
