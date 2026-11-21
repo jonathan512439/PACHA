@@ -50,7 +50,7 @@ async function Lista() {
   return (
     <ul className="space-y-4">
       {alertas.map((a) => {
-        const bloqueada = /no se puede aprobar/.test(a.decision_reason);
+        const bloqueada = !a.tarjeta.lista; // estado actual de la tarjeta (se recalcula en cada carga)
         const x = a.boletin?.extracted ?? {};
         return (
           <li key={a.id} className="rounded-lg bg-white border border-stone-200 p-4 space-y-3">
@@ -62,7 +62,12 @@ async function Lista() {
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-2 text-sm">
-                <p><b>Decisión del código:</b> {a.decision_reason}</p>
+                <p><b>Decisión del código:</b> {a.decision_reason.replace(/ Falta la tarjeta .*$/, "")}</p>
+                <p className={bloqueada ? "text-red-700" : "text-emerald-800"}>
+                  <b>Tarjeta de la alerta:</b> {a.tarjeta.id} — {bloqueada
+                    ? `está en "${a.tarjeta.estado}": hay que verificarla para poder aprobar.`
+                    : "lista. Al aprobar, el mensaje se completa con sus 3 pasos."}
+                </p>
                 <blockquote className="border-l-4 border-stone-300 pl-3"><span className="text-xs text-stone-500">Cita del evento (literal)</span><br />“{a.cita_evento}”</blockquote>
                 {a.cita_riesgo && <blockquote className="border-l-4 border-stone-300 pl-3"><span className="text-xs text-stone-500">Cita del riesgo (literal)</span><br />“{a.cita_riesgo}”</blockquote>}
                 <table className="text-sm"><tbody>

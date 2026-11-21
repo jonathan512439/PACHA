@@ -1,5 +1,8 @@
 import "server-only";
 import { db } from "@/lib/supabase";
+import { tarjetaParaAlerta, type Amenaza } from "@/contratos/tipos";
+import { obtenerTarjeta } from "@/lib/tarjetas";
+import { permitirBorrador, puedePublicarse } from "@/lib/tarjeta-publica";
 import { prioridadComunidad, type PrioridadComunidad, type ReporteParaPrioridad } from "@/contratos/prioridad";
 
 /*
@@ -112,6 +115,8 @@ export type AlertaPanel = AlertaPublica & {
   min_temp_c: number | null; senamhi_level: string | null;
   boletin: { source_url: string | null; pdfUrl: string | null; extracted: Record<string, unknown> | null } | null;
   envios: { enviado: number; fallido: number };
+  /** Estado ACTUAL de la tarjeta de la regla (no el guardado al crear la alerta): decide si se puede aprobar. */
+  tarjeta: { id: string; lista: boolean; estado: string };
 };
 
 export async function alertasPanel(): Promise<AlertaPanel[]> {
@@ -119,6 +124,13 @@ export async function alertasPanel(): Promise<AlertaPanel[]> {
     .select("*, bulletins(source_url, pdf_path, extracted), alert_deliveries(status)")
     .order("created_at", { ascending: false }).limit(20);
   if (error) throw new Error(error.message);
+  const permitir = permitirBorrador();
+  const tarjetas = new Map<string, { id: string; lista: boolean; estado: string }>();
+  for (const hazard of new Set((data ?? []).map((a) => a.hazard as Amenaza))) {
+    const id = tarjetaParaAlerta(hazard);
+    const t = await obtenerTarjeta(id);
+    tarjetas.set(hazard, { id, lista: !!t && puedePublicarse(t, permitir), estado: t ? t.status : "no existe" });
+  }
   return (data ?? []).map((a) => {
     const b = a.bulletins as { source_url: string | null; pdf_path: string; extracted: Record<string, unknown> | null } | null;
     const envios = ((a.alert_deliveries ?? []) as { status: string }[]).reduce(
@@ -128,6 +140,7 @@ export async function alertasPanel(): Promise<AlertaPanel[]> {
       boletin: b ? { source_url: b.source_url, extracted: b.extracted,
         pdfUrl: b.pdf_path ? db().storage.from("boletines").getPublicUrl(b.pdf_path).data.publicUrl : null } : null,
       envios,
+      tarjeta: tarjetas.get(a.hazard as string)!,
     };
   });
 }
