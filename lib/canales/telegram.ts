@@ -107,7 +107,7 @@ function textoTarjeta(t: Extract<SalidaBot, { tipo: "tarjeta" }>): string {
     `<b>${html(t.titulo)}</b>`,
     ...t.pasos.map((p, i) => `${i + 1}) ${html(p)}`),
     "",
-    `<i>Fuente: ${html(t.fuente)}, pág. ${html(t.pagina)}</i>`,
+    `<i>Fuente: ${html(t.fuente)}</i>`, // `fuente` ya trae la página de cada paso
     `<i>${html(t.etiquetaEstado)}</i>`,
     ...(t.fuenteUrl ? [`<a href="${html(t.fuenteUrl)}">Ver documento</a>`] : []),
   ].join("\n");

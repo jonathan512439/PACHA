@@ -243,7 +243,7 @@ export function construirMensajeAlerta(p: {
     ? [
         `Qué hacer: 1) ${tarjeta.steps[0]} 2) ${tarjeta.steps[1]} 3) ${tarjeta.steps[2]}`,
         // Sin toLowerCase: la etiqueta de borrador debe salir tal cual ("BORRADOR · sin verificar").
-        `(Tarjeta: ${etiquetaEstadoTarjeta(tarjeta)}. ${tarjeta.source_doc}, pág. ${tarjeta.source_page})`,
+        `(Tarjeta: ${etiquetaEstadoTarjeta(tarjeta)}. ${tarjeta.source_doc}, ${tarjeta.source_page})`, // source_page ya trae "p."
       ]
     : [];
   return [

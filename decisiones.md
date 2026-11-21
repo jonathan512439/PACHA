@@ -145,6 +145,7 @@
 - **Pasos restantes por persona** y los dos caminos para WhatsApp (número de prueba o número propio): `docs/pasos-restantes.md`.
 
 ## Pendientes
+- ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
 - **PDF faltantes para verificar:** FIDA PRO-CAMÉLIDOS (6 tarjetas) y Practical Action (2 tarjetas).
 - **Tarjeta T-07, paso 2** ("Reduce el tamaño del hato…"): no aparece en las páginas citadas de al930s. Hay que corregirlo o quitarlo. *(Las 6 tarjetas del MVP no lo incluyen; una prueba de vitest falla si la frase aparece.)*

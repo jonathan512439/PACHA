@@ -91,10 +91,10 @@ describe("traducción de entrada y salida", () => {
 
   it("tarjeta -> texto con formato de WhatsApp y su audio", async () => {
     procesarMensaje.mockResolvedValue([{ tipo: "tarjeta", id: "sequia-durante-01", titulo: "Cuida el agua", pasos: ["Uno.", "Dos.", "Tres."],
-      fuente: "FAO Bolivia", pagina: "p. 33", etiquetaEstado: "Verificada contra fuente", audioOggUrl: "https://x.supabase.co/a.ogg" }]);
+      fuente: "FAO Bolivia: p. 33 (pasos 1, 2 y 3)", pagina: "p. 33", etiquetaEstado: "Verificada contra fuente", audioOggUrl: "https://x.supabase.co/a.ogg" }]);
     await manejarMensaje({ from: "000000000001", id: "wamid.C", type: "text", text: { body: "¿qué hago?" } });
     const [t, a] = enviados();
-    expect(t.text.body).toBe("*Cuida el agua*\n1) Uno.\n2) Dos.\n3) Tres.\n\n_Fuente: FAO Bolivia, pág. p. 33_\n_Verificada contra fuente_");
+    expect(t.text.body).toBe("*Cuida el agua*\n1) Uno.\n2) Dos.\n3) Tres.\n\n_Fuente: FAO Bolivia: p. 33 (pasos 1, 2 y 3)_\n_Verificada contra fuente_");
     expect(a).toMatchObject({ type: "audio", audio: { link: "https://x.supabase.co/a.ogg" } });
   });
 

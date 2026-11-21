@@ -85,7 +85,8 @@ describe("las 6 tarjetas del paquete", () => {
 });
 
 describe("regla de publicación (DEMO_PERMITIR_BORRADOR)", () => {
-  const borrador = porId("sequia-durante-01");
+  // Las pruebas de la regla no dependen del estado real de los datos: arman su propia versión en borrador.
+  const borrador = Tarjeta.parse({ ...porId("sequia-durante-01"), status: "borrador", verified_by: null, reviewed_by: null });
   const verificada = Tarjeta.parse({ ...borrador, status: "verificada", verified_by: "Otra persona" });
 
   it("solo '1' enciende el permiso; por defecto está apagado", () => {
@@ -130,7 +131,7 @@ describe("regla de publicación (DEMO_PERMITIR_BORRADOR)", () => {
       fenomeno: "helada", temp_minima_c: 1, cita_evento: "texto", cita_riesgo: null, riesgo_helada: "medio",
       nivel_senamhi: null, confianza: 0.9,
     };
-    const msg = construirMensajeAlerta({ aviso, tarjeta: porId("helada-antes_familia-01"), boletinEsEjemplo: false });
+    const msg = construirMensajeAlerta({ aviso, tarjeta: { ...porId("helada-antes_familia-01"), status: "borrador" }, boletinEsEjemplo: false });
     expect(msg).toContain(ETIQUETA_BORRADOR);
   });
 

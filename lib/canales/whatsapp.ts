@@ -125,7 +125,7 @@ function textoTarjeta(t: Extract<SalidaBot, { tipo: "tarjeta" }>): string {
     `*${t.titulo}*`,
     ...t.pasos.map((p, i) => `${i + 1}) ${p}`),
     "",
-    `_Fuente: ${t.fuente}, pág. ${t.pagina}_`,
+    `_Fuente: ${t.fuente}_`, // `fuente` ya trae la página de cada paso
     `_${t.etiquetaEstado}_`,
     ...(t.fuenteUrl ? [t.fuenteUrl] : []),
   ].join("\n");

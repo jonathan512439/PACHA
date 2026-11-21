@@ -135,7 +135,7 @@ function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: strin
           <div className="p-3 space-y-2">
             <h3 className="font-bold">{s.titulo}</h3>
             <ol className="list-decimal ml-5 space-y-1">{s.pasos.map((p, i) => <li key={i}>{p}</li>)}</ol>
-            <p className="text-xs text-stone-600">Fuente: {s.fuente}, pág. {s.pagina}</p>
+            <p className="text-xs text-stone-600">Fuente: {s.fuente}</p>
             <p className={`text-xs font-semibold ${s.etiquetaEstado.startsWith("BORRADOR") ? "text-red-700" : "text-emerald-800"}`}>{s.etiquetaEstado}</p>
             {(s.audioMp3Url ?? s.audioOggUrl) && <audio controls src={s.audioMp3Url ?? s.audioOggUrl} className="w-full" />}
           </div>
