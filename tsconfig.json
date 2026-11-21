@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "scratch", "contratos/v0.1"]
+  "exclude": ["node_modules", "scratch", "contratos/v0.1", "paquete_tarjetas", "exports"]
 }

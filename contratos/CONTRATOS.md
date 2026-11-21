@@ -1,4 +1,4 @@
-# Contratos v0.2 — PACHA (sáb 21 nov 2026)
+# Contratos v0.3 — PACHA (sáb 21 nov 2026; v0.3 = tarjetas, ver "Cambios v0.3")
 
 Archivos: `schema.sql` (tablas), `storage.sql` (buckets), `tipos.ts` (Zod v4: mensaje entrante, aviso, tarjeta, bot, plantilla de alerta, menú) y `prioridad.ts` (fórmula y prioridad por comunidad). La versión anterior está en `v0.1/`.
 Cambios a estos archivos solo con aviso en el grupo y una línea en `decisiones.md`.
@@ -82,6 +82,15 @@ Cambios a estos archivos solo con aviso en el grupo y una línea en `decisiones.
 16. El nivel de riesgo de helada lo lee **el código** desde la cita literal (`riesgoDesdeCita(cita_riesgo)`). `riesgo_helada` de Gemini solo se usa como respaldo, con aviso en el motivo. Causa: en el primer intento Gemini citó bien "Riesgo MEDIO por helada tardía" pero devolvió `alto`, tomado de la fila del viento.
 17. `AvisoGemini`: las citas van **antes** que `riesgo_helada` (el modelo genera en ese orden). `decidirAlerta` devuelve también `riesgo`, que se guarda en `alerts.risk_level`.
 18. Prompt del boletín: la cita de riesgo debe nombrar la helada (se ignoran las filas de viento, erosión o granizo) y la mínima es la de la zona, no la de la macrorregión. El prompt vigente está en `scratch/probar-gemini-boletin.mjs` y pasa a la app tal cual.
+
+19. Bot: los ids de botón tienen como máximo **64 caracteres**, por el límite de `callback_data` de Telegram. Se agregan `MENSAJES.muchosMensajes` y `MENSAJES.error`.
+
+## Cambios v0.3 (sáb 21/11, tarjetas)
+Migración para proyectos con v0.2: `contratos/migraciones/2026-11-21_tarjetas_v0.3.sql` (no borra filas; se puede ejecutar más de una vez). `schema.sql` ya trae la versión nueva para proyectos vacíos.
+20. `Tarjeta` / `lessons`: **`step_sources`** (tupla de 3 `{doc, page}`, una fuente por paso, en el orden de `steps`) y **`author`** = **autor del texto o guía de origen** (por ejemplo "FAO Bolivia"; es la autoría que se menciona). `verificada`/`revisada` exige `verified_by` (constraint `lessons_verificada_check`). *Corregido el sáb 21/11: se quitó la regla `verified_by <> author`.* `source_doc`/`source_page` quedan como resumen.
+21. Imágenes: `image_path` se renombra a `header_image_path`; nuevos `step_image_paths text[]` (hasta 3, por posición; `null` = ícono de respaldo) y `card_image_path` (PNG 1080×1350). Se quita `image_is_ai`: todas las ilustraciones se declaran "generadas con IA" en el pie.
+22. Publicación: solo `verificada`/`revisada`. Con `DEMO_PERMITIR_BORRADOR=1` también `borrador`, siempre con la etiqueta `ETIQUETA_BORRADOR` ("BORRADOR · sin verificar") en web, imagen y mensaje (`lib/tarjeta-publica.ts`). La plantilla de alerta ya no pasa la etiqueta a minúsculas.
+23. El PNG exportado se guarda como `lessons/<id>/tarjeta-<estado>-<huella>.png`; el bot solo lo adjunta si la huella coincide con el texto y estado actuales (`pngVigente`).
 
 ## Pendiente de decidir
 - Pesos de `prioridad.ts` (son de demo).

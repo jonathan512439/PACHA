@@ -1,4 +1,4 @@
-// Contratos de datos compartidos · v0.2 (sáb 21 nov 2026). Requiere Zod v4.
+// Contratos de datos compartidos · v0.3 (sáb 21 nov 2026; v0.3 = tarjetas con step_sources). Requiere Zod v4.
 // Todo lo que Gemini devuelve se valida con Zod antes de guardarse o enviarse.
 // Si no valida, el registro queda en 'revisar' (reportes) o el boletín en 'error'.
 import { z } from "zod";
@@ -146,9 +146,16 @@ export const debeAlertar = (a: AvisoGemini) => decidirAlerta(a).alertar;
 
 /* ======================================================================
  * 3. Tarjeta "qué hacer" (la escribe el equipo; Gemini solo elige id)
- *    Sin campo de autor: la autoría que se muestra es la de la fuente (source_doc).
+ *    v0.3: una fuente por paso (step_sources) y `author` = autor del texto o guía de origen
+ *    (la autoría que se menciona). verificada/revisada exige verified_by (sin regla contra author).
  * ==================================================================== */
-const contarPalabras = (s: string) => s.trim().split(/\s+/).length;
+export const contarPalabras = (s: string) => s.trim().split(/\s+/).length;
+
+export const FuentePaso = z.object({
+  doc: z.string().min(3),   // p. ej. "Senamhi–INSA, Boletín agrometeorológico Altiplano, decena 14–23 nov 2026"
+  page: z.string().min(1),  // página del VISOR de PDF, p. ej. "p. 6"
+});
+export type FuentePaso = z.infer<typeof FuentePaso>;
 
 export const Tarjeta = z.object({
   id: z.string().regex(/^(helada|sequia|nevada)-(antes_familia|antes_animales|durante|despues)-\d{2}$/),
@@ -160,27 +167,36 @@ export const Tarjeta = z.object({
     (s) => s.every((x) => contarPalabras(x) <= 18),
     "Cada paso debe tener 18 palabras o menos",
   ),
+  // una fuente por paso, en el mismo orden que steps
+  step_sources: z.tuple([FuentePaso, FuentePaso, FuentePaso]),
   factor_tags: z.array(Factor).default([]),
-  source_doc: z.string().min(3),
+  source_doc: z.string().min(3),        // resumen para el pie de la tarjeta
   source_page: z.string().min(1),       // número del visor de PDF
   source_url: z.string().url().optional(),
+  author: z.string().min(1),            // autor del texto o guía de origen, p. ej. "FAO Bolivia" (es la autoría que se menciona)
+  verified_by: z.string().nullable().default(null), // persona del equipo que cotejó cada paso con su fuente
+  reviewed_by: z.string().nullable().default(null), // revisor técnico externo (opcional)
   status: z.enum(ESTADOS_TARJETA).default("borrador"),
-  verified_by: z.string().nullable().default(null),
-  reviewed_by: z.string().nullable().default(null),
-  image_path: z.string().nullable().default(null),
-  image_is_ai: z.boolean().default(false),
-  audio_ogg_path: z.string().nullable().default(null),
-  audio_mp3_path: z.string().nullable().default(null),
+  // Rutas en Storage (bucket 'tarjetas' / 'audios'). Las rellenan los scripts, no el CSV.
+  header_image_path: z.string().nullable().default(null), // lessons/<id>/header.jpg|webp
+  // lessons/<id>/paso1..3.webp por posición; null o ausente = ícono de respaldo para ese paso
+  step_image_paths: z.array(z.string().nullable()).max(3).default([]),
+  card_image_path: z.string().nullable().default(null),   // PNG 1080×1350 exportado (ver huellaTarjeta)
+  audio_ogg_path: z.string().nullable().default(null),    // WhatsApp/Telegram (Opus mono 32k)
+  audio_mp3_path: z.string().nullable().default(null),    // web (64k)
 })
-  .refine((t) => t.status !== "verificada" || !!t.verified_by, "Una tarjeta verificada necesita quién la verificó")
+  .refine((t) => t.status === "borrador" || !!t.verified_by, "verificada/revisada exige verified_by")
   .refine((t) => t.status !== "revisada" || !!t.reviewed_by, "Una tarjeta revisada necesita revisor");
 export type Tarjeta = z.infer<typeof Tarjeta>;
+
+/** Etiqueta obligatoria de toda tarjeta en borrador que se muestre (solo con DEMO_PERMITIR_BORRADOR=1). */
+export const ETIQUETA_BORRADOR = "BORRADOR · sin verificar";
 
 /** Etiqueta pública del estado de la tarjeta. */
 export function etiquetaEstadoTarjeta(t: Pick<Tarjeta, "status" | "reviewed_by">): string {
   if (t.status === "revisada") return `Revisada por ${t.reviewed_by}`;
   if (t.status === "verificada") return "Verificada contra fuente";
-  return "Borrador (no se envía)";
+  return ETIQUETA_BORRADOR;
 }
 
 /** Menú fijo, sin IA. */
@@ -223,14 +239,15 @@ export function construirMensajeAlerta(p: {
     ? rangoFechas(aviso.periodo_inicio, aviso.periodo_fin)
     : "fecha no indicada";
   const [p1, p2, p3] = tarjeta.steps;
-  const estado = etiquetaEstadoTarjeta(tarjeta).toLowerCase();
+  // Sin toLowerCase: la etiqueta de borrador debe salir tal cual ("BORRADOR · sin verificar").
+  const estado = etiquetaEstadoTarjeta(tarjeta);
   return [
     `${titulo}${boletinEsEjemplo ? " (EJEMPLO con boletín histórico)" : ""} · Senamhi, boletín agrometeorológico decenal del Altiplano, ${periodo}.`,
     aviso.zona ? `Zona: ${aviso.zona}.` : null,
     `El boletín dice: "${aviso.cita_evento}"`,
     aviso.cita_riesgo ? `Riesgo según el Senamhi: "${aviso.cita_riesgo}"` : null,
     `Qué hacer: 1) ${p1} 2) ${p2} 3) ${p3}`,
-    `(Tarjeta ${estado}: ${tarjeta.source_doc}, pág. ${tarjeta.source_page})`,
+    `(Tarjeta: ${estado}. ${tarjeta.source_doc}, pág. ${tarjeta.source_page})`,
     `Mensaje con voz sintética. Si hay daños, responde con un audio.`,
   ].filter(Boolean).join("\n");
 }
@@ -246,13 +263,14 @@ export const EntradaBot = z.object({
   tipo: z.enum(["texto", "audio", "boton"]),
   texto: z.string().max(1000).optional(),
   audio: z.object({ base64: z.string(), mime: z.string() }).optional(),
-  botonId: z.string().max(100).optional(),
+  botonId: z.string().max(64).optional(),
 });
 export type EntradaBot = z.infer<typeof EntradaBot>;
 
 // Límites de WhatsApp (los más estrictos): 3 botones de 20 caracteres; listas de 10 filas de 24 caracteres.
-const Boton = z.object({ id: z.string().max(100), titulo: z.string().min(1).max(20) });
-const FilaLista = z.object({ id: z.string().max(100), titulo: z.string().min(1).max(24), descripcion: z.string().max(72).optional() });
+// Telegram limita el id del botón (callback_data) a 64 bytes: ids ASCII de 64 como máximo y nunca dos UUID.
+const Boton = z.object({ id: z.string().max(64), titulo: z.string().min(1).max(20) });
+const FilaLista = z.object({ id: z.string().max(64), titulo: z.string().min(1).max(24), descripcion: z.string().max(72).optional() });
 
 export const SalidaBot = z.discriminatedUnion("tipo", [
   z.object({ tipo: z.literal("texto"), texto: z.string().min(1).max(4096) }),
@@ -280,9 +298,11 @@ export const BotWebRequest = z.object({
   tipo: z.enum(["texto", "audio", "boton"]),
   texto: z.string().max(1000).optional(),
   audio: z.object({ base64: z.string().max(3_500_000), mime: z.string() }).optional(), // ~60 s de WAV 16 kHz en base64
-  botonId: z.string().max(100).optional(),
+  botonId: z.string().max(64).optional(),
 });
 export const BotWebResponse = z.object({ respuestas: z.array(SalidaBot) });
+export type BotWebRequest = z.infer<typeof BotWebRequest>;
+export type BotWebResponse = z.infer<typeof BotWebResponse>;
 
 /** Textos fijos del bot (un solo lugar para no improvisar mensajes). */
 export const MENSAJES = {
@@ -293,7 +313,9 @@ export const MENSAJES = {
   baja: "Listo, ya no recibirás avisos. Si quieres volver, escribe ALERTA.",
   soloAudioTexto: "Por ahora solo recibo audios o texto.",
   ocupado: "Sistema ocupado, escribe 0 para usar el menú.",
+  muchosMensajes: "Recibí muchos mensajes seguidos. Espera unos minutos, por favor.",
+  error: "Ocurrió un error. Escribe 0 para ver el menú.",
 } as const;
 
-/** Límites del bot. El tope diario sale de la variable PROBAR_TOPE_DIARIO. */
+/** Límites del bot. mensajesPorVentana cuenta solo mensajes libres (los que usan IA); los botones no cuentan. El tope diario sale de PROBAR_TOPE_DIARIO. */
 export const LIMITES = { mensajesPorVentana: 10, ventanaMin: 10, audioMaxSeg: 60, geminiTimeoutMs: 15_000 } as const;

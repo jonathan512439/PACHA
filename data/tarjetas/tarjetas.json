@@ -1,0 +1,210 @@
+[
+  {
+    "id": "helada-antes_familia-01",
+    "hazard": "helada",
+    "phase": "antes_familia",
+    "title": "Prepara tus cultivos antes de la helada",
+    "steps": [
+      "Usa coberturas en las parcelas y almácigos más delicados.",
+      "Haz aporque temprano en las plántulas de papa y quinua.",
+      "Siembra aprovechando la humedad que dejó la lluvia y riega poco, solo si hay agua."
+    ],
+    "step_sources": [
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 6"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 6"
+      }
+    ],
+    "factor_tags": [
+      "cultivos_sin_proteccion_helada"
+    ],
+    "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+    "source_page": "p. 7; p. 6; p. 6",
+    "author": "Jhonatan con asistencia de IA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "helada-antes_animales-01",
+    "hazard": "helada",
+    "phase": "antes_animales",
+    "title": "Protege a tus animales antes de la helada",
+    "steps": [
+      "Techa tus corrales de llamas y alpacas para protegerlos del frío.",
+      "Guarda el heno bajo cobertizo, protegido de la lluvia.",
+      "Vigila a las hembras gestantes y ten reservas de forraje seco."
+    ],
+    "step_sources": [
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 37"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 43"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 6"
+      }
+    ],
+    "factor_tags": [
+      "animales_sin_abrigo",
+      "sin_reserva_forraje"
+    ],
+    "source_doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris | Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+    "source_page": "p. 37; p. 43; p. 6",
+    "author": "Jhonatan con asistencia de IA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "helada-durante-01",
+    "hazard": "helada",
+    "phase": "durante",
+    "title": "Cuida a tus animales durante la helada",
+    "steps": [
+      "Resguarda a tus animales de noche en corrales con parapetos contra el viento.",
+      "Prioriza los bofedales para las hembras gestantes.",
+      "Dales heno como alimento adicional."
+    ],
+    "step_sources": [
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 8"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 8"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 8"
+      }
+    ],
+    "factor_tags": [
+      "animales_sin_abrigo",
+      "perdida_por_helada"
+    ],
+    "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+    "source_page": "p. 8; p. 8; p. 8",
+    "author": "Jhonatan con asistencia de IA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "sequia-antes_familia-01",
+    "hazard": "sequia",
+    "phase": "antes_familia",
+    "title": "Guarda agua antes de la sequía",
+    "steps": [
+      "Capta y guarda el agua de lluvia en tanques, reservorios o qotañas.",
+      "Cuida las vertientes con acuerdos de la comunidad.",
+      "Si riegas, usa goteo o aspersión: gastas menos agua."
+    ],
+    "step_sources": [
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+        "page": "FAO p. 50–51; CIPCA p. 6"
+      },
+      {
+        "doc": "CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+        "page": "p. 6 y 9"
+      },
+      {
+        "doc": "CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+        "page": "p. 7"
+      }
+    ],
+    "factor_tags": [
+      "sin_agua_consumo",
+      "pozo_o_vertiente_seca"
+    ],
+    "source_doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024) | CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+    "source_page": "FAO p. 50–51; CIPCA p. 6; p. 6 y 9; p. 7",
+    "author": "Jhonatan con asistencia de IA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "sequia-antes_animales-01",
+    "hazard": "sequia",
+    "phase": "antes_animales",
+    "title": "Prepara el forraje antes de la sequía",
+    "steps": [
+      "Guarda el heno bajo techo para tener forraje en la época seca.",
+      "Rota el pastoreo en los bofedales y evita el sobrepastoreo.",
+      "Planifica el empadre para que las crías nazcan cuando hay forraje."
+    ],
+    "step_sources": [
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 43"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026 / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+        "page": "Senamhi p. 6; CIPCA p. 5"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 34"
+      }
+    ],
+    "factor_tags": [
+      "sin_reserva_forraje"
+    ],
+    "source_doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris | Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026 / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+    "source_page": "p. 43; Senamhi p. 6; CIPCA p. 5; p. 34",
+    "author": "Jhonatan con asistencia de IA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "sequia-durante-01",
+    "hazard": "sequia",
+    "phase": "durante",
+    "title": "Qué hacer durante la sequía",
+    "steps": [
+      "Conserva la humedad del suelo con labranza mínima.",
+      "Rota el pastoreo en los bofedales y suplementa con heno.",
+      "Da agua limpia y forraje seco a los animales."
+    ],
+    "step_sources": [
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026 / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024)",
+        "page": "Senamhi p. 7 (Altiplano Sur); CIPCA p. 8"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 6 y 8"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7 (Altiplano Sur)"
+      }
+    ],
+    "factor_tags": [
+      "sin_agua_consumo",
+      "sin_reserva_forraje"
+    ],
+    "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026 / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024) | Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+    "source_page": "Senamhi p. 7 (Altiplano Sur); CIPCA p. 8; p. 6 y 8; p. 7 (Altiplano Sur)",
+    "author": "Jhonatan con asistencia de IA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  }
+]

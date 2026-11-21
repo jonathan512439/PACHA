@@ -36,3 +36,14 @@ next-env.d.ts
 
 # Salidas de pruebas desechables (los fixtures oficiales están en /fixtures)
 scratch/fixtures/
+
+# Tarjetas: imágenes y audios van a Supabase Storage, no a git (ver decisiones.md)
+assets/lessons/
+assets/audio/*
+!assets/audio/.gitkeep
+exports/
+# Paquete original de tarjetas (ya copiado a data/, assets/, docs/ y fusionado en contratos/)
+paquete_tarjetas/
+# Citas literales de verificación: solo en Drive, nunca en el repo público
+verificacion_paso_a_paso.csv
+**/verificacion_paso_a_paso.csv

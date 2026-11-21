@@ -41,6 +41,13 @@
 ## Contratos
 - **v0.2 aplicados (sáb 21/11, ~13:05)** en `/contratos`: `schema.sql`, `storage.sql`, `tipos.ts`, `prioridad.ts` y `CONTRATOS.md` (la lista de cambios está en su sección "Cambios v0.2"). La v0.1 queda en `contratos/v0.1/`. Los tipos se compilaron con `tsc --strict` y se probaron con el aviso real del 14–23 nov. Guía de instalación: `docs/setup-supabase.md`.
 
+- **v0.3 de tarjetas (sáb 21/11, tarde).** Fuentes por paso y estado `verificada`:
+  - **`step_sources`:** cada tarjeta guarda una fuente `{doc, page}` **por paso**, en el mismo orden que `steps`, porque en varias tarjetas los tres pasos salen de documentos o páginas distintos y un único `source_page` no permitía verificar paso por paso. El pie de la tarjeta agrupa esas fuentes por documento ("p. 7 (paso 1), p. 6 (pasos 2 y 3)"). `source_doc`/`source_page` quedan solo como resumen.
+  - **`verificada` y `author`:** se vuelve a agregar `author`. Esto **revierte** la decisión de las 12:50 ("no hay campo `author`"). Con él, la regla `verified_by <> author` está en Zod y en SQL (`lessons_verificada_check`): una tarjeta solo pasa a `verificada` o `revisada` si **otra** persona comprobó cada paso en la página citada. La etiqueta pública sigue siendo "Verificada contra fuente", y la autoría que se muestra sigue siendo la de la fuente.
+  - **Publicación:** el bot y la web solo muestran `verificada`/`revisada`. `DEMO_PERMITIR_BORRADOR=1` (apagado por defecto) permite mostrar `borrador`, siempre con la etiqueta "BORRADOR · sin verificar" (web, PNG y mensaje).
+  - **Archivos:** migración en `contratos/migraciones/`; cambios en `contratos/CONTRATOS.md` ("Cambios v0.3").
+- **Imágenes y audios de tarjetas fuera de git (sáb 21/11):** las 6 cabeceras (~1 MB en total), los 18 pasos, los PNG y los audios van solo a Supabase Storage (buckets `tarjetas` y `audios`). `assets/lessons/`, `assets/audio/` y `exports/` están en `.gitignore`. Motivos: la licencia de las imágenes de la cuenta de prueba sigue sin revisar (`docs/plan-tarjetas.md` §10), y el repo es público. Si falta una imagen, la tarjeta no queda con un hueco: un paso sin imagen usa un ícono `lucide-react`, una tarjeta sin cabecera usa la de `helada-antes_animales-01` y, si tampoco está, una franja neutra.
+
 ## Supabase
 - **Proyecto `PACHA` (sa-east-1, Postgres 17)** con el esquema v0.2 aplicado. Revisado por MCP el sáb 21/11:
   - 10 tablas, columnas y restricciones iguales a `contratos/schema.sql`;
@@ -53,7 +60,13 @@
 
 ## Pruebas de las 13:00
 - **PDF (sáb 21/11, `gemini-3.5-flash-lite`):** el primer intento dio `riesgo_helada = "alto"`, confundiendo la fila del viento, aunque la cita decía MEDIO, y la mínima salió 0 °C (la de la macrorregión). Se ajustó una vez: el código lee el riesgo de la cita (contrato v0.2.1) y se mejoraron el prompt y el orden de los campos. **Segundo intento: 9/9 chequeos OK** (medio, 1 °C, citas literales, 3,8 s). Fixture en `scratch/fixtures/aviso-altiplano-2026-11-2.json`.
-- **Audio:** pendiente. Falta una nota de voz de WhatsApp o Telegram (C).
+- **Audio de entrada (sáb 21/11):** Gemini (`gemini-3.5-flash-lite`) **acepta y transcribe sin conversión** OGG/Opus mono 48 kHz (formato de las notas de voz de WhatsApp y Telegram), WebM/Opus (lo que graba Chrome) y MP3. Probado con audio sintético codificado igual que una nota de voz; falta confirmarlo con **una** nota real de WhatsApp. **No hace falta ffmpeg en el servidor ni Groq.**
+- **Voz de salida (sáb 21/11):**
+  - Gemini genera voz en español. Los modelos de voz **solo existen en la API `v1beta`**: `gemini-3.8-flash-tts` (estable, el elegido), `gemini-3.8-flash-lite-tts` y `gemini-3.1-flash-tts-preview`.
+  - Se usa la API `interactions` del SDK: con `generateContent` y `speechConfig` la petición fue rechazada.
+  - Entrega **MP3 de 44,1 kHz mono**. **No entrega OGG/Opus** (error 400), así que el OGG para WhatsApp y Telegram se convierte con ffmpeg en la laptop.
+  - **La voz lee en voz alta todo el texto, instrucciones incluidas.** Con un prefijo de estilo, el audio duró 15 s; con solo el texto, 7,3 s y la transcripción fue exacta. Hay que mandar solo el texto exacto.
+  - No hace falta ElevenLabs.
 
 ## Integración de Gemini (sáb 21/11)
 - **`lib/gemini.ts`** (solo servidor):
@@ -71,10 +84,37 @@
   - con Gemini caído: fixtures correctos y nunca el fixture de otro boletín.
 - **Next 16:** no permite dos `next dev` en la misma carpeta.
 
+## Tarjetas v0.3: regla de autoría corregida (sáb 21/11)
+- **`author` = autor del texto o guía de origen** (por ejemplo "FAO Bolivia"). Es la única autoría que se menciona. **Se quita la regla `verified_by <> author`**: `verificada`/`revisada` solo exige `verified_by`. Se corrigió en `tipos.ts`, `schema.sql`, la migración v0.3, `tests/tarjetas.test.tsx`, `docs/plan-tarjetas.md` y `CONTRATOS.md`.
+- **Pendiente para el agente de tarjetas:** en `data/tarjetas/tarjetas.csv` la columna `author` dice "Jhonatan con asistencia de IA" y debe pasar a decir el autor de la guía. No se tocó `paquete_tarjetas/`, el paquete original.
+
+## Bot y Telegram (sáb 21/11)
+- **`procesarMensaje`** (`lib/bot/`) y **`POST /api/bot/web`** (cookie anónima `httpOnly`): conversación de 12 pasos probada contra la base real (registro, menú, reporte con prioridad 55,4, vacuna, tarjeta por pregunta, otra comunidad, `BAJA`). El límite por persona cuenta **solo los mensajes que usan IA**. Las tarjetas se arman con `lib/tarjetas.salidaTarjeta` (v0.3, del agente de tarjetas).
+- **Telegram:** `POST /api/webhooks/telegram` + `lib/canales/telegram.ts`.
+  - Verifica `secret_token` en tiempo constante, responde 200 y procesa con `after()`.
+  - Deduplica por `update_id`. Solo chats privados.
+  - Notas de voz: descarga con `getFile`, rechaza más de 60 s y las pasa como OGG a Gemini.
+  - Botones como teclado *inline*. Tarjetas en HTML, con foto y nota de voz si existen.
+  - Probado con *updates* simulados: 7/7 OK. Falta probar con el bot real, que necesita el token.
+- **Scripts:** `scratch/telegram-webhook.mjs` (set/info/delete) y `scratch/telegram-local.mjs`, para desarrollo local sin URL pública, con `getUpdates`.
+
+## WhatsApp (sáb 21/11)
+- **`GET|POST /api/webhooks/whatsapp`** + `lib/canales/whatsapp.ts`:
+  - Verificación con `hub.verify_token` y firma `X-Hub-Signature-256` (HMAC del cuerpo crudo, comparación en tiempo constante).
+  - Responde 200 y procesa con `after()`. Solo mensajes del `WHATSAPP_PHONE_NUMBER_ID` propio; los estados de entrega se ignoran.
+  - Deduplica por `wamid`. Marca como leído y muestra "escribiendo…".
+  - Audios: descarga del media (máx. ~1 MB) y los pasa como OGG a Gemini.
+  - Botones de respuesta, listas y tarjetas con formato de WhatsApp más su audio.
+  - Las respuestas viajan dentro de la ventana de 24 h, así que no necesitan plantilla.
+- **Graph API:** versión por variable `WHATSAPP_GRAPH_VERSION` (por defecto `v23.0`; NO VERIFICADO que siga vigente).
+- **Pruebas:** `tests/whatsapp.test.ts`, 8 casos (verificación, firma, payload y traducción de entrada y salida); en total 28/28. También se comprobó en el servidor real que sin firma o sin token responde 401/403. El flujo completo con número real queda pendiente de la app de Meta.
+- **Audio saliente:** va sin el indicador de nota de voz (llega como audio con ícono de música). Falta confirmar el nombre del campo para mostrarlo como nota de voz.
+
 ## Pendientes
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
 - **PDF faltantes para verificar:** FIDA PRO-CAMÉLIDOS (6 tarjetas) y Practical Action (2 tarjetas).
-- **Tarjeta T-07, paso 2** ("Reduce el tamaño del hato…"): no aparece en las páginas citadas de al930s. Hay que corregirlo o quitarlo.
+- **Tarjeta T-07, paso 2** ("Reduce el tamaño del hato…"): no aparece en las páginas citadas de al930s. Hay que corregirlo o quitarlo. *(Las 6 tarjetas del MVP no lo incluyen; una prueba de vitest falla si la frase aparece.)*
+- **Verificación de las 6 tarjetas:** las 6 llegaron en `borrador` y con autor "Jhonatan con asistencia de IA". Falta que otra persona las coteje y firme `verified_by`.
 - **Numeración de páginas:** usar la del visor de PDF; comprobar cuál usa el Excel.
 - **Límite real de `gemini-3.5-flash-lite`** (A, 13:00) y valor de `PROBAR_TOPE_DIARIO`.
 - **Voz definitiva:** Gemini TTS (`gemini-3.1-flash-tts-preview`, recomendado).

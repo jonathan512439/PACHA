@@ -1,4 +1,4 @@
--- PACHA · esquema v0.2 (Postgres / Supabase) · sáb 21 nov 2026
+-- PACHA · esquema v0.3 (Postgres / Supabase) · sáb 21 nov 2026 (v0.3 = tarjetas; migración en contratos/migraciones/)
 -- Cambios respecto a v0.1: ver contratos/CONTRATOS.md (sección "Cambios v0.2").
 --
 -- Reglas:
@@ -72,19 +72,23 @@ create table lessons (
   phase          text not null check (phase in ('antes_familia','antes_animales','durante','despues')),
   title          text not null,
   steps          jsonb not null check (jsonb_typeof(steps) = 'array' and jsonb_array_length(steps) = 3),
+  -- v0.3: una fuente {doc, page} por paso, en el mismo orden que steps
+  step_sources   jsonb not null check (jsonb_typeof(step_sources) = 'array' and jsonb_array_length(step_sources) = 3),
   factor_tags    text[] not null default '{}',   -- valores de FACTORES (tipos.ts)
   source_doc     text not null,                  -- institución y documento: la autoría que se muestra
   source_page    text not null,                  -- número del VISOR de PDF (para source_url#page=N)
   source_url     text,
+  author         text not null,                  -- autor del texto o guía de origen (la autoría que se menciona)
   status         text not null default 'borrador' check (status in ('borrador','verificada','revisada')),
   verified_by    text,                           -- persona del equipo que comprobó cada paso en la página citada
   reviewed_by    text,                           -- técnico que la revisó
-  image_path     text,                           -- ilustración decorativa (se marca si es generada con IA)
-  image_is_ai    boolean not null default false,
-  audio_ogg_path text,                           -- OGG/Opus mono (WhatsApp/Telegram)
-  audio_mp3_path text,                           -- MP3 (web)
+  header_image_path text,                        -- bucket 'tarjetas': lessons/<id>/header.jpg|webp
+  step_image_paths  text[] not null default '{}' check (cardinality(step_image_paths) <= 3), -- lessons/<id>/paso1..3.webp
+  card_image_path   text,                        -- PNG 1080×1350 exportado con Playwright (bucket 'tarjetas')
+  audio_ogg_path text,                           -- OGG/Opus mono 32k (WhatsApp/Telegram), bucket 'audios'
+  audio_mp3_path text,                           -- MP3 64k (web), bucket 'audios'
   created_at     timestamptz not null default now(),
-  check (status <> 'verificada' or verified_by is not null),
+  constraint lessons_verificada_check check (status = 'borrador' or verified_by is not null),
   check (status <> 'revisada'   or reviewed_by is not null)
 );
 
