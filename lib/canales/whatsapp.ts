@@ -10,7 +10,10 @@ import { procesarMensaje } from "@/lib/bot/procesar";
  * Sin WHATSAPP_TOKEN en desarrollo, las llamadas se escriben en la consola en vez de enviarse.
  */
 
-const VERSION = () => process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
+// Las variables se leen sin espacios ni saltos de línea: al pegarlas en Vercel es fácil que se cuele uno
+// y una comparación exacta haría que el bot ignore todos los mensajes (pasó el sáb 21/11).
+const env = (k: string) => process.env[k]?.trim() || undefined;
+const VERSION = () => env("WHATSAPP_GRAPH_VERSION") || "v23.0";
 const GRAPH = () => `https://graph.facebook.com/${VERSION()}`;
 /** ~1 MB de nota de voz Opus ≈ varios minutos; por encima se pide un audio más corto (el webhook no trae duración). */
 const AUDIO_MAX_BYTES = 1_000_000;
@@ -32,14 +35,14 @@ export type WebhookWA = {
 // ---- Seguridad ---------------------------------------------------------------
 /** Verificación del webhook (GET): Meta envía hub.verify_token y espera hub.challenge de vuelta. */
 export function verificarSuscripcion(params: URLSearchParams): string | null {
-  const esperado = process.env.WHATSAPP_VERIFY_TOKEN;
+  const esperado = env("WHATSAPP_VERIFY_TOKEN");
   return esperado && params.get("hub.mode") === "subscribe" && params.get("hub.verify_token") === esperado
     ? params.get("hub.challenge") : null;
 }
 
 /** X-Hub-Signature-256 = "sha256=" + HMAC-SHA256(app secret, cuerpo CRUDO). Comparación en tiempo constante. */
 export function firmaValida(cuerpoCrudo: string, cabecera: string | null): boolean {
-  const secreto = process.env.WHATSAPP_APP_SECRET;
+  const secreto = env("WHATSAPP_APP_SECRET");
   if (!secreto || !cabecera?.startsWith("sha256=")) return false;
   const esperado = Buffer.from(createHmac("sha256", secreto).update(cuerpoCrudo, "utf8").digest("hex"));
   const recibido = Buffer.from(cabecera.slice(7));
@@ -48,7 +51,7 @@ export function firmaValida(cuerpoCrudo: string, cabecera: string | null): boole
 
 // ---- Cliente de Graph API -------------------------------------------------
 async function graph(ruta: string, cuerpo?: Record<string, unknown>): Promise<unknown> {
-  const token = process.env.WHATSAPP_TOKEN;
+  const token = env("WHATSAPP_TOKEN");
   if (!token) {
     if (process.env.NODE_ENV === "production") throw new Error("Falta WHATSAPP_TOKEN");
     console.log(`[whatsapp:sin-token] ${ruta} ${cuerpo ? JSON.stringify(cuerpo) : ""}`);
@@ -68,7 +71,7 @@ async function graph(ruta: string, cuerpo?: Record<string, unknown>): Promise<un
 
 /** Descarga un audio: GET /{media-id} da una URL temporal que también exige el token. */
 async function descargarMedia(mediaId: string): Promise<{ bytes: Buffer; mime: string }> {
-  const token = process.env.WHATSAPP_TOKEN;
+  const token = env("WHATSAPP_TOKEN");
   if (!token) throw new Error("Falta WHATSAPP_TOKEN para descargar audios");
   const info = (await graph(mediaId)) as { url?: string; mime_type?: string; file_size?: number };
   if (!info?.url) throw new Error("WhatsApp no devolvió la URL del audio");
@@ -82,13 +85,13 @@ async function descargarMedia(mediaId: string): Promise<{ bytes: Buffer; mime: s
 class AudioLargo extends Error {}
 
 const enviarA = (para: string, cuerpo: Record<string, unknown>) =>
-  graph(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, { messaging_product: "whatsapp", recipient_type: "individual", to: para, ...cuerpo });
+  graph(`${env("WHATSAPP_PHONE_NUMBER_ID")}/messages`, { messaging_product: "whatsapp", recipient_type: "individual", to: para, ...cuerpo });
 
 // ---- Webhook -> EntradaBot ---------------------------------------------------
 /** Extrae los mensajes del payload, solo del número configurado (ignora estados de entrega y otros números). */
 export function mensajesDelWebhook(w: WebhookWA): MensajeWA[] {
   if (w.object !== "whatsapp_business_account") return [];
-  const propio = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const propio = env("WHATSAPP_PHONE_NUMBER_ID");
   return (w.entry ?? []).flatMap((e) => e.changes ?? [])
     .filter((c) => c.field === "messages" && (!propio || c.value?.metadata?.phone_number_id === propio))
     .flatMap((c) => c.value?.messages ?? []);
@@ -175,7 +178,7 @@ export async function enviarSalidasWhatsApp(para: string, salidas: SalidaBot[]):
 export async function manejarMensaje(m: MensajeWA): Promise<void> {
   try {
     // Marca como leído y muestra "escribiendo…" mientras se procesa (si falla, no importa).
-    await graph(`${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+    await graph(`${env("WHATSAPP_PHONE_NUMBER_ID")}/messages`, {
       messaging_product: "whatsapp", status: "read", message_id: m.id, typing_indicator: { type: "text" },
     }).catch(() => {});
     const t = await traducir(m);
