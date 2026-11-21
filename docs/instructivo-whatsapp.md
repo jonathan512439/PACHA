@@ -113,6 +113,7 @@ El token del paso 2 **vence a las 24 h**: si vence durante el demo, el bot deja 
 | "Verificar y guardar" da error con otra URL | Usaste una URL `pacha-xxxx-pacha11.vercel.app` | Usa **`https://pacha-lilac.vercel.app/...`** |
 | Escribo "hola" y no responde nada | No te suscribiste a `messages` (paso 6.6) | Suscríbete a **messages** |
 | Sigue sin responder | El *App secret* está mal: Meta envía el mensaje pero el servidor lo rechaza | Copia de nuevo el App secret (paso 3) en Vercel y haz **Redeploy** |
+| Meta entrega los mensajes pero el bot no responde a nadie | En `WHATSAPP_PHONE_NUMBER_ID` se puso el **ID de la cuenta de WhatsApp Business** en vez del **ID del número** (en la misma pantalla hay dos números largos parecidos; pasó el sáb 21/11) | Usa el *Identificador del número de teléfono* que aparece junto a "De". Edita la variable en **Production** (sin comillas) y haz **Redeploy**. Para comprobarlo sin mandar mensajes reales: `node --env-file=../.env verificar-whatsapp-prod.mjs` dentro de `scratch/` |
 | Responde a un teléfono y a otro no | Ese número no está en la lista de destinatarios (error **131030**) | Agrégalo en *To* (paso 2.3) y confirma el código |
 | Funcionaba y dejó de responder | El token temporal venció (error **190**) | Haz el paso 7 |
 | El audio del bot llega con ícono de música | Es normal en esta versión | Se reproduce igual |
