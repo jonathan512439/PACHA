@@ -11,15 +11,18 @@ import {
   type AvisoGemini,
 } from "@/contratos/tipos";
 import { TarjetaVisual } from "@/components/tarjeta/TarjetaVisual";
-import { problemasDeAutor, problemasDeContenido } from "@/lib/tarjeta-contenido";
+import { problemasDeAutor, problemasDeContenido, problemasDeVerificacion } from "@/lib/tarjeta-contenido";
 import {
   ID_ENCABEZADO_RESPALDO,
+  audioVigente,
   baseStorage,
+  huellaContenido,
   permitirBorrador,
   pngVigente,
   puedePublicarse,
   resolverImagenes,
   resumirFuentes,
+  rutaAudioTarjeta,
   rutaPngTarjeta,
   tarjetaASalidaBot,
 } from "@/lib/tarjeta-publica";
@@ -206,5 +209,59 @@ describe("mapeo del menú", () => {
 
   it("resuelve a los 6 ids de las tarjetas que carga el seed", () => {
     expect(idsMenu.sort()).toEqual(tarjetas.map((t) => t.id).sort());
+  });
+});
+
+describe("corregir después de verificar", () => {
+  const base = porId("sequia-durante-01");
+  const verificada = Tarjeta.parse({ ...base, status: "verificada", verified_by: "Ana" });
+  const huella = huellaContenido(verificada);
+  const corregida = { ...verificada, steps: [verificada.steps[0], "Rota el pastoreo en los bofedales.", verificada.steps[2]] as [string, string, string] };
+
+  it("la huella de contenido cambia con el texto y NO con el estado", () => {
+    expect(huellaContenido({ ...verificada, status: "revisada" } as never)).toBe(huella);
+    expect(huellaContenido(corregida)).not.toBe(huella);
+    expect(huellaContenido({ ...verificada, step_sources: [verificada.step_sources[0], verificada.step_sources[1], { doc: "Otro doc", page: "p. 1" }] })).not.toBe(huella);
+  });
+
+  it("verificada sin verified_hash no se carga", () => {
+    expect(problemasDeVerificacion(verificada, undefined)).not.toEqual([]);
+  });
+
+  it("verificada con la huella de su texto se carga", () => {
+    expect(problemasDeVerificacion(verificada, huella)).toEqual([]);
+  });
+
+  it("si el texto cambia después de verificar, el seed la rechaza", () => {
+    const p = problemasDeVerificacion(corregida, huella);
+    expect(p).toHaveLength(1);
+    expect(p[0]).toContain("cambiaron DESPUÉS de verificarla");
+  });
+
+  it("en borrador no se exige huella", () => {
+    expect(problemasDeVerificacion({ ...corregida, status: "borrador" }, undefined)).toEqual([]);
+  });
+
+  it("toda tarjeta verificada o revisada del JSON tiene su verificación vigente", () => {
+    for (const fila of crudo as Record<string, unknown>[]) {
+      const t = Tarjeta.parse(fila);
+      expect(problemasDeVerificacion(t, fila.verified_hash), t.id).toEqual([]);
+    }
+  });
+
+  it("el bot solo adjunta el audio grabado con el texto actual", () => {
+    const opciones = { permitirBorrador: false, supabaseUrl: SUPABASE_URL };
+    const conAudio = { ...verificada, audio_ogg_path: rutaAudioTarjeta(verificada, "ogg"), audio_mp3_path: rutaAudioTarjeta(verificada, "mp3") };
+    expect(audioVigente(conAudio, "ogg")).toBe(true);
+    const s = tarjetaASalidaBot(conAudio, opciones)!;
+    expect(s.audioOggUrl).toContain(`sequia-durante-01-${huella}.ogg`);
+    expect(s.audioMp3Url).toBeDefined();
+    // Se corrige un paso: el audio viejo dice otra cosa y deja de adjuntarse (la tarjeta se envía igual).
+    const tras = tarjetaASalidaBot({ ...conAudio, steps: corregida.steps }, opciones)!;
+    expect(tras.audioOggUrl).toBeUndefined();
+    expect(tras.audioMp3Url).toBeUndefined();
+    expect(tras.pasos).toEqual(corregida.steps);
+    // Un audio subido con el nombre viejo (sin huella) tampoco se adjunta.
+    expect(tarjetaASalidaBot({ ...verificada, audio_ogg_path: "lessons/sequia-durante-01.ogg" }, opciones)!.audioOggUrl).toBeUndefined();
   });
 });

@@ -126,16 +126,43 @@ export function resolverImagenes(
  * El bot solo adjunta el PNG si su huella coincide con la tarjeta actual, así un PNG
  * exportado como "verificada" nunca sale para una tarjeta que volvió a borrador (ni al revés).
  * ------------------------------------------------------------------------- */
-export function huellaTarjeta(
-  t: Pick<Tarjeta, "title" | "steps" | "step_sources" | "status" | "reviewed_by">,
-): string {
-  const texto = JSON.stringify([t.title, t.steps, t.step_sources, t.status, t.reviewed_by]);
-  let h = 0x811c9dc5; // FNV-1a 32 bits
+function fnv1a(texto: string): string {
+  let h = 0x811c9dc5; // FNV-1a 32 bits (determinista, sin dependencias: sirve en Node y en el navegador)
   for (let i = 0; i < texto.length; i++) {
     h ^= texto.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
   return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+/** Huella de lo que se ve Y del estado (para el PNG, que dibuja la etiqueta de estado). */
+export function huellaTarjeta(
+  t: Pick<Tarjeta, "title" | "steps" | "step_sources" | "status" | "reviewed_by">,
+): string {
+  return fnv1a(JSON.stringify([t.title, t.steps, t.step_sources, t.status, t.reviewed_by]));
+}
+
+/**
+ * Huella SOLO del contenido verificable: título, pasos y fuentes con página (sin estado).
+ * - Se guarda como `verified_hash` en tarjetas.json al verificar: si después cambia el texto,
+ *   el seed rechaza la tarjeta hasta que se verifique de nuevo.
+ * - Va en el nombre del audio: el bot solo adjunta el audio que dice el texto actual.
+ */
+export function huellaContenido(t: Pick<Tarjeta, "title" | "steps" | "step_sources">): string {
+  return fnv1a(JSON.stringify([t.title, t.steps, t.step_sources]));
+}
+
+/** Ruta del audio en el bucket 'audios': lessons/<id>-<huellaContenido>.ogg|mp3 */
+export const rutaAudioTarjeta = (t: Parameters<typeof huellaContenido>[0] & { id: string }, ext: "ogg" | "mp3") =>
+  `lessons/${t.id}-${huellaContenido(t)}.${ext}`;
+
+/** El audio guardado es válido solo si se grabó con el texto actual. */
+export function audioVigente(
+  t: Parameters<typeof rutaAudioTarjeta>[0] & Pick<Tarjeta, "audio_ogg_path" | "audio_mp3_path">,
+  ext: "ogg" | "mp3",
+): boolean {
+  const ruta = ext === "ogg" ? t.audio_ogg_path : t.audio_mp3_path;
+  return !!ruta && ruta === rutaAudioTarjeta(t, ext);
 }
 
 export const rutaPngTarjeta = (t: Parameters<typeof huellaTarjeta>[0] & { id: string }) =>
@@ -159,8 +186,9 @@ export function tarjetaASalidaBot(
   const base = baseStorage(opciones.supabaseUrl);
   const borrador = esBorrador(t);
   const imagen = pngVigente(t) ? urlPublica(base, BUCKET_IMAGENES, t.card_image_path) : null;
-  const ogg = urlPublica(base, BUCKET_AUDIOS, t.audio_ogg_path);
-  const mp3 = urlPublica(base, BUCKET_AUDIOS, t.audio_mp3_path);
+  // Un audio grabado con un texto anterior NO se adjunta (diría otra cosa que la tarjeta).
+  const ogg = audioVigente(t, "ogg") ? urlPublica(base, BUCKET_AUDIOS, t.audio_ogg_path) : null;
+  const mp3 = audioVigente(t, "mp3") ? urlPublica(base, BUCKET_AUDIOS, t.audio_mp3_path) : null;
   return {
     tipo: "tarjeta",
     id: t.id,

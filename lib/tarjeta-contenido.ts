@@ -1,6 +1,7 @@
 // Reglas de contenido de las tarjetas (puras). Las usan el seed y las pruebas.
 // No reescriben nada: solo detectan texto que NO puede salir (dosis, medicamentos, frases vetadas).
 import { contarPalabras, type Tarjeta } from "@/contratos/tipos";
+import { huellaContenido } from "@/lib/tarjeta-publica";
 
 /** Patrones prohibidos en cualquier texto visible de la tarjeta. */
 export const PROHIBIDOS: { motivo: string; patron: RegExp }[] = [
@@ -50,4 +51,27 @@ export function problemasDeContenido(t: Pick<Tarjeta, "id" | "title" | "steps" |
     if (!f || !f.doc?.trim() || !f.page?.trim()) problemas.push(`paso ${i + 1} sin fuente o sin página`);
   });
   return problemas;
+}
+
+/**
+ * La verificación queda atada al texto: una tarjeta `verificada`/`revisada` debe traer en tarjetas.json
+ * `verified_hash` = huellaContenido (título, pasos y fuentes) del momento en que se verificó.
+ * Si alguien corrige el texto después, la huella deja de coincidir y el seed no la carga.
+ * `verified_hash` lo escribe `npm run verificar:tarjeta`; no se edita a mano.
+ */
+export function problemasDeVerificacion(
+  t: Pick<Tarjeta, "id" | "status" | "title" | "steps" | "step_sources">,
+  verifiedHash: unknown,
+): string[] {
+  if (t.status === "borrador") return [];
+  if (typeof verifiedHash !== "string" || !verifiedHash) {
+    return [`está "${t.status}" pero sin verified_hash: márcala con \`npm run verificar:tarjeta -- ${t.id} --por "<nombre>"\``];
+  }
+  if (verifiedHash !== huellaContenido(t)) {
+    return [
+      `el título, los pasos o las fuentes cambiaron DESPUÉS de verificarla. Vuelve a borrador ` +
+        `(\`npm run verificar:tarjeta -- ${t.id} --borrador\`), que otra persona la coteje de nuevo y márcala otra vez`,
+    ];
+  }
+  return [];
 }

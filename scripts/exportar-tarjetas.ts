@@ -103,6 +103,14 @@ async function main() {
     await navegador.close();
   }
   console.log(`\n${resumen.join("\n")}\nCopias locales en ${path.relative(RAIZ, SALIDA)}/`);
+  const exportadas = resumen.filter((l) => l.startsWith("✔")).length;
+  if (exportadas === 0) {
+    falla(
+      "No se exportó ninguna tarjeta. Si siguen en borrador: pon DEMO_PERMITIR_BORRADOR=1 en .env, " +
+        "REINICIA `npm run dev` (la variable se lee al arrancar) y vuelve a correr este script.",
+    );
+  }
+  if (exportadas < tarjetas.length) process.exitCode = 1;
 }
 
 main().catch((e) => falla(e instanceof Error ? e.message : String(e)));

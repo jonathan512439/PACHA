@@ -1,5 +1,7 @@
 # Siguientes pasos: de tarjetas en borrador a tarjetas listas para el demo
 
+> **Paso a paso ejecutable** (lista de los 18 pasos, comandos exactos, pruebas finales y qué hacer si algo falla): [`docs/instructivo-salida-tarjetas.md`](instructivo-salida-tarjetas.md). Los audios ya tienen su script: `npm run generar:audios` (y `-- --alerta` para la alerta del demo).
+
 **Estado (sáb 21/11, 16:30):** las 6 tarjetas del menú están en Supabase en **borrador**, con 3 fuentes cada una, `author` = institución de la fuente, y encabezado e imágenes por paso en Storage. El bot y la web **no las muestran** salvo con `DEMO_PERMITIR_BORRADOR=1`, y en ese caso salen con la franja "BORRADOR · sin verificar".
 
 **Orden obligatorio:** verificar → volver a cargar → audios → PNG. **No exportar PNG ni generar audios antes de verificar**: si el texto o el estado cambian, hay que repetirlos.

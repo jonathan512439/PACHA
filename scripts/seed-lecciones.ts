@@ -3,10 +3,11 @@
 //   npx tsx scripts/seed-lecciones.ts --validar  (solo valida, no toca la base)
 // Todo o nada: si UNA tarjeta no valida, el script falla con el id y el motivo y no inserta ninguna.
 // No toca las rutas de imágenes ni de audio (las rellenan subir-imagenes / exportar / subir-audios).
+// Una tarjeta verificada/revisada debe traer verified_hash igual a la huella de su texto (ver verificar-tarjeta.ts).
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { Tarjeta } from "@/contratos/tipos";
-import { problemasDeContenido } from "@/lib/tarjeta-contenido";
+import { problemasDeContenido, problemasDeVerificacion } from "@/lib/tarjeta-contenido";
 import { RAIZ, clienteSupabase, falla } from "./_comun";
 
 const ARCHIVO = path.join(RAIZ, "data", "tarjetas", "tarjetas.json");
@@ -29,7 +30,11 @@ function validarArchivo(crudo: unknown): Tarjeta[] {
       errores.push(`${id}: ${r.error.issues.map((x) => `${x.path.join(".") || "tarjeta"} → ${x.message}`).join("; ")}`);
       return;
     }
-    const contenido = problemasDeContenido(r.data);
+    const contenido = [
+      ...problemasDeContenido(r.data),
+      // verified_hash vive solo en el JSON (no es columna): ata la verificación al texto verificado
+      ...problemasDeVerificacion(r.data, (fila as { verified_hash?: unknown }).verified_hash),
+    ];
     if (contenido.length) errores.push(`${id}: ${contenido.join("; ")}`);
     if (ids.has(id)) errores.push(`${id}: id repetido`);
     ids.add(id);

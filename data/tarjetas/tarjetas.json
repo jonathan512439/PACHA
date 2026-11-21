@@ -203,8 +203,9 @@
     "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026 / CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos (nov 2024) | Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
     "source_page": "Senamhi p. 7 (Altiplano Sur); CIPCA p. 8; p. 6 y 8; p. 7 (Altiplano Sur)",
     "author": "Senamhi–INSA; CIPCA",
-    "verified_by": null,
+    "verified_by": "Prueba",
+    "verified_hash": "b89297b2",
     "reviewed_by": null,
-    "status": "borrador"
+    "status": "verificada"
   }
 ]

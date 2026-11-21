@@ -14,7 +14,9 @@
     "subir:imagenes": "tsx scripts/subir-imagenes.ts",
     "subir:audios": "tsx scripts/subir-audios.ts",
     "exportar:tarjetas": "tsx scripts/exportar-tarjetas.ts",
-    "seed:demo": "tsx scripts/seed-demo.ts"
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "generar:audios": "tsx scripts/generar-audios.ts",
+    "verificar:tarjeta": "tsx scripts/verificar-tarjeta.ts"
   },
   "dependencies": {
     "@google/genai": "^3.6.1",
