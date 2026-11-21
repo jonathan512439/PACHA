@@ -3,7 +3,7 @@ import { etiquetaEstadoTarjeta, type Tarjeta } from "@/contratos/tipos";
 import { esBorrador, resumirFuentes, type ImagenesTarjeta } from "@/lib/tarjeta-publica";
 import { IconoTema } from "./IconoTema";
 import { ImagenConRespaldo } from "./ImagenConRespaldo";
-import s from "./tarjeta.module.css";
+import "./tarjeta.css";
 
 const AMENAZA = { helada: "Helada", sequia: "Sequía", nevada: "Nevada" } as const;
 const FASE = { antes_familia: "Antes", antes_animales: "Antes · animales", durante: "Durante", despues: "Después" } as const;
@@ -25,67 +25,67 @@ export function TarjetaVisual({
   const borrador = esBorrador(t);
   const IconoAmenaza = t.hazard === "sequia" ? Sun : Snowflake;
   const franjaNeutra = (
-    <div className={s.encabezadoNeutro} data-encabezado="neutro" aria-hidden="true">
+    <div className="tj-encabezadoNeutro" data-encabezado="neutro" aria-hidden="true">
       <Mountain strokeWidth={1.25} />
     </div>
   );
 
   return (
     <article
-      className={`${s.tarjeta} ${variante === "imagen" ? s.imagen : s.web} ${t.hazard === "sequia" ? s.sequia : s.helada}`}
+      className={`tj-tarjeta ${variante === "imagen" ? "tj-imagen" : "tj-web"} ${t.hazard === "sequia" ? "tj-sequia" : "tj-helada"}`}
       data-tarjeta={t.id}
       data-estado={t.status}
     >
-      <div className={s.encabezado}>
+      <div className="tj-encabezado">
         <ImagenConRespaldo
           src={imagenes.encabezado}
           respaldo={imagenes.encabezadoRespaldo}
           alt=""
-          className={s.encabezadoImg}
+          className="tj-encabezadoImg"
           alFallar={franjaNeutra}
         />
       </div>
 
-      <div className={s.cuerpo}>
-        <header className={s.titulo}>
-          <p className={s.insignia}>
+      <div className="tj-cuerpo">
+        <header className="tj-titulo">
+          <p className="tj-insignia">
             <IconoAmenaza aria-hidden="true" strokeWidth={2} />
             {AMENAZA[t.hazard]} · {FASE[t.phase]}
           </p>
           <h1>{t.title}</h1>
         </header>
 
-        <ol className={s.pasos}>
+        <ol className="tj-pasos">
           {t.steps.map((paso, i) => (
-            <li key={i} className={s.paso}>
-              <span className={s.numero} aria-hidden="true">{i + 1}</span>
-              <p className={s.textoPaso}>{paso}</p>
-              <div className={s.imagenPaso}>
+            <li key={i} className="tj-paso">
+              <span className="tj-numero" aria-hidden="true">{i + 1}</span>
+              <p className="tj-textoPaso">{paso}</p>
+              <div className="tj-imagenPaso">
                 <ImagenConRespaldo
                   src={imagenes.pasos[i].url}
                   alt=""
-                  className={s.imagenPasoImg}
-                  alFallar={<IconoTema tema={imagenes.pasos[i].icono} className={s.iconoPaso} />}
+                  className="tj-imagenPasoImg"
+                  alFallar={<IconoTema tema={imagenes.pasos[i].icono} className="tj-iconoPaso" />}
                 />
               </div>
             </li>
           ))}
         </ol>
 
-        <footer className={s.pie}>
-          <p className={s.fuentes}>
+        <footer className="tj-pie">
+          <p className="tj-fuentes">
             <strong>Fuente: </strong>
             {resumirFuentes(t.step_sources).map((linea, i) => (
-              <span key={i} className={s.lineaFuente}>{linea}</span>
+              <span key={i} className="tj-lineaFuente">{linea}</span>
             ))}
           </p>
-          <p className={s.notaIA}>Ilustraciones generadas con IA; siga el texto.</p>
-          {!borrador && <p className={s.estado}>✔ {etiquetaEstadoTarjeta(t)}</p>}
+          <p className="tj-notaIA">Ilustraciones generadas con IA; siga el texto.</p>
+          {!borrador && <p className="tj-estado">✔ {etiquetaEstadoTarjeta(t)}</p>}
         </footer>
 
         {/* Etiqueta de estado: va al final y nunca se recorta (flex-shrink: 0 en el CSS). */}
         {borrador && (
-          <p className={s.borrador} data-etiqueta-borrador>
+          <p className="tj-borrador" data-etiqueta-borrador>
             {etiquetaEstadoTarjeta(t)}
           </p>
         )}

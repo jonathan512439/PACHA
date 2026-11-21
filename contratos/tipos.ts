@@ -229,7 +229,8 @@ export const rangoFechas = (ini: string, fin: string) =>
 
 export function construirMensajeAlerta(p: {
   aviso: AvisoGemini;                       // debe haber pasado decidirAlerta
-  tarjeta: Pick<Tarjeta, "steps" | "source_doc" | "source_page" | "status" | "reviewed_by">;
+  // null = la tarjeta de la regla aún no es publicable: el mensaje sale sin "Qué hacer" y la alerta NO se puede aprobar
+  tarjeta: Pick<Tarjeta, "steps" | "source_doc" | "source_page" | "status" | "reviewed_by"> | null;
   boletinEsEjemplo: boolean;
 }): string {
   const { aviso, tarjeta, boletinEsEjemplo } = p;
@@ -238,16 +239,19 @@ export function construirMensajeAlerta(p: {
   const periodo = aviso.periodo_inicio && aviso.periodo_fin
     ? rangoFechas(aviso.periodo_inicio, aviso.periodo_fin)
     : "fecha no indicada";
-  const [p1, p2, p3] = tarjeta.steps;
-  // Sin toLowerCase: la etiqueta de borrador debe salir tal cual ("BORRADOR · sin verificar").
-  const estado = etiquetaEstadoTarjeta(tarjeta);
+  const queHacer = tarjeta
+    ? [
+        `Qué hacer: 1) ${tarjeta.steps[0]} 2) ${tarjeta.steps[1]} 3) ${tarjeta.steps[2]}`,
+        // Sin toLowerCase: la etiqueta de borrador debe salir tal cual ("BORRADOR · sin verificar").
+        `(Tarjeta: ${etiquetaEstadoTarjeta(tarjeta)}. ${tarjeta.source_doc}, pág. ${tarjeta.source_page})`,
+      ]
+    : [];
   return [
     `${titulo}${boletinEsEjemplo ? " (EJEMPLO con boletín histórico)" : ""} · Senamhi, boletín agrometeorológico decenal del Altiplano, ${periodo}.`,
     aviso.zona ? `Zona: ${aviso.zona}.` : null,
     `El boletín dice: "${aviso.cita_evento}"`,
     aviso.cita_riesgo ? `Riesgo según el Senamhi: "${aviso.cita_riesgo}"` : null,
-    `Qué hacer: 1) ${p1} 2) ${p2} 3) ${p3}`,
-    `(Tarjeta: ${estado}. ${tarjeta.source_doc}, pág. ${tarjeta.source_page})`,
+    ...queHacer,
     `Mensaje con voz sintética. Si hay daños, responde con un audio.`,
   ].filter(Boolean).join("\n");
 }

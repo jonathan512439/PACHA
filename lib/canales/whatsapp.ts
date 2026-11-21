@@ -163,6 +163,14 @@ async function enviar(para: string, s: SalidaBot): Promise<void> {
   }
 }
 
+/**
+ * Envío iniciado por el sistema (alertas, "¿llegó?", aviso a la técnica). Lanza error si WhatsApp falla.
+ * Fuera de la ventana de 24 h WhatsApp lo rechaza (hace falta plantilla): por eso en el demo se escribe "ALERTA" antes.
+ */
+export async function enviarSalidasWhatsApp(para: string, salidas: SalidaBot[]): Promise<void> {
+  for (const s of salidas) await enviar(para, s);
+}
+
 // ---- Punto de entrada (se llama desde after() en el webhook) ---------------
 export async function manejarMensaje(m: MensajeWA): Promise<void> {
   try {

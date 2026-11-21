@@ -63,10 +63,11 @@ Es un chat que usa **`POST /api/bot/web`**, que ya funciona. La cookie la maneja
 - **Actualización sola** cada 10–15 s, para que en el demo se vea el cambio de color después del reporte.
 - **Datos:** desde un componente de servidor con `db()`. Por ejemplo, `lib/datos-publicos.ts`, sin teléfonos ni transcripciones.
 
-### 5. Protección del panel (30 min)
-- **`proxy.ts`** con *basic auth* para `/panel/*` y para las APIs que escriben (`/api/demo/*`, `/api/alertas/*`, `/api/boletin/*`, `/api/entregas`).
+### 5. Protección del panel (20 min)
+- **`proxy.ts`** con *basic auth* para las **páginas** `/panel/*`. **Usa `usuarioPanel()` y `noAutorizado()` de `lib/panel-auth.ts`**, que ya existen, están probados y no dependen de Node.
+- **Las APIs de A ya validan por su cuenta** (`/api/boletin/*`, `/api/alertas/*`, `/api/entregas`): el navegador repite el login del panel en cada `fetch` sin que tengas que hacer nada.
 - **Usuarios:** salen de **`PANEL_USERS`**, con el formato `"patricia:clave1,marco:clave2"`. Hay que cargar esa variable en Vercel.
-- El nombre del usuario se pasa en una cabecera a las rutas, para guardar `approved_by`, `updated_by` y `registered_by`.
+- `/api/demo/reiniciar` (tuya) también debe validar con `usuarioPanel()`.
 
 ### 6. `/panel/reportes` (1,5 h)
 - **Lista por estado:** `confirmado`, `revisar`, `atendido` y `descartado`. Cada reporte muestra comunidad, tipo, transcripción, puntaje y fecha.
@@ -74,14 +75,26 @@ Es un chat que usa **`POST /api/bot/web`**, que ya funciona. La cookie la maneja
 - **Acciones:**
   - **corregir** días, familias y animales;
   - **confirmar** o **descartar** los que están en `revisar`;
-  - **Registrar entrega**: tipo (cisterna o forraje), cantidad, unidad y foto subida a `entregas`. Crea la fila en `deliveries` y pasa el reporte a `atendido`.
-- **Depende de A:** después de registrar la entrega, llama a `notificarEntrega(id)`, que manda el "¿Llegó?" a la comunidad. Mientras A no la entregue, deja la llamada comentada.
+  - **Registrar entrega**: un formulario que hace `POST /api/entregas` (**ya existe**, de A) con `multipart/form-data`:
+    - `communityId` (obligatorio), `reportId` (opcional), `kind` = `cisterna` | `forraje`, `quantity` (> 0) y `foto` (opcional).
+    - La API sube la foto, crea la entrega con la unidad correcta, pasa el reporte a `atendido`, firma con el usuario del panel y **manda el "¿Llegó?"** a la comunidad.
+    - Responde `{ id, photo_path, notificados }`, o `{ error }` con 400, 401 o 404.
+  - **Foto:** antes de enviarla, **vuelve a codificarla en el navegador** con un `canvas`, a WEBP o JPG de hasta 1600 px de lado. Así se borran los datos EXIF (la ubicación GPS del celular) y queda por debajo de los 5 MB del bucket y de los 4,5 MB de Vercel.
 
 ### 7. `/panel/alertas` (1,5 h)
 - **Botones:** **"Buscar boletín ahora"** y la subida manual del PDF (respaldo).
 - **Vista previa:** zona, fenómeno, riesgo, mínima, **cada dato junto a su cita** (`cita_evento`, `cita_riesgo`), el motivo de la decisión (`decision_reason`), el mensaje armado y la tarjeta asignada.
 - **Acciones:** **Aprobar** y **Enviar**, con un contador de enviados y fallidos.
-- **Depende de A:** `POST /api/boletin/buscar`, `POST /api/boletin/subir`, `POST /api/alertas/[id]/aprobar` y `POST /api/alertas/[id]/enviar`. Arma la interfaz con datos falsos usando `fixtures/aviso-altiplano-2026-11-2.json` y conéctala cuando A avise.
+- **APIs listas (de A), todas `POST` con el login del panel:**
+  | Ruta | Cuerpo | Respuesta |
+  |---|---|---|
+  | `/api/boletin/buscar` | — | `{ estado: "alerta_creada", alertaId, decision: { motivo, riesgo }, tarjetaLista, tecnicaNotificada }`, o `{ estado: "sin_novedad" }`, `{ estado: "sin_alerta", decision }`, `{ estado: "error", error }` |
+  | `/api/boletin/subir` | multipart: `pdf` (archivo) y opcional `ejemplo=1` | igual que `buscar` |
+  | `/api/alertas/[id]/aprobar` | — | `{ status: "aprobada", approved_by, message_text }`, o `{ error }` 409 si falta la tarjeta verificada o la alerta no está en borrador |
+  | `/api/alertas/[id]/enviar` | — | `{ status: "enviada", enviados, fallidos, omitidosWeb, yaEnviados, errores[] }`. Se puede repetir: reintenta solo a quien falló |
+  | `/api/alertas/[id]/descartar` | — | `{ status: "descartada" }`, o 409 |
+- **La vista previa la lees directo de la base** (componente de servidor con `db()`): `alerts` (con `decision_reason`, `cita_evento`, `cita_riesgo`, `message_text` y `status`) más `bulletins.extracted` (el `AvisoGemini` completo, para mostrar cada dato junto a su cita).
+- **Si `decision_reason` dice "no se puede aprobar todavía"**, desactiva el botón **Aprobar** y muestra el motivo: falta verificar la tarjeta de la alerta.
 
 ### 8. `/entregas` — pública (45 min)
 - **Cada entrega muestra:**
@@ -103,10 +116,11 @@ Es un chat que usa **`POST /api/bot/web`**, que ya funciona. La cookie la maneja
 
 ---
 
-## Lo que A entrega a continuación (te avisa cuando esté listo)
-- API del boletín y de las alertas (buscar, subir, aprobar y enviar), con el cron diario.
-- `notificarEntrega(deliveryId)`: el "¿Llegó?" por el canal de la persona.
-- Si te ayuda, un `lib/datos-publicos.ts` con las consultas del mapa y de `/entregas`.
+## Lo que ya entregó A (sáb 21/11, 16:10)
+- ✅ API del boletín y de las alertas (buscar, subir, aprobar, enviar, descartar) y el cron diario a las 07:00 de Bolivia (`vercel.json`).
+- ✅ `POST /api/entregas`, que incluye el "¿Llegó?" (`notificarEntrega`).
+- ✅ `lib/panel-auth.ts` para tu `proxy.ts`.
+- Pendiente, si te ayuda: un `lib/datos-publicos.ts` con las consultas del mapa y de `/entregas`. Pídelo.
 
 ## Cómo probar
 - **En local:** `npm run dev`. Next 16 permite **un solo** `next dev` por carpeta.

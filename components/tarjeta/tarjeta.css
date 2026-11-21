@@ -1,0 +1,134 @@
+/* CSS GLOBAL con prefijo 'tj-' (no CSS module): la regla de Turbopack de Tailwind en next.config.ts
+   procesa todo *.css como global y los .module.css perdían sus clases. */
+/* Tarjeta "qué hacer". Colores fijos (no dependen del modo oscuro): contraste alto siempre.
+   Texto de pasos ≈ 30 px sobre 1080 de ancho. Nada de texto encima de las imágenes. */
+
+.tj-tarjeta {
+  --tinta: #111111;
+  --tinta-suave: #333333;
+  --papel: #ffffff;
+  --linea: #d4d4d4;
+  --acento: #1d4ed8;        /* helada: azul */
+  --acento-fondo: #dbeafe;
+  --borrador: #b91c1c;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.tj-tarjeta *, .tj-tarjeta *::before, .tj-tarjeta *::after { box-sizing: border-box; }
+.tj-tarjeta p, .tj-tarjeta h1, .tj-tarjeta ol { margin: 0; }
+
+.tj-sequia { --acento: #92400e; --acento-fondo: #fef3c7; } /* sequía: ámbar oscuro (contraste AA con blanco) */
+.tj-helada { }
+
+/* ---------- Encabezado 16:9 ---------- */
+.tj-encabezado {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--acento-fondo);
+  overflow: hidden;
+}
+.tj-encabezadoImg { width: 100%; height: 100%; object-fit: cover; object-position: center 70%; display: block; }
+.tj-encabezadoNeutro {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--acento);
+}
+.tj-encabezadoNeutro svg { width: 30%; height: 50%; }
+
+/* ---------- Cuerpo ---------- */
+.tj-cuerpo { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 24px 44px 20px; gap: 16px; }
+
+.tj-titulo { flex-shrink: 0; }
+.tj-insignia {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 22px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--acento);
+}
+.tj-insignia svg { width: 26px; height: 26px; }
+.tj-titulo h1 { font-size: 44px; line-height: 1.12; font-weight: 800; margin-top: 4px; }
+
+/* ---------- Pasos ---------- */
+.tj-pasos { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; }
+.tj-paso {
+  display: grid;
+  grid-template-columns: 64px 1fr 124px;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  border-top: 2px solid var(--linea);
+  padding-top: 12px;
+}
+.tj-numero { font-size: 64px; line-height: 1; font-weight: 900; color: var(--acento); text-align: center; }
+.tj-textoPaso { font-size: 30px; line-height: 1.25; font-weight: 600; }
+.tj-imagenPaso {
+  /* Cuadrada, hasta 124 px, y nunca más alta que la fila (si no, invade el pie) */
+  height: 100%; max-height: 124px; aspect-ratio: 1 / 1; width: auto; justify-self: end;
+  border-radius: 12px; overflow: hidden;
+  background: var(--acento-fondo);
+  display: flex; align-items: center; justify-content: center;
+}
+.tj-imagenPasoImg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tj-iconoPaso { display: flex; color: var(--acento); }
+.tj-iconoPaso svg { width: 76px; height: 76px; }
+
+/* ---------- Pie y estado ---------- */
+.tj-pie { flex-shrink: 0; border-top: 2px solid var(--tinta); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.tj-fuentes { font-size: 17px; line-height: 1.3; color: var(--tinta-suave); }
+.tj-fuentes strong { color: var(--tinta); }
+.tj-lineaFuente { display: block; }
+.tj-lineaFuente:first-of-type { display: inline; }
+.tj-notaIA { font-size: 17px; color: var(--tinta-suave); font-style: italic; }
+.tj-estado { font-size: 18px; font-weight: 700; color: #166534; }
+
+.tj-borrador {
+  flex-shrink: 0;
+  background: var(--borrador); color: #ffffff;
+  font-size: 30px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase;
+  text-align: center; padding: 10px 16px; border-radius: 8px;
+}
+
+/* ---------- Variante web: ancho fluido, mismo orden ---------- */
+.tj-web { width: 100%; max-width: 1080px; margin: 0 auto; border: 1px solid var(--linea); border-radius: 16px; }
+@media (max-width: 720px) {
+  .tj-web .tj-cuerpo { padding: 16px 16px 14px; gap: 12px; }
+  .tj-web .tj-titulo h1 { font-size: 28px; }
+  .tj-web .tj-insignia { font-size: 15px; }
+  .tj-web .tj-paso { grid-template-columns: 40px 1fr 88px; gap: 12px; }
+  .tj-web .tj-numero { font-size: 40px; }
+  .tj-web .tj-textoPaso { font-size: 20px; }
+  .tj-web .tj-imagenPaso { width: 88px; height: 88px; }
+  .tj-web .tj-iconoPaso svg { width: 48px; height: 48px; }
+  .tj-web .tj-fuentes, .tj-web .tj-notaIA { font-size: 14px; }
+  .tj-web .tj-estado { font-size: 15px; }
+  .tj-web .tj-borrador { font-size: 20px; }
+}
+
+/* ---------- Variante imagen: tamaño fijo 1080×1350 para exportar PNG ---------- */
+.tj-imagen { width: 1080px; height: 1350px; }
+
+/* ---------- Impresión A4 (una hoja) ---------- */
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  .tj-tarjeta { width: 100%; max-width: none; height: auto; border: none; border-radius: 0; break-inside: avoid; }
+  .tj-tarjeta, .tj-tarjeta * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .tj-encabezado { aspect-ratio: 16 / 9; max-height: 95mm; }
+  .tj-cuerpo { padding: 5mm 2mm 0; gap: 3mm; }
+  .tj-titulo h1 { font-size: 22pt; }
+  .tj-insignia { font-size: 11pt; }
+  .tj-insignia svg { width: 13pt; height: 13pt; }
+  .tj-paso { grid-template-columns: 14mm 1fr 30mm; gap: 4mm; padding-top: 2.5mm; break-inside: avoid; }
+  .tj-numero { font-size: 30pt; }
+  .tj-textoPaso { font-size: 15pt; }
+  .tj-imagenPaso { width: 30mm; height: 30mm; }
+  .tj-iconoPaso svg { width: 16mm; height: 16mm; }
+  .tj-fuentes, .tj-notaIA { font-size: 9pt; }
+  .tj-estado { font-size: 10pt; }
+  .tj-borrador { font-size: 15pt; }
+}

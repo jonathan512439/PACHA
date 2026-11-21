@@ -11,7 +11,7 @@ import {
   type AvisoGemini,
 } from "@/contratos/tipos";
 import { TarjetaVisual } from "@/components/tarjeta/TarjetaVisual";
-import { problemasDeContenido } from "@/lib/tarjeta-contenido";
+import { problemasDeAutor, problemasDeContenido } from "@/lib/tarjeta-contenido";
 import {
   ID_ENCABEZADO_RESPALDO,
   baseStorage,
@@ -63,6 +63,14 @@ describe("las 6 tarjetas del paquete", () => {
     expect(malo("Da 5 ml de ivermectina a cada llama.")).not.toEqual([]);
     expect(malo("Reduce el tamaño del hato antes de la sequía.")).not.toEqual([]);
     expect(malo("Pon una vacuna a las crías.")).not.toEqual([]);
+  });
+
+  it("author es el autor de la guía citada, nunca el equipo ni la IA", () => {
+    for (const t of tarjetas) expect(problemasDeAutor(t), t.id).toEqual([]);
+    const t = porId("helada-antes_animales-01");
+    expect(problemasDeAutor({ ...t, author: "Jhonatan con asistencia de IA" })).not.toEqual([]);
+    expect(problemasDeAutor({ ...t, author: "CIPCA" })).not.toEqual([]); // CIPCA no se cita en esta tarjeta
+    expect(problemasDeAutor({ ...t, author: "FAO; Senamhi–INSA" })).toEqual([]);
   });
 
   it("verificada exige verified_by (author es el autor de la guía; no hay regla contra él)", () => {

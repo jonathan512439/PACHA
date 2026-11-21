@@ -43,7 +43,9 @@
 
 - **v0.3 de tarjetas (sáb 21/11, tarde).** Fuentes por paso y estado `verificada`:
   - **`step_sources`:** cada tarjeta guarda una fuente `{doc, page}` **por paso**, en el mismo orden que `steps`, porque en varias tarjetas los tres pasos salen de documentos o páginas distintos y un único `source_page` no permitía verificar paso por paso. El pie de la tarjeta agrupa esas fuentes por documento ("p. 7 (paso 1), p. 6 (pasos 2 y 3)"). `source_doc`/`source_page` quedan solo como resumen.
-  - **`verificada` y `author`:** se vuelve a agregar `author`. Esto **revierte** la decisión de las 12:50 ("no hay campo `author`"). Con él, la regla `verified_by <> author` está en Zod y en SQL (`lessons_verificada_check`): una tarjeta solo pasa a `verificada` o `revisada` si **otra** persona comprobó cada paso en la página citada. La etiqueta pública sigue siendo "Verificada contra fuente", y la autoría que se muestra sigue siendo la de la fuente.
+  - **`verificada` y `author`:** `author` es el **autor del texto o de la guía de origen** (institución citada en `step_sources`), no la persona del equipo que redactó. Para `verificada` o `revisada` basta con `verified_by`, la persona del equipo que comprobó cada paso en la página citada (`lessons_verificada_check`). La regla `verified_by <> author` se quitó; detalle en "Tarjetas v0.3: regla de autoría corregida". La etiqueta pública sigue siendo "Verificada contra fuente". La tarjeta y el bot no muestran `author` aparte, porque el pie ya cita la institución y la página de cada paso.
+  - **Sin CSS modules:** la regla de Turbopack de Tailwind en `next.config.ts` (`"*.css" → as: "*.css"`) convierte también los `.module.css` en CSS global, y las clases importadas llegan como `undefined`. Los estilos de tarjetas van en CSS global con prefijo (`components/tarjeta/tarjeta.css` → `tj-`, `app/tarjetas/tarjetas.css` → `tjs-`). Vale para todo el equipo: usar Tailwind o CSS global con prefijo.
+  - **Control de `author`:** `problemasDeAutor` (`lib/tarjeta-contenido.ts`) exige que cada parte de `author` (separadas por ";") aparezca en alguna fuente de los pasos, y rechaza al equipo o a la IA. El seed no carga nada si falla, y vitest también lo comprueba.
   - **Publicación:** el bot y la web solo muestran `verificada`/`revisada`. `DEMO_PERMITIR_BORRADOR=1` (apagado por defecto) permite mostrar `borrador`, siempre con la etiqueta "BORRADOR · sin verificar" (web, PNG y mensaje).
   - **Archivos:** migración en `contratos/migraciones/`; cambios en `contratos/CONTRATOS.md` ("Cambios v0.3").
 - **Imágenes y audios de tarjetas fuera de git (sáb 21/11):** las 6 cabeceras (~1 MB en total), los 18 pasos, los PNG y los audios van solo a Supabase Storage (buckets `tarjetas` y `audios`). `assets/lessons/`, `assets/audio/` y `exports/` están en `.gitignore`. Motivos: la licencia de las imágenes de la cuenta de prueba sigue sin revisar (`docs/plan-tarjetas.md` §10), y el repo es público. Si falta una imagen, la tarjeta no queda con un hueco: un paso sin imagen usa un ícono `lucide-react`, una tarjeta sin cabecera usa la de `helada-antes_animales-01` y, si tampoco está, una franja neutra.
@@ -86,7 +88,7 @@
 
 ## Tarjetas v0.3: regla de autoría corregida (sáb 21/11)
 - **`author` = autor del texto o guía de origen** (por ejemplo "FAO Bolivia"). Es la única autoría que se menciona. **Se quita la regla `verified_by <> author`**: `verificada`/`revisada` solo exige `verified_by`. Se corrigió en `tipos.ts`, `schema.sql`, la migración v0.3, `tests/tarjetas.test.tsx`, `docs/plan-tarjetas.md` y `CONTRATOS.md`.
-- **Pendiente para el agente de tarjetas:** en `data/tarjetas/tarjetas.csv` la columna `author` dice "Jhonatan con asistencia de IA" y debe pasar a decir el autor de la guía. No se tocó `paquete_tarjetas/`, el paquete original.
+- ~~**Pendiente para el agente de tarjetas:** en `data/tarjetas/tarjetas.csv` la columna `author` dice "Jhonatan con asistencia de IA" y debe pasar a decir el autor de la guía.~~ → **Hecho:** en `tarjetas.json` y `tarjetas.csv`, `author` es la institución de las fuentes citadas: `helada-antes_familia-01` y `helada-durante-01` = "Senamhi–INSA"; `helada-antes_animales-01` = "FAO; Senamhi–INSA"; `sequia-antes_familia-01` = "FAO; CIPCA"; `sequia-antes_animales-01` = "FAO; Senamhi–INSA; CIPCA"; `sequia-durante-01` = "Senamhi–INSA; CIPCA". No se tocó `paquete_tarjetas/`, el paquete original.
 
 ## Bot y Telegram (sáb 21/11)
 - **`procesarMensaje`** (`lib/bot/`) y **`POST /api/bot/web`** (cookie anónima `httpOnly`): conversación de 12 pasos probada contra la base real (registro, menú, reporte con prioridad 55,4, vacuna, tarjeta por pregunta, otra comunidad, `BAJA`). El límite por persona cuenta **solo los mensajes que usan IA**. Las tarjetas se arman con `lib/tarjetas.salidaTarjeta` (v0.3, del agente de tarjetas).
@@ -110,11 +112,33 @@
 - **Pruebas:** `tests/whatsapp.test.ts`, 8 casos (verificación, firma, payload y traducción de entrada y salida); en total 28/28. También se comprobó en el servidor real que sin firma o sin token responde 401/403. El flujo completo con número real queda pendiente de la app de Meta.
 - **Audio saliente:** va sin el indicador de nota de voz (llega como audio con ícono de música). Falta confirmar el nombre del campo para mostrarlo como nota de voz.
 
+## Estado de producción (sáb 21/11, tarde)
+- **Migración v0.3 aplicada** (a mano en el SQL Editor; el MCP de Supabase rechaza escrituras desde esta extensión).
+  - Verificado: `lessons` tiene `step_sources`, `author`, `header_image_path`, `step_image_paths` y `card_image_path`, y ya no tiene `image_is_ai`.
+  - Regla `lessons_verificada_check` = borrador o `verified_by`; se conserva la de `revisada`.
+  - La consulta de `lib/tarjetas.ts` funciona. La tabla está vacía: falta `npm run seed:lecciones`.
+- **Producción desplegada** desde `main` (`3c4efa2`).
+- **Telegram:** webhook registrado en `https://pacha-lilac.vercel.app/api/webhooks/telegram` (@pacha_oruro_bot). **Probado por A: todo funcional.**
+- **WhatsApp:** código desplegado; falta la app de Meta (instructivo para C en `docs/instructivo-whatsapp.md`).
+
+## API del boletín, alertas y entregas (sáb 21/11, 16:10)
+- **`lib/boletin.ts`:** lee la página de boletines decenales, toma el ALTIPLANO más reciente (con dedupe por `source_url`), guarda el PDF, extrae con Gemini y decide con `decidirAlerta`. Si corresponde, crea la alerta en **borrador** (plantilla, tarjeta por regla y audio pregenerado si existe en `audios/alertas/<clave>.ogg|mp3`) y avisa a la técnica por `TECNICA_CONTACTO`.
+- **`lib/alertas.ts`:**
+  - aprobar: rearma el mensaje con la tarjeta actual y exige que sea publicable;
+  - enviar: a los suscriptores activos de la estación, registra en `alert_deliveries` y reintenta solo a los fallidos;
+  - descartar.
+- **`lib/entregas.ts`:** registrar (foto ≤ 5 MB sin EXIF, unidad según el tipo, reporte `atendido`) y `notificarEntrega` ("¿Llegó?" a quien reportó o a la comunidad).
+- **Rutas:**
+  - `POST /api/boletin/buscar|subir`, `POST /api/alertas/[id]/aprobar|enviar|descartar` y `POST /api/entregas`, con basic auth del panel (`lib/panel-auth.ts`, `PANEL_USERS`);
+  - `GET /api/boletin/buscar` para Vercel Cron (`CRON_SECRET`), diario a las 11:00 UTC (07:00 en Bolivia).
+- **Contrato:** `construirMensajeAlerta` acepta `tarjeta: null`.
+- **Pruebas:** 35/35 unitarias (7 nuevas). De punta a punta contra el boletín real: 18/18 chequeos (autenticación, alerta en borrador con riesgo medio, sin duplicados, aprobación bloqueada sin tarjeta, aprobación firmada, envío con fallo registrado y reintento, entrega). Limpieza completa: el boletín de nov sigue disponible para detectarlo en vivo en el demo.
+
 ## Pendientes
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
 - **PDF faltantes para verificar:** FIDA PRO-CAMÉLIDOS (6 tarjetas) y Practical Action (2 tarjetas).
 - **Tarjeta T-07, paso 2** ("Reduce el tamaño del hato…"): no aparece en las páginas citadas de al930s. Hay que corregirlo o quitarlo. *(Las 6 tarjetas del MVP no lo incluyen; una prueba de vitest falla si la frase aparece.)*
-- **Verificación de las 6 tarjetas:** las 6 llegaron en `borrador` y con autor "Jhonatan con asistencia de IA". Falta que otra persona las coteje y firme `verified_by`.
+- **Verificación de las 6 tarjetas:** las 6 están en `borrador`. Falta que una persona del equipo coteje cada paso en la página citada y firme `verified_by`.
 - **Numeración de páginas:** usar la del visor de PDF; comprobar cuál usa el Excel.
 - **Límite real de `gemini-3.5-flash-lite`** (A, 13:00) y valor de `PROBAR_TOPE_DIARIO`.
 - **Voz definitiva:** Gemini TTS (`gemini-3.1-flash-tts-preview`, recomendado).

@@ -18,8 +18,27 @@ export const PROHIBIDOS: { motivo: string; patron: RegExp }[] = [
 /** Todos los textos visibles: título y pasos (las fuentes son citas bibliográficas, no consejos). */
 const textosVisibles = (t: Pick<Tarjeta, "title" | "steps">) => [t.title, ...t.steps];
 
-export function problemasDeContenido(t: Pick<Tarjeta, "id" | "title" | "steps" | "step_sources">): string[] {
+/**
+ * `author` = autor del texto o guía de origen (decisiones.md, "regla de autoría corregida").
+ * Cada parte de `author` separada por ";" debe aparecer en alguna fuente de los pasos,
+ * y nunca puede ser el equipo ni la IA (p. ej. "… con asistencia de IA").
+ */
+export function problemasDeAutor(t: Pick<Tarjeta, "author" | "step_sources">): string[] {
   const problemas: string[] = [];
+  if (/\bIA\b|asistencia|inteligencia artificial|equipo/i.test(t.author)) {
+    problemas.push(`author debe ser el autor de la guía, no el equipo ni la IA: "${t.author}"`);
+  }
+  const docs = (t.step_sources ?? []).map((f) => f.doc.toLowerCase());
+  for (const parte of t.author.split(";").map((p) => p.trim()).filter(Boolean)) {
+    if (!docs.some((d) => d.includes(parte.toLowerCase()))) {
+      problemas.push(`author "${parte}" no aparece en ninguna fuente de los pasos`);
+    }
+  }
+  return problemas;
+}
+
+export function problemasDeContenido(t: Pick<Tarjeta, "id" | "title" | "steps" | "step_sources" | "author">): string[] {
+  const problemas: string[] = [...problemasDeAutor(t)];
   for (const texto of textosVisibles(t)) {
     for (const { motivo, patron } of PROHIBIDOS) {
       if (patron.test(texto)) problemas.push(`${motivo}: "${texto}"`);

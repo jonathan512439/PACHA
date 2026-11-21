@@ -74,6 +74,8 @@ async function main() {
       }
       const tarjeta = pagina.locator("#tarjeta-exportable");
       await tarjeta.waitFor();
+      // En `next dev` el indicador de Next (botón "N") flota sobre la página: no debe salir en el PNG.
+      await pagina.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
       // Espera a que todas las imágenes terminen (cargadas o reemplazadas por su respaldo).
       await pagina.waitForFunction(() => [...document.images].every((i) => i.complete), null, { timeout: 15_000 });
       await pagina.waitForTimeout(300);

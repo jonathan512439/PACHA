@@ -142,6 +142,11 @@ async function enviar(chatId: number, s: SalidaBot): Promise<void> {
   }
 }
 
+/** Envío iniciado por el sistema (alertas, "¿llegó?", aviso a la técnica). Lanza error si Telegram falla. */
+export async function enviarSalidasTelegram(chatId: string | number, salidas: SalidaBot[]): Promise<void> {
+  for (const s of salidas) await enviar(Number(chatId), s);
+}
+
 // ---- Punto de entrada (se llama desde after() en el webhook) --------------
 export async function manejarUpdate(u: Update): Promise<void> {
   let chatId: number | null = null;

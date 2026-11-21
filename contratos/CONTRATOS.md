@@ -92,6 +92,9 @@ Migración para proyectos con v0.2: `contratos/migraciones/2026-11-21_tarjetas_v
 22. Publicación: solo `verificada`/`revisada`. Con `DEMO_PERMITIR_BORRADOR=1` también `borrador`, siempre con la etiqueta `ETIQUETA_BORRADOR` ("BORRADOR · sin verificar") en web, imagen y mensaje (`lib/tarjeta-publica.ts`). La plantilla de alerta ya no pasa la etiqueta a minúsculas.
 23. El PNG exportado se guarda como `lessons/<id>/tarjeta-<estado>-<huella>.png`; el bot solo lo adjunta si la huella coincide con el texto y estado actuales (`pngVigente`).
 
+24. `construirMensajeAlerta` acepta `tarjeta: null`: el mensaje sale sin "Qué hacer" y la API de aprobación rechaza la alerta hasta que la tarjeta de la regla sea publicable.
+25. Panel y cron: `lib/panel-auth.ts` (`usuarioPanel` con `PANEL_USERS` en basic auth, `esCron` con `Authorization: Bearer <CRON_SECRET>`). Sin dependencias de Node, para usarlo también en `proxy.ts`.
+
 ## Pendiente de decidir
 - Pesos de `prioridad.ts` (son de demo).
 - Voz definitiva (Gemini TTS recomendado).
