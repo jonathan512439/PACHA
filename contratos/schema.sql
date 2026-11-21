@@ -1,4 +1,4 @@
--- Emergencia Altiplano · esquema v0.2 (Postgres / Supabase) · sáb 21 nov 2026
+-- PACHA · esquema v0.2 (Postgres / Supabase) · sáb 21 nov 2026
 -- Cambios respecto a v0.1: ver contratos/CONTRATOS.md (sección "Cambios v0.2").
 --
 -- Reglas:
@@ -203,6 +203,14 @@ alter table alerts           enable row level security;
 alter table alert_deliveries enable row level security;
 alter table reports          enable row level security;
 alter table deliveries       enable row level security;
+
+-- ---------------------------------------------------------------------------
+-- Permisos: SOLO service_role (el servidor) lee y escribe. anon/authenticated no reciben permisos de datos.
+-- Necesario en proyectos creados sin "exponer automáticamente las tablas nuevas" (sin esto: permission denied).
+-- ---------------------------------------------------------------------------
+grant select, insert, update, delete on all tables in schema public to service_role;
+alter default privileges for role postgres in schema public
+  grant select, insert, update, delete on tables to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Datos de referencia (reales, no de demo). Coordenadas aproximadas.

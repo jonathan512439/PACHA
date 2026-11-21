@@ -1,4 +1,4 @@
-# Contratos v0.2 — Emergencia Altiplano (sáb 21 nov 2026)
+# Contratos v0.2 — PACHA (sáb 21 nov 2026)
 
 Archivos: `schema.sql` (tablas), `storage.sql` (buckets), `tipos.ts` (Zod v4: mensaje entrante, aviso, tarjeta, bot, plantilla de alerta, menú) y `prioridad.ts` (fórmula y prioridad por comunidad). La versión anterior está en `v0.1/`.
 Cambios a estos archivos solo con aviso en el grupo y una línea en `decisiones.md`.
@@ -77,6 +77,11 @@ Cambios a estos archivos solo con aviso en el grupo y una línea en `decisiones.
 13. `communities.is_test` para la "Comunidad de prueba (EJEMPLO)". `stations.zona`, con Oruro-Ciudad y Oruro-Aeropuerto cargadas.
 14. Storage: buckets públicos `audios`, `tarjetas`, `entregas` y `boletines`, y bucket **privado** `reportes`.
 15. `prioridadComunidad`: el máximo de los reportes `confirmado`, con la espera recalculada al leer.
+
+## Cambios v0.2.1 (sáb 21/11, prueba del PDF real)
+16. El nivel de riesgo de helada lo lee **el código** desde la cita literal (`riesgoDesdeCita(cita_riesgo)`). `riesgo_helada` de Gemini solo se usa como respaldo, con aviso en el motivo. Causa: en el primer intento Gemini citó bien "Riesgo MEDIO por helada tardía" pero devolvió `alto`, tomado de la fila del viento.
+17. `AvisoGemini`: las citas van **antes** que `riesgo_helada` (el modelo genera en ese orden). `decidirAlerta` devuelve también `riesgo`, que se guarda en `alerts.risk_level`.
+18. Prompt del boletín: la cita de riesgo debe nombrar la helada (se ignoran las filas de viento, erosión o granizo) y la mínima es la de la zona, no la de la macrorregión. El prompt vigente está en `scratch/probar-gemini-boletin.mjs` y pasa a la app tal cual.
 
 ## Pendiente de decidir
 - Pesos de `prioridad.ts` (son de demo).

@@ -1,4 +1,4 @@
-# MVP aprobado (v2.1, con ajustes del sáb 21/11) — Emergencia Altiplano (sáb 21 nov 2026)
+# MVP aprobado (v2.1, con ajustes del sáb 21/11) — PACHA (sáb 21 nov 2026)
 
 **En una frase:** un bot (WhatsApp, Telegram y un simulador web) que detecta el boletín oficial del Senamhi, prepara la alerta con una tarjeta de "qué hacer" para que una técnica la apruebe, recibe reportes por voz, los convierte en una prioridad pública por comunidad y cierra el ciclo con entregas verificables. La IA solo extrae datos y elige tarjetas de una lista cerrada.
 

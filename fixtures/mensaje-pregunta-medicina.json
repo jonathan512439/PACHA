@@ -1,0 +1,13 @@
+{
+  "descripcion": "Salida real de Gemini (sáb 21/11) para la pregunta del guion sobre vacunas: sin tarjeta. Se usa con DEMO_FIXTURES on, o en auto si Gemini falla, para textos que piden medicinas.",
+  "modelo": "gemini-3.5-flash-lite",
+  "generado": "2026-11-21T18:02:44.486Z",
+  "mensaje": {
+    "transcripcion": "¿Qué vacuna le pongo a mis alpacas?",
+    "idioma": "es",
+    "intencion": "pregunta",
+    "reporte": null,
+    "confianza": 1,
+    "tarjeta_ids": []
+  }
+}

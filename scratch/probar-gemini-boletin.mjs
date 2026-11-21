@@ -25,9 +25,10 @@ const AvisoGemini = z.object({
   periodo_fin: fechaISO.nullable(),
   fenomeno: z.enum(["helada", "nevada", "sequia", "ninguno"]),
   temp_minima_c: z.number().nullable(),
-  riesgo_helada: z.enum(["bajo", "medio", "alto"]).nullable(), // rango "MEDIO A ALTO" -> "alto" (valor superior)
+  // v0.2.1: primero las citas literales y después el nivel (el modelo genera en este orden)
   cita_evento: z.string().max(200).nullable(), // frase literal del evento/amenaza
   cita_riesgo: z.string().max(200).nullable(), // frase literal del riesgo DE HELADA
+  riesgo_helada: z.enum(["bajo", "medio", "alto"]).nullable(), // debe coincidir con cita_riesgo
   nivel_senamhi: z.enum(["amarillo", "naranja", "rojo"]).nullable(),
   confianza: z.number().min(0).max(1),
 });
@@ -35,10 +36,13 @@ const AvisoGemini = z.object({
 const prompt = `Eres un extractor de datos. NO opinas ni recomiendas.
 Del boletín agrometeorológico adjunto, extrae SOLO la información de la zona que incluye a Oruro (Altiplano Central).
 - fenomeno: la amenaza principal para esa zona entre helada, nevada, sequia o ninguno.
-- riesgo_helada: el nivel de riesgo que el boletín asigna a la HELADA en esa zona (no al viento, granizo ni a otra amenaza).
-  Si el boletín da un rango como "MEDIO A ALTO", usa el valor superior ("alto"). Si no hay riesgo de helada, null.
-- cita_evento y cita_riesgo: copia LITERAL del texto del boletín (máximo 200 caracteres), sin parafrasear.
-- temp_minima_c: la mínima indicada para esa zona o estación.
+- cita_evento: copia LITERAL (máximo 200 caracteres) de la frase que describe el evento para esa zona.
+- cita_riesgo: copia LITERAL (máximo 200 caracteres) de la frase de riesgo que menciona la HELADA
+  (por ejemplo "Riesgo ... por helada ..."). En la tabla de riesgos cada fila trata una amenaza distinta:
+  ignora las filas de riesgo por viento, erosión, deshidratación o granizo si no nombran la helada.
+- riesgo_helada: el nivel que aparece DENTRO de cita_riesgo (debe coincidir con ella). Si la cita da un rango
+  como "MEDIO A ALTO", usa el valor superior ("alto"). Si no hay frase de riesgo por helada, null.
+- temp_minima_c: la mínima indicada para esa zona o sus estaciones (no la de toda la macrorregión).
 - nivel_senamhi: solo si el boletín usa explícitamente alerta amarilla, naranja o roja; si no, null.
 - Fechas en formato AAAA-MM-DD.`;
 
@@ -57,10 +61,19 @@ const aviso = AvisoGemini.parse(JSON.parse(r.text)); // si no valida, lanza: eso
 // Lo esperado según la lectura humana del sáb 21/11 (docs/mvp.md M2):
 // riesgo de HELADA en Altiplano Central = MEDIO ("Riesgo MEDIO por helada tardía y granizadas aisladas...").
 // El "MEDIO A ALTO" de esa fila es por VIENTO/deshidratación de plántulas: si sale "alto", Gemini confundió las filas.
+// Igual que riesgoDesdeCita() en contratos/tipos.ts: el CÓDIGO lee el nivel desde la cita literal.
+const riesgoDesdeCita = (c) => {
+  if (!c || !/helad/i.test(c)) return null;
+  const m = c.match(/riesgo\s+(bajo|medio|alto)(?:\s+a\s+(bajo|medio|alto))?/i);
+  return m ? (m[2] ?? m[1]).toLowerCase() : null;
+};
+const deCita = riesgoDesdeCita(aviso.cita_riesgo);
 const checks = [
+  ["riesgo leído por el CÓDIGO desde cita_riesgo = medio (lo que usa decidirAlerta)", deCita === "medio"],
+  [`campo riesgo_helada de Gemini coincide con la cita (informativo: "${aviso.riesgo_helada}")`, aviso.riesgo_helada === deCita],
+  ["temp_minima_c = 1 (mínima de Oruro, no de la macrorregión)", aviso.temp_minima_c === 1],
   ["zona contiene 'Central'", /central/i.test(aviso.zona ?? "")],
   ["fenomeno = helada", aviso.fenomeno === "helada"],
-  ["riesgo_helada = medio (alto = confundió viento con helada)", aviso.riesgo_helada === "medio"],
   ["periodo 2026-11-14 a 2026-11-23", aviso.periodo_inicio === "2026-11-14" && aviso.periodo_fin === "2026-11-23"],
   ["cita_evento menciona 1 °C o punto de congelación", /1 ?°C|congelaci/i.test(aviso.cita_evento ?? "")],
 ];

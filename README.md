@@ -1,4 +1,4 @@
-# PACHA · Emergencia Altiplano
+# PACHA
 
 Bot y panel para alertas de helada, sequía y nevada en el Altiplano de Oruro (hackathon, 21–22 nov 2026).
 

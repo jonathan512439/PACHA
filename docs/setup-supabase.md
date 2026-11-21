@@ -11,7 +11,7 @@
 1. Entra a <https://supabase.com/dashboard> e inicia sesión. Con GitHub es lo más rápido.
 2. Si te lo pide, crea una **organización** con el plan **Free**.
 3. **New project** con estos datos:
-   - **Name:** `emergencia-altiplano` (o el nombre final del proyecto).
+   - **Name:** `pacha` (o el nombre final del proyecto).
    - **Database password:** pulsa *Generate* y **guárdala en tu gestor de contraseñas**. No va al repo y para la app no hace falta.
    - **Region:** *South America (São Paulo)*, la más cercana a Bolivia.
    - Si aparece **"Enable Data API"**, déjala **activada**: la librería `supabase-js` la usa.
@@ -92,6 +92,14 @@
 ## Paso 8 · Dar acceso al equipo
 - *Organization › Team › Invite*: invita a B y C con el rol **Developer**. Así pueden ver tablas y logs desde el panel.
 - Las claves se pasan **por mensaje privado**, una vez, y cada quien las guarda en su `.env.local`.
+
+## Si la prueba da "permission denied for table …"
+El proyecto se creó sin exponer automáticamente las tablas nuevas, y `service_role` no tiene permisos de datos. `schema.sql` v0.2 ya los incluye (sección "Permisos"). En un proyecto creado con una versión anterior, ejecuta en el SQL Editor:
+```sql
+grant select, insert, update, delete on all tables in schema public to service_role;
+alter default privileges for role postgres in schema public
+  grant select, insert, update, delete on tables to service_role;
+```
 
 ## Lista de seguridad (antes de seguir)
 - [ ] La clave secreta no aparece en ningún archivo fuera de `.env.local`. Para comprobarlo: `git grep -n "sb_secret_\|service_role"` no debe devolver valores.

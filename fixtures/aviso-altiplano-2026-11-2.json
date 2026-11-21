@@ -1,0 +1,21 @@
+{
+  "descripcion": "Extracción real de AvisoGemini (sáb 21/11) del boletín Senamhi Altiplano 14–23 nov 2026. Se usa solo si el PDF tiene este hash.",
+  "fuente_url": "https://senamhi.gob.bo/agromet/boletines_agrometeorologia/boletines_decenales/2026/NOVIEMBRE/2%20DECENA/1%20BOLET%C3%ADN%20ALTIPLANO%202026-11-2.pdf",
+  "pdf_sha256": "69c68eb52ced6132db2c147c840392ae4e282904d90f0035a287dfdd6579e743",
+  "modelo": "gemini-3.5-flash-lite",
+  "generado": "2026-11-21T17:58:10.022Z",
+  "aviso": {
+    "encontrado": true,
+    "zona": "Altiplano Central (Oruro, Orinoca, Chipaya, Quillacas, Salinas)",
+    "estacion": "Oruro-Ciudad",
+    "periodo_inicio": "2026-11-14",
+    "periodo_fin": "2026-11-23",
+    "fenomeno": "helada",
+    "temp_minima_c": 1,
+    "cita_evento": "Helada puntual y mínimas cercanas al punto de congelación (1 °C en Oruro-Ciudad, Orinoca, Chipaya y Quillacas)",
+    "cita_riesgo": "Riesgo MEDIO por helada tardía y granizadas aisladas en cultivos en emergencia.",
+    "riesgo_helada": "medio",
+    "nivel_senamhi": null,
+    "confianza": 1
+  }
+}

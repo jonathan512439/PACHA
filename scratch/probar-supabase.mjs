@@ -26,14 +26,14 @@ for (const t of TABLAS) {
 const { data: est, error: eEst } = await db.from("stations").select("id, zona");
 ok("estaciones de Oruro cargadas", !eEst && est?.length === 2, eEst?.message ?? JSON.stringify(est));
 
-// 3. Las restricciones de v0.2 funcionan (estos inserts DEBEN fallar)
+// 3. Las restricciones de v0.2 funcionan (estos inserts DEBEN fallar con 23514 = check_violation)
 const base = { hazard: "helada", phase: "antes_familia", title: "Prueba", steps: ["a", "b", "c"], source_doc: "Prueba", source_page: "1" };
 const r1 = await db.from("lessons").insert({ ...base, id: "helada-antes_familia-99", status: "verificada" });
-ok("rechaza tarjeta 'verificada' sin verified_by", !!r1.error, r1.error?.message);
+ok("rechaza tarjeta 'verificada' sin verified_by", r1.error?.code === "23514", r1.error?.message);
 const r2 = await db.from("lessons").insert({ ...base, id: "T-01" });
-ok("rechaza id de tarjeta con formato inválido", !!r2.error, r2.error?.message);
+ok("rechaza id de tarjeta con formato inválido", r2.error?.code === "23514", r2.error?.message);
 const r3 = await db.from("subscribers").insert({ channel: "sms", channel_user_id: "x" });
-ok("rechaza canal desconocido", !!r3.error, r3.error?.message);
+ok("rechaza canal desconocido", r3.error?.code === "23514", r3.error?.message);
 // Limpieza por si alguna restricción NO funcionó y el insert entró
 await db.from("lessons").delete().in("id", ["helada-antes_familia-99", "T-01"]);
 await db.from("subscribers").delete().eq("channel_user_id", "x");

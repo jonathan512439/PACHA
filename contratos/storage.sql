@@ -1,4 +1,4 @@
--- Emergencia Altiplano · buckets de Storage v0.2
+-- PACHA · buckets de Storage v0.2
 -- Ejecutar DESPUÉS de schema.sql (SQL Editor -> Run). Se puede ejecutar más de una vez.
 -- Las subidas las hace el servidor con la clave secreta (no necesita políticas).
 -- Público = cualquiera con la URL puede leer el archivo (lo necesitan la web y los canales de mensajería).

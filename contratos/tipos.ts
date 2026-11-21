@@ -89,12 +89,12 @@ export const AvisoGemini = z.object({
   periodo_inicio: fechaISO.nullable(),
   periodo_fin: fechaISO.nullable(),
   fenomeno: z.enum(["helada", "nevada", "sequia", "ninguno"]),
-  temp_minima_c: z.number().nullable(),
-  // Riesgo que el boletín asigna a la HELADA (no al viento ni a otra amenaza).
-  // Un rango ("MEDIO A ALTO") se toma por su valor superior.
-  riesgo_helada: z.enum(RIESGOS).nullable(),
+  temp_minima_c: z.number().nullable(),             // mínima de la zona/estación, no de toda la macrorregión
+  // Orden importante: primero las citas LITERALES y después el nivel (el modelo genera en este orden).
   cita_evento: z.string().max(200).nullable(),      // LITERAL del boletín
-  cita_riesgo: z.string().max(200).nullable(),      // LITERAL del boletín
+  cita_riesgo: z.string().max(200).nullable(),      // LITERAL: la frase del riesgo de HELADA
+  // Riesgo de HELADA según Gemini. El código NO lo usa si puede leerlo de cita_riesgo (ver riesgoDesdeCita).
+  riesgo_helada: z.enum(RIESGOS).nullable(),
   nivel_senamhi: z.enum(["amarillo", "naranja", "rojo"]).nullable(),
   confianza: z.number().min(0).max(1),
 });
@@ -104,21 +104,43 @@ export type AvisoGemini = z.infer<typeof AvisoGemini>;
 export const UMBRAL_HELADA_DEMO_C = -5;
 export const UMBRAL_CONFIANZA_AVISO = 0.7;
 
-export type DecisionAlerta = { alertar: boolean; motivo: string };
+export type DecisionAlerta = { alertar: boolean; motivo: string; riesgo: Riesgo | null };
+export type Riesgo = (typeof RIESGOS)[number];
+
+/**
+ * Lee el nivel de riesgo de HELADA desde la cita LITERAL del boletín (la que ve la técnica junto al PDF).
+ * "Riesgo MEDIO por helada…" -> "medio" · "Riesgo MEDIO A ALTO por helada…" -> "alto" (valor superior).
+ * Devuelve null si la cita no habla de helada o no trae un nivel reconocible.
+ * Motivo (prueba del sáb 21/11): Gemini citó bien "Riesgo MEDIO por helada tardía" pero devolvió
+ * riesgo_helada = "alto", tomado de la fila del viento. La cita es verificable; el campo suelto, no.
+ */
+export function riesgoDesdeCita(cita: string | null): Riesgo | null {
+  if (!cita || !/helad/i.test(cita)) return null;
+  const m = cita.match(/riesgo\s+(bajo|medio|alto)(?:\s+a\s+(bajo|medio|alto))?/i);
+  if (!m) return null;
+  return (m[2] ?? m[1]).toLowerCase() as Riesgo;
+}
 
 /** El CÓDIGO decide si se prepara una alerta; Gemini solo extrae. Siempre pasa por aprobación humana. */
 export function decidirAlerta(a: AvisoGemini): DecisionAlerta {
-  if (!a.encontrado) return { alertar: false, motivo: "El boletín no trae información para la zona." };
-  if (a.confianza < UMBRAL_CONFIANZA_AVISO)
-    return { alertar: false, motivo: `Confianza de la extracción ${a.confianza} < ${UMBRAL_CONFIANZA_AVISO}: revisar a mano.` };
-  if (a.fenomeno === "ninguno") return { alertar: false, motivo: "El boletín no indica helada, nevada ni sequía para la zona." };
-  if (!a.cita_evento) return { alertar: false, motivo: "Falta la cita textual del evento: sin cita no hay alerta." };
-  if (a.nivel_senamhi) return { alertar: true, motivo: `El Senamhi emitió nivel ${a.nivel_senamhi}.` };
-  if (a.fenomeno === "helada" && (a.riesgo_helada === "medio" || a.riesgo_helada === "alto"))
-    return { alertar: true, motivo: `El boletín asigna riesgo ${a.riesgo_helada} de helada.` };
-  if (a.fenomeno === "helada" && a.riesgo_helada === null && a.temp_minima_c !== null && a.temp_minima_c <= UMBRAL_HELADA_DEMO_C)
-    return { alertar: true, motivo: `Sin nivel de riesgo en el boletín; mínima ${a.temp_minima_c} °C ≤ umbral de demo ${UMBRAL_HELADA_DEMO_C} °C.` };
-  return { alertar: false, motivo: "El riesgo indicado no llega a medio y no hay nivel del Senamhi." };
+  // El riesgo sale de la CITA literal; el campo de Gemini solo es respaldo si la cita no trae nivel.
+  const deCita = riesgoDesdeCita(a.cita_riesgo);
+  const riesgo = deCita ?? a.riesgo_helada;
+  const nota = deCita && a.riesgo_helada && deCita !== a.riesgo_helada
+    ? ` (Gemini indicó "${a.riesgo_helada}", pero la cita dice "${deCita}": se usa la cita.)`
+    : !deCita && a.riesgo_helada ? " (nivel tomado del campo de Gemini: comprobar en el PDF.)" : "";
+  const no = (motivo: string): DecisionAlerta => ({ alertar: false, motivo, riesgo });
+  const si = (motivo: string): DecisionAlerta => ({ alertar: true, motivo: motivo + nota, riesgo });
+
+  if (!a.encontrado) return no("El boletín no trae información para la zona.");
+  if (a.confianza < UMBRAL_CONFIANZA_AVISO) return no(`Confianza de la extracción ${a.confianza} < ${UMBRAL_CONFIANZA_AVISO}: revisar a mano.`);
+  if (a.fenomeno === "ninguno") return no("El boletín no indica helada, nevada ni sequía para la zona.");
+  if (!a.cita_evento) return no("Falta la cita textual del evento: sin cita no hay alerta.");
+  if (a.nivel_senamhi) return si(`El Senamhi emitió nivel ${a.nivel_senamhi}.`);
+  if (a.fenomeno === "helada" && (riesgo === "medio" || riesgo === "alto")) return si(`El boletín asigna riesgo ${riesgo} de helada.`);
+  if (a.fenomeno === "helada" && riesgo === null && a.temp_minima_c !== null && a.temp_minima_c <= UMBRAL_HELADA_DEMO_C)
+    return si(`Sin nivel de riesgo en el boletín; mínima ${a.temp_minima_c} °C ≤ umbral de demo ${UMBRAL_HELADA_DEMO_C} °C.`);
+  return no("El riesgo indicado no llega a medio y no hay nivel del Senamhi.");
 }
 export const debeAlertar = (a: AvisoGemini) => decidirAlerta(a).alertar;
 

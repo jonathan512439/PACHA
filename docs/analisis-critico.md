@@ -1,4 +1,4 @@
-# Análisis crítico — Emergencia Altiplano (sáb 21 nov 2026, ~12:00)
+# Análisis crítico — PACHA (sáb 21 nov 2026, ~12:00)
 
 ## 1. Veredicto
 

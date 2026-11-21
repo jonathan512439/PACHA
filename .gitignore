@@ -33,3 +33,6 @@ Thumbs.db
 next-env.d.ts
 .pnp
 .pnp.*
+
+# Salidas de pruebas desechables (los fixtures oficiales están en /fixtures)
+scratch/fixtures/

@@ -1,4 +1,4 @@
-# Flujos de uso — Emergencia Altiplano
+# Flujos de uso — PACHA
 
 Todas las personas, comunidades y datos de este documento son de **EJEMPLO**.
 Leyenda: **[IA]** pasa por Gemini · **[código]** es una regla fija · **[humano]** lo decide una persona · *(si sobra)* queda fuera del MVP.
