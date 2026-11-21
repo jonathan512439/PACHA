@@ -12,6 +12,8 @@ import { extraerAviso, GeminiNoDisponible } from "@/lib/gemini";
 import { obtenerTarjeta } from "@/lib/tarjetas";
 import { permitirBorrador, puedePublicarse } from "@/lib/tarjeta-publica";
 import { contactoTecnica, enviarPorCanal } from "@/lib/canales/enviar";
+import { urlApp } from "@/lib/url";
+export { urlApp };
 
 /*
  * Boletín del Senamhi -> alerta en BORRADOR (nunca se envía sola: la aprueba una persona).
@@ -74,8 +76,6 @@ export async function descargarPdf(url: string): Promise<Uint8Array> {
   return bytes;
 }
 
-export const urlApp = () =>
-  process.env.APP_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
 
 const hoy = () => new Date().toISOString().slice(0, 10);
 
