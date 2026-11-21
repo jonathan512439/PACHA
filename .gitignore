@@ -1,0 +1,35 @@
+# Secretos: nunca al repo (solo .env.example, sin valores)
+.env*
+!.env.example
+
+# Dependencias y builds
+node_modules/
+.next/
+out/
+.vercel/
+
+# Pruebas desechables: audios grabados, PDFs descargados y notas de voz (pueden contener voces reales)
+scratch/node_modules/
+scratch/*.ogg
+scratch/*.oga
+scratch/*.opus
+scratch/*.webm
+scratch/*.wav
+scratch/*.mp3
+scratch/*.mp4
+scratch/*.m4a
+scratch/*.pdf
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Next.js / TypeScript
+/build
+/coverage
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+.pnp
+.pnp.*

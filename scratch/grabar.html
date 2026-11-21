@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- Prueba desechable: graba con MediaRecorder (lo mismo que hará /probar) y descarga el archivo.
+     Abrir con doble clic en Chrome; si no pide permiso de micrófono, usar `npx serve scratch` y abrir http://localhost:3000/grabar.html. En el celular hace falta https (por ejemplo, subirlo temporalmente a Vercel). -->
+<html lang="es">
+<meta charset="utf-8">
+<title>Grabar prueba de audio</title>
+<body style="font-family:sans-serif;max-width:40rem;margin:2rem auto">
+<h1>Grabar prueba de audio</h1>
+<p>Di algo como: "Hace seis días que la vertiente está seca, somos como cuarenta familias".</p>
+<button id="b">Grabar</button>
+<p id="s"></p>
+<script>
+const b = document.getElementById("b"), s = document.getElementById("s");
+let rec, partes = [];
+b.onclick = async () => {
+  if (rec && rec.state === "recording") { rec.stop(); b.textContent = "Grabar"; return; }
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  rec = new MediaRecorder(stream); // sin mimeType: queremos ver el formato por defecto del navegador
+  partes = [];
+  rec.ondataavailable = (e) => partes.push(e.data);
+  rec.onstop = () => {
+    stream.getTracks().forEach((t) => t.stop());
+    const tipo = rec.mimeType || "desconocido";
+    const ext = tipo.includes("webm") ? "webm" : tipo.includes("mp4") ? "mp4" : tipo.includes("ogg") ? "ogg" : "bin";
+    const blob = new Blob(partes, { type: tipo });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `grabacion.${ext}`;
+    a.click();
+    s.textContent = `Formato del navegador: ${tipo} · ${(blob.size / 1024).toFixed(0)} KB → descargado como grabacion.${ext}`;
+  };
+  rec.start();
+  b.textContent = "Detener";
+  s.textContent = "Grabando…";
+};
+</script>
+</body>
+</html>
