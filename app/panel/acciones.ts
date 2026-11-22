@@ -1,7 +1,7 @@
 "use server";
-import { headers } from "next/headers";
 import { prioridad, urgencia } from "@/contratos/prioridad";
-import { usuarioPanel } from "@/lib/panel-auth";
+import { ErrorAcceso, exigirAcceso } from "@/lib/acceso-panel";
+import type { Rol } from "@/lib/sesion";
 import { db } from "@/lib/supabase";
 import { buscarYProcesar, procesarBoletin } from "@/lib/boletin";
 import { aprobarAlerta, descartarAlerta, enviarAlerta, ErrorAlerta } from "@/lib/alertas";
@@ -10,23 +10,23 @@ import { reiniciarDemo } from "@/lib/demo-datos";
 import { enviarTarjetaProblema, ErrorProblema } from "@/lib/problemas";
 
 /*
- * Acciones del panel (Server Actions). Cada una valida el usuario del panel con el header de basic auth
- * que el navegador reenvía al publicar en /panel/... Devuelven un mensaje para mostrar; nunca lanzan al cliente.
+ * Acciones del panel (Server Actions). CADA una vuelve a validar la sesión y el rol (lib/acceso-panel.ts):
+ * no se confía solo en proxy.ts. Roles: tecnico = aprobar, enviar, corregir y registrar;
+ * admin = además Buscar/Subir boletín y Reiniciar demo. Sin SESSION_SECRET (basic auth) todos son admin.
+ * Devuelven un mensaje para mostrar; nunca lanzan al cliente.
  */
 
 export type Resultado = { ok: boolean; mensaje: string };
 
-async function usuario(): Promise<string> {
-  const u = usuarioPanel((await headers()).get("authorization"));
-  if (!u) throw new Error("Sesión del panel no válida: vuelve a entrar a /panel");
-  return u;
-}
-
-async function ejecutar(fn: (u: string) => Promise<string>): Promise<Resultado> {
+/** Valida sesión y rol, y ejecuta. El nombre del usuario queda en approved_by / updated_by / registered_by. */
+async function ejecutar(fn: (u: string) => Promise<string>, rol: Rol = "tecnico"): Promise<Resultado> {
   try {
-    return { ok: true, mensaje: await fn(await usuario()) };
+    const { usuario } = await exigirAcceso(rol);
+    return { ok: true, mensaje: await fn(usuario) };
   } catch (e) {
-    if (e instanceof ErrorAlerta || e instanceof ErrorEntrega || e instanceof ErrorProblema) return { ok: false, mensaje: e.message };
+    if (e instanceof ErrorAcceso || e instanceof ErrorAlerta || e instanceof ErrorEntrega || e instanceof ErrorProblema) {
+      return { ok: false, mensaje: e.message };
+    }
     console.error("panel", e);
     return { ok: false, mensaje: e instanceof Error ? e.message : String(e) };
   }
@@ -42,7 +42,7 @@ const describir = (r: Awaited<ReturnType<typeof buscarYProcesar>>): string => {
 };
 
 export async function buscarBoletinAhora(): Promise<Resultado> {
-  return ejecutar(async () => describir(await buscarYProcesar()));
+  return ejecutar(async () => describir(await buscarYProcesar()), "admin");
 }
 
 export async function subirBoletin(form: FormData): Promise<Resultado> {
@@ -52,7 +52,7 @@ export async function subirBoletin(form: FormData): Promise<Resultado> {
     const pdf = new Uint8Array(await f.arrayBuffer());
     if (String.fromCharCode(...pdf.slice(0, 5)) !== "%PDF-") throw new Error("El archivo no es un PDF");
     return describir(await procesarBoletin({ pdf, sourceUrl: null, clave: `manual-${Date.now()}`, esEjemplo: form.get("ejemplo") === "1" }));
-  });
+  }, "admin");
 }
 
 export async function aprobar(id: string): Promise<Resultado> {
@@ -134,5 +134,5 @@ export async function reiniciar(): Promise<Resultado> {
   return ejecutar(async () => {
     const r = await reiniciarDemo(db());
     return `Demo reiniciado: ${r.comunidades} comunidades, ${r.reportes} reportes y ${r.entregas} entregas de ejemplo. Los suscriptores se conservan.`;
-  });
+  }, "admin");
 }

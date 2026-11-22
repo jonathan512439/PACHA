@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { salir } from "@/app/ingresar/acciones";
+import { accesoActual } from "@/lib/acceso-panel";
+import { modoSesion } from "@/lib/sesion";
 
 export default function PanelLayout({ children }: LayoutProps<"/panel">) {
   return (
@@ -10,8 +14,32 @@ export default function PanelLayout({ children }: LayoutProps<"/panel">) {
           <Link href="/panel/alertas" className="hover:underline">Alertas</Link>
           <Link href="/panel/reportes" className="hover:underline">Reportes y entregas</Link>
         </nav>
+        {/* La sesión se lee en la petición: va detrás de Suspense para no bloquear el resto (Cache Components). */}
+        <Suspense fallback={null}>
+          <UsuarioActual />
+        </Suspense>
       </div>
       {children}
+    </div>
+  );
+}
+
+async function UsuarioActual() {
+  const a = await accesoActual();
+  if (!a) return null;
+  return (
+    <div className="ml-auto flex items-center gap-3 text-sm">
+      <span>
+        <span className="font-semibold">{a.usuario}</span>{" "}
+        <span className="text-stone-700">({a.rol === "admin" ? "admin" : "técnico"})</span>
+      </span>
+      {modoSesion() && (
+        <form action={salir}>
+          <button type="submit" className="rounded-md border border-stone-400 px-3 py-1 font-semibold hover:bg-stone-100">
+            Salir
+          </button>
+        </form>
+      )}
     </div>
   );
 }

@@ -1,12 +1,13 @@
 import { ErrorAlerta, aprobarAlerta } from "@/lib/alertas";
-import { noAutorizado, usuarioPanel } from "@/lib/panel-auth";
+import { exigirAccesoApi } from "@/lib/panel-auth";
 
-// POST /api/alertas/[id]/aprobar — solo panel (basic auth, PANEL_USERS).
+// POST /api/alertas/[id]/aprobar — solo panel (sesión o basic auth, rol tecnico).
 export const maxDuration = 60;
 
 export async function POST(request: Request, ctx: RouteContext<"/api/alertas/[id]/aprobar">) {
-  const usuario = usuarioPanel(request.headers.get("authorization"));
-  if (!usuario) return noAutorizado();
+  const acceso = exigirAccesoApi(request, "tecnico");
+  if (acceso instanceof Response) return acceso;
+  const { usuario } = acceso;
   const { id } = await ctx.params;
   try {
     return Response.json(await aprobarAlerta(id, usuario));

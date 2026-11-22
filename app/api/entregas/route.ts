@@ -1,5 +1,5 @@
 import { ErrorEntrega, registrarEntrega } from "@/lib/entregas";
-import { noAutorizado, usuarioPanel } from "@/lib/panel-auth";
+import { exigirAccesoApi } from "@/lib/panel-auth";
 
 // POST /api/entregas — registra una entrega desde el panel (multipart):
 //   communityId (obligatorio), reportId (opcional), kind = cisterna|forraje, quantity, foto (opcional, JPG/PNG/WEBP ≤ 5 MB, SIN EXIF)
@@ -7,8 +7,9 @@ import { noAutorizado, usuarioPanel } from "@/lib/panel-auth";
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
-  const usuario = usuarioPanel(request.headers.get("authorization"));
-  if (!usuario) return noAutorizado();
+  const acceso = exigirAccesoApi(request, "tecnico");
+  if (acceso instanceof Response) return acceso;
+  const { usuario } = acceso;
   const form = await request.formData().catch(() => null);
   if (!form) return Response.json({ error: "Se espera multipart/form-data" }, { status: 400 });
   const foto = form.get("foto");

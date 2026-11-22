@@ -165,6 +165,15 @@
 - **Fuentes:** `data/fuentes.json` + `lib/fuentes.ts` (puro). Cada fuente: institución, título, año, enlace al original, tarjetas que la usan y fecha de consulta. Una prueba exige que toda cita de toda tarjeta corresponda a una fuente y que la lista de tarjetas coincida. FAO TCP/RLA/3217: `fao.org/4/al930s/al930s.pdf` (completo, 61 p.). **CIPCA queda sin enlace** (`url: null`): el sitio no respondió; no se enlaza hasta abrirlo y leerlo.
 - **Imágenes:** pasos 2 y 3 de `sequia-antes_familia-01` (lote 2, aprobadas) subidos a Storage y PNG reexportado.
 
+## Login del panel con sesión y roles (dom 22/11 · Agente SERVIDOR)
+- **`lib/sesion.ts`:** cookie `pacha_sesion` firmada con HMAC-SHA256 (`SESSION_SECRET`, mín. 32 caracteres), `HttpOnly`, `Secure`, `SameSite=Lax`, 8 h. Contraseñas con **scrypt** (sal de 16 bytes) en `PANEL_USERS` = `usuario:rol:scrypt.<sal>.<hash>`, separados por comas. El hash no lleva el signo de dólar (dotenv lo expandiría). Si se quita a un usuario de `PANEL_USERS` o se le cambia el rol, su sesión deja de valer.
+- **Roles:** `tecnico` (aprobar, enviar, descartar, corregir, registrar entregas, reenviar tarjetas) y `admin` (además Buscar/Subir boletín y Reiniciar demo).
+- **Dónde se valida:** `proxy.ts` redirige a `/ingresar?siguiente=…`. Además, **cada Server Action** (`exigirAcceso` en `lib/acceso-panel.ts`) y cada ruta `/api` del panel (`exigirAccesoApi`: 401 sin sesión, 403 sin rol) vuelve a validar la sesión y el rol.
+- **Bloqueo:** 5 fallos en 10 min por usuario + IP → 10 min de espera. Vive en la memoria de la instancia (Vercel la reutiliza), no en la base: es un freno, no un registro global.
+- **Compatibilidad:** sin `SESSION_SECRET` todo sigue con basic auth y `usuario:clave` (rol admin), como antes. Así Vercel no queda sin panel hasta que se configuren las dos variables juntas.
+- **Script:** `npm run panel:usuario -- <usuario> <tecnico|admin>` pide la contraseña sin mostrarla (mín. 10 caracteres) e imprime la línea.
+- **Prueba de punta a punta** (Playwright, usuarios de prueba solo en el entorno del proceso): redirección, contraseña incorrecta, cookie de 8 h, usuario y Salir, 403 de técnico en una acción de admin, 401 sin sesión, Salir y bloqueo tras 5 fallos.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

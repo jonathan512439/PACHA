@@ -1,9 +1,9 @@
 import { buscarYProcesar } from "@/lib/boletin";
-import { esCron, noAutorizado, usuarioPanel } from "@/lib/panel-auth";
+import { esCron, exigirAccesoApi } from "@/lib/panel-auth";
 
 // Busca el boletín ALTIPLANO más reciente del Senamhi y, si es nuevo, prepara la alerta en BORRADOR.
 //   GET  -> Vercel Cron (Authorization: Bearer <CRON_SECRET>), ver vercel.json
-//   POST -> botón "Buscar boletín ahora" del panel (basic auth, PANEL_USERS)
+//   POST -> botón "Buscar boletín ahora" del panel (sesión o basic auth, rol admin)
 export const maxDuration = 60;
 
 async function ejecutar() {
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!usuarioPanel(request.headers.get("authorization"))) return noAutorizado();
+  const acceso = exigirAccesoApi(request, "admin");
+  if (acceso instanceof Response) return acceso;
   return ejecutar();
 }

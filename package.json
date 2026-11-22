@@ -16,7 +16,8 @@
     "exportar:tarjetas": "tsx scripts/exportar-tarjetas.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "generar:audios": "tsx scripts/generar-audios.ts",
-    "verificar:tarjeta": "tsx scripts/verificar-tarjeta.ts"
+    "verificar:tarjeta": "tsx scripts/verificar-tarjeta.ts",
+    "panel:usuario": "tsx scripts/panel-usuario.ts"
   },
   "dependencies": {
     "@google/genai": "^3.6.1",
