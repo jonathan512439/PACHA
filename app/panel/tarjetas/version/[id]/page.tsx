@@ -75,7 +75,11 @@ async function Revision({ params }: Pick<PageProps<"/panel/tarjetas/version/[id]
         <Bloque key={i} titulo={`Paso ${i + 1}`} nuevo={paso} antes={vigente ? vigente.steps[i] ?? null : undefined} f={c.step_sources[i]} fuentes={fuentes} />
       ))}
       {vigente && vigente.steps.length > c.steps.length && (
-        <p className="text-sm text-tinta-2">Se quitan los pasos {c.steps.length + 1} a {vigente.steps.length} de la versión vigente.</p>
+        <p className="text-sm text-tinta-2">
+          {vigente.steps.length - c.steps.length === 1
+            ? `Se quita el paso ${vigente.steps.length} de la versión vigente.`
+            : `Se quitan los pasos ${c.steps.length + 1} a ${vigente.steps.length} de la versión vigente.`}
+        </p>
       )}
       {(c.evitar ?? []).map((e, i) => (
         <Bloque key={`e${i}`} titulo={`Evita ${i + 1}`} nuevo={e.texto} antes={vigente ? vigente.evitar?.[i]?.texto ?? null : undefined} f={e.fuente} fuentes={fuentes} />
@@ -92,7 +96,7 @@ async function Revision({ params }: Pick<PageProps<"/panel/tarjetas/version/[id]
               <FormAccion accion={publicar.bind(null, v.id)} boton="Verificar y publicar">
                 <label className="flex items-start gap-2 text-sm">
                   <input type="checkbox" name="cotejado" value="si" required className="mt-1" />
-                  Cotejé cada texto con la página citada de su fuente. Firmo como <strong>{acceso?.usuario}</strong>.
+                  <span>Cotejé cada texto con la página citada de su fuente. Firmo como <strong>{acceso?.usuario}</strong>.</span>
                 </label>
                 <label className="block text-sm">Observación (opcional)
                   <input name="observacion" className={CLASES_CONTROL} />

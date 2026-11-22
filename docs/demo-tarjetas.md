@@ -1,6 +1,6 @@
 # Demo: tarjetas con imágenes y editor de tarjetas (opción 2)
 
-**Para:** quien presenta (Jhonatan) y quien lo acompaña. **Preparado:** dom 22/11, ~11:45, Agente SERVIDOR.
+**Para:** quien presenta (Jhonatan) y quien lo acompaña. **Preparado:** dom 22/11, ~11:45; revisado a las 11:55. Agente SERVIDOR.
 
 ## 1. Lo que hay hoy
 - **11 tarjetas verificadas y 1 en borrador.**
@@ -13,13 +13,18 @@
   - **Agua segura con la OPS/OMS:** hervir 1 minuto más por cada 1000 m de altura, en vez de los 3 minutos del CDC. Mientras tanto se sigue enviando la versión del CDC.
   - **Tarjeta nueva «Después de la sequía: recupera los pastos nativos»** (FAO, trasplante de chilliwa), con sus 5 imágenes.
 
-## 2. Antes del demo (5 min, una sola vez)
-1. **Aplicar la migración** `contratos/migraciones/2026-11-22_editor_tarjetas.sql` en Supabase › SQL Editor. Al final debe listar `lesson_versions` y `sources`.
-2. **Cargar las versiones por verificar:** en `Hackathon-servidor`, correr `npm run proponer:versiones`. Imprime dos enlaces `/panel/tarjetas/version/<id>`.
-3. **Entrar al panel** con tu usuario.
-   - En Vercel sigue el basic auth: con tu usuario de siempre eres admin.
-   - Las versiones las redactó «Claude (asistente de redacción…)», así que **tú puedes verificarlas**: quien redacta no puede verificar.
-4. **Opcional:** abrir el bot y escribir `0`. El menú ahora tiene 4 temas (sale ❄️ Nevada) y en WhatsApp va como lista.
+## 2. Antes del demo: estado al 11:55
+- ✅ Migración del editor aplicada y las 2 versiones cargadas.
+- ✅ El login nuevo está activo en producción: se entra por **https://pacha-lilac.vercel.app/ingresar** con tu usuario `jhonatan`, que es admin.
+- ✅ Revisado en local, con los datos reales y sin publicar:
+  - las 2 versiones se ven completas, con lo vigente tachado;
+  - los enlaces abren el PDF en la página citada;
+  - no hay errores de validación;
+  - sin marcar «Cotejé…» no se publica.
+- Enlaces directos (después de entrar):
+  - Agua segura (OPS): https://pacha-lilac.vercel.app/panel/tarjetas/version/35c1a138-98e3-469c-bfe1-46ee50db5f8c
+  - Después de la sequía: https://pacha-lilac.vercel.app/panel/tarjetas/version/5452789c-a68a-4ee8-b323-d0d5637265ab
+- **Opcional:** en el bot, escribir `0`. El menú tiene 4 temas (sale ❄️ Nevada) y en WhatsApp va como lista.
 
 ## 3. Recorrido del demo (unos 2 min)
 1. **El problema** (10 s): "Cada consejo tiene que salir de una fuente oficial, y alguien de la gobernación tiene que poder mantenerlos sin programar."
