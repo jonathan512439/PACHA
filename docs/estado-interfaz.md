@@ -10,7 +10,14 @@
   - Cabecera y pie nuevos en `app/layout.tsx` (`components/ui/Cabecera.tsx`, `Pie.tsx`).
   - Los marcadores del mapa usan los colores de los tokens.
 
-**En curso:** bloque 2, la portada `/` (frase central, 4 pasos con datos vivos, banda del aviso por nivel, mapa, ranking).
+- **Bloque 2 · Portada `/`** (en `main`).
+  - Banda del aviso arriba: ALERTA ROJA (riesgo alto) o NARANJA (medio) según `risk_level`, con la cita, "Qué hacer hoy" y el enlace al PDF original (`bulletins.source_url`). Si el aviso venció, sale como informativo. Prueba: `tests/portada.test.tsx`.
+  - Frase central, ilustración de portada y los 4 pasos del ciclo con cifras vivas (aviso vigente, tarjetas verificadas, reportes confirmados sin atender, entregas confirmadas por la comunidad), con hora y la etiqueta EJEMPLO.
+  - Mapa + ranking lado a lado (debajo en el celular), leyenda y "¿Cómo se calcula?" con tabla.
+  - Ilustraciones del lote 2 revisadas (sin texto, personas ni manos) en `public/ilustraciones/`, con el pie "generada con IA".
+  - `lib/datos-publicos.ts`: `alertaActiva()` trae además `fuente_url`; nueva `resumenCiclo()`.
+
+**En curso:** bloque 3, el mapa (CARTO Positron, lista sincronizada, filtros, ficha, pantalla completa).
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.

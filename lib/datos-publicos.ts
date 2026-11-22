@@ -48,13 +48,32 @@ export type AlertaPublica = {
   valid_from: string; valid_to: string; sent_at: string | null; message_text: string; lesson_id: string | null;
 };
 
-/** Última alerta ENVIADA (la que se muestra en el mapa). */
-export async function alertaActiva(): Promise<AlertaPublica | null> {
+/** Última alerta ENVIADA (la que se muestra en el mapa), con el enlace al PDF original del Senamhi. */
+export async function alertaActiva(): Promise<(AlertaPublica & { fuente_url: string | null }) | null> {
   const { data, error } = await db().from("alerts")
-    .select("id, hazard, zona, risk_level, cita_evento, cita_riesgo, valid_from, valid_to, sent_at, message_text, lesson_id")
+    .select("id, hazard, zona, risk_level, cita_evento, cita_riesgo, valid_from, valid_to, sent_at, message_text, lesson_id, bulletins(source_url)")
     .eq("status", "enviada").order("sent_at", { ascending: false }).limit(1).maybeSingle();
   if (error) throw new Error(error.message);
-  return data as AlertaPublica | null;
+  if (!data) return null;
+  const { bulletins, ...alerta } = data as unknown as AlertaPublica & { bulletins: { source_url: string | null } | null };
+  return { ...alerta, fuente_url: bulletins?.source_url ?? null };
+}
+
+/** Cifras del ciclo de la portada: tarjetas verificadas, reportes activos y entregas confirmadas por la comunidad. */
+export async function resumenCiclo() {
+  const contar = async (consulta: PromiseLike<{ count: number | null; error: { message: string } | null }>) => {
+    const { count, error } = await consulta;
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  };
+  const cabeza = (tabla: string) => db().from(tabla).select("*", { count: "exact", head: true });
+  const [tarjetasVerificadas, reportesActivos, entregas, entregasConfirmadas] = await Promise.all([
+    contar(cabeza("lessons").in("status", ["verificada", "revisada"])),
+    contar(cabeza("reports").eq("status", "confirmado")),
+    contar(cabeza("deliveries")),
+    contar(cabeza("deliveries").eq("confirmed_by_community", true)),
+  ]);
+  return { tarjetasVerificadas, reportesActivos, entregas, entregasConfirmadas };
 }
 
 export async function alertaPorId(id: string): Promise<AlertaPublica | null> {

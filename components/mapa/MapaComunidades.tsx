@@ -60,5 +60,5 @@ export default function MapaComunidades({ puntos }: { puntos: PuntoMapa[] }) {
 
   useEffect(() => () => { mapa.current?.remove(); mapa.current = null; }, []);
 
-  return <div ref={div} role="region" aria-label="Mapa de comunidades por prioridad" className="h-[420px] w-full rounded-lg border border-stone-300 z-0" />;
+  return <div ref={div} role="region" aria-label="Mapa de comunidades por prioridad" className="z-0 h-[360px] w-full rounded-xl border border-borde sm:h-[480px]" />;
 }
