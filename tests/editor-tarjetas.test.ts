@@ -18,7 +18,6 @@ import { huellaVerificacion } from "@/lib/tarjeta-publica";
 import { rolAlcanza } from "@/lib/sesion";
 
 const FAO = "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris";
-const SENAMHI = "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026";
 
 function formulario(campos: Record<string, string | string[]>): FormData {
   const f = new FormData();
