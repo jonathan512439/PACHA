@@ -264,9 +264,10 @@
     "source_doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
     "source_page": "p. 15; p. 15; p. 16; p. 16",
     "author": "FAO",
-    "verified_by": null,
+    "verified_by": "Jhonatan",
+    "verified_hash": "2daee47e",
     "reviewed_by": null,
-    "status": "borrador"
+    "status": "verificada"
   },
   {
     "id": "helada-despues-01",
@@ -321,9 +322,10 @@
     "source_doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
     "source_page": "p. 28 y 29; p. 28 y 29; p. 29",
     "author": "FAO",
-    "verified_by": null,
+    "verified_by": "Jhonatan",
+    "verified_hash": "1eecdd11",
     "reviewed_by": null,
-    "status": "borrador"
+    "status": "verificada"
   },
   {
     "id": "sequia-durante-02",
@@ -374,9 +376,10 @@
     "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
     "source_page": "p. 7; p. 7; p. 7; p. 6 y 7",
     "author": "Senamhi–INSA",
-    "verified_by": null,
+    "verified_by": "Jhonatan",
+    "verified_hash": "b8dfe9ad",
     "reviewed_by": null,
-    "status": "borrador"
+    "status": "verificada"
   },
   {
     "id": "sequia-durante-03",
@@ -432,9 +435,10 @@
     "source_doc": "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia",
     "source_page": "página web",
     "author": "CDC",
-    "verified_by": null,
+    "verified_by": "Jhonatan",
+    "verified_hash": "863d5010",
     "reviewed_by": null,
-    "status": "borrador"
+    "status": "verificada"
   },
   {
     "id": "sequia-durante-04",
@@ -480,8 +484,9 @@
     "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
     "source_page": "p. 7; p. 14 (FAO); p. 7",
     "author": "Senamhi–INSA; FAO",
-    "verified_by": null,
+    "verified_by": "Jhonatan",
+    "verified_hash": "b939bb60",
     "reviewed_by": null,
-    "status": "borrador"
+    "status": "verificada"
   }
 ]

@@ -74,6 +74,12 @@ Recorrido en https://pacha-lilac.vercel.app/api/bot/web con la Comunidad de prue
 
 **TERMINADO salvo verificaciones: 09:49**
 
+### Las 5 tarjetas nuevas: VERIFICADAS (Jhonatan, ~10:10) y publicadas
+- `nevada-antes_animales-01`, `helada-despues-01`, `sequia-durante-02`, `sequia-durante-03` y `sequia-durante-04` quedan en `verificada` por **Jhonatan** (huella registrada) y cargadas con el seed.
+- Audio (5 TTS; van 6 de 10 hoy) y PNG exportados y subidos. Los pasos sin ilustración muestran el ícono del tema (gotas, semilla, heno o corral).
+- **Cambio visible en el bot:** el menú ahora tiene 4 opciones (sale ❄️ Nevada), así que en WhatsApp va como **lista** «Ver temas», no como 3 botones. Agua › Ahora manda 2 tarjetas; Animales › Ahora y Cultivos › Ahora mandan 3.
+- **Agua segura** sigue con la fuente del CDC (3 minutos). La OPS indica unos 5 minutos en Oruro: ver la sección de arriba.
+
 ## En curso
 - Cuando confirmen cada tarjeta: pasarla a verificada, seed, imágenes, audio y PNG.
 

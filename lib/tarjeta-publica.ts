@@ -65,7 +65,13 @@ export const ID_ENCABEZADO_RESPALDO = "helada-antes_animales-01";
 export type TemaIcono = "gotas" | "heno" | "corral" | "semilla";
 
 /** Ícono neutro de cada paso (texto congelado, así que el mapeo es fijo). */
-const ICONOS_POR_TARJETA: Record<string, [TemaIcono, TemaIcono, TemaIcono]> = {
+const ICONOS_POR_TARJETA: Record<string, TemaIcono[]> = {
+  // v0.4 (3 a 5 pasos)
+  "nevada-antes_animales-01": ["corral", "corral", "heno", "heno"],
+  "helada-despues-01":        ["semilla", "semilla", "semilla"],
+  "sequia-durante-02":        ["semilla", "semilla", "gotas", "semilla"],
+  "sequia-durante-03":        ["gotas", "gotas", "gotas", "gotas", "gotas"],
+  "sequia-durante-04":        ["heno", "heno", "corral"],
   "helada-antes_familia-01":  ["semilla", "semilla", "gotas"],
   "helada-antes_animales-01": ["corral", "heno", "heno"],
   "helada-durante-01":        ["corral", "corral", "heno"],
