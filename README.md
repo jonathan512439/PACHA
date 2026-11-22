@@ -33,7 +33,7 @@ Proyecto de hackathon (21–22 nov 2026). Las comunidades, los reportes y las en
 | Base de datos y archivos | Supabase (Postgres con RLS, Storage) |
 | Lectura de boletines, audios y voz | Gemini (`@google/genai`) |
 | Validación y contratos | Zod 4 |
-| Canales | Telegram Bot API, WhatsApp (Cloud API de Meta o sandbox de Vonage), chat web |
+| Canales | Telegram Bot API, WhatsApp (Cloud API de Meta; whapi.cloud para la demo), chat web |
 | Mapa | Leaflet + OpenStreetMap |
 | Revisión periódica | Vercel Cron (diario) + GitHub Actions (cada 30 min) |
 | Pruebas | Vitest |
@@ -77,7 +77,7 @@ La lista está en [`.env.example`](.env.example), sin valores. Las obligatorias 
 | [`contratos/CONTRATOS.md`](contratos/CONTRATOS.md) | Tablas, tipos y reglas |
 | [`decisiones.md`](decisiones.md) | Registro de decisiones y cambios de contrato |
 | [`docs/instructivo-whatsapp.md`](docs/instructivo-whatsapp.md) | Configuración de WhatsApp (Meta) |
-| [`docs/instructivo-vonage.md`](docs/instructivo-vonage.md) | WhatsApp por el sandbox de Vonage (demo) |
+| [`docs/instructivo-whapi.md`](docs/instructivo-whapi.md) | WhatsApp por whapi.cloud (demo) |
 
 ## Fuentes y créditos
 - **Avisos:** Senamhi, Boletín Agrometeorológico Decenal, Macro Región Altiplano.

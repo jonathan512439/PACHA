@@ -221,12 +221,13 @@
 - Causa: la WABA no tenía suscrita la app Pacha. Solución: `POST /{WABA_ID}/subscribed_apps` con el token permanente. Sin cambios de código ni de variables.
 - Límite para la demo: ventana de 24 h. Los teléfonos del equipo escriben al bot antes de la demo para poder recibir la alerta.
 
-## WhatsApp por el sandbox de Vonage para la demo (dom 22/11, 15:40)
-- La cuenta de Meta quedó bloqueada (131031) y la apelación pide documentos de la empresa. Para la demo, WhatsApp va por el **sandbox de Vonage** (`lib/canales/vonage.ts`, webhook `/api/webhooks/vonage`).
+## WhatsApp por whapi.cloud para la demo (dom 22/11, 15:50)
+- La cuenta de Meta quedó bloqueada (131031) y la apelación pide documentos de la empresa. Para la demo, WhatsApp va por **whapi.cloud** (`lib/canales/whapi.ts`, webhook `/api/webhooks/whapi`), con un número nuevo vinculado por QR.
+- whapi **no es la API oficial**: vincula el número como dispositivo (como WhatsApp Web). Sirve para la demo; **en producción va la Cloud API de Meta**, con la empresa verificada.
 - Mismo canal `whatsapp` para el bot y el mismo id (número sin «+»). **Sin cambios en `/contratos`.**
-- Con `VONAGE_API_KEY`, `VONAGE_API_SECRET` y `VONAGE_WHATSAPP_FROM`, todos los envíos por WhatsApp salen por Vonage; sin ellas, por Meta.
-- Sin botones: opciones numeradas; las del último mensaje se guardan en `subscribers.contexto.opcionesWA`.
-- Webhook protegido con una clave en la URL (`VONAGE_WEBHOOK_SECRET`) o el JWT firmado de Vonage. Límites del sandbox: ~100 mensajes al mes y 1 por segundo. Guía: `docs/instructivo-vonage.md`.
+- Con `WHAPI_TOKEN`, todos los envíos por WhatsApp salen por whapi; sin él, por Meta.
+- Sin botones (en whapi son inestables): opciones numeradas; las del último mensaje se guardan en `subscribers.contexto.opcionesWA`.
+- whapi no firma los webhooks: se exige `WHAPI_WEBHOOK_SECRET` en la cabecera `x-pacha-clave` o en la URL. Prueba gratis: 5 chats al mes, 150 mensajes por día. Guía: `docs/instructivo-whapi.md`.
 
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.

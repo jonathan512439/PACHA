@@ -2,7 +2,7 @@ import "server-only";
 import type { Canal, SalidaBot } from "@/contratos/tipos";
 import { enviarSalidasTelegram } from "@/lib/canales/telegram";
 import { enviarSalidasWhatsApp } from "@/lib/canales/whatsapp";
-import { enviarSalidasVonage, vonageActivo } from "@/lib/canales/vonage";
+import { enviarSalidasWhapi, whapiActivo } from "@/lib/canales/whapi";
 
 export class CanalSinEnvio extends Error {}
 
@@ -12,8 +12,8 @@ export class CanalSinEnvio extends Error {}
  */
 export async function enviarPorCanal(canal: Canal, usuarioId: string, salidas: SalidaBot[]): Promise<void> {
   if (canal === "telegram") return enviarSalidasTelegram(usuarioId, salidas);
-  // Con credenciales de Vonage, WhatsApp sale por su sandbox (demo); si no, por la Cloud API de Meta.
-  if (canal === "whatsapp") return vonageActivo() ? enviarSalidasVonage(usuarioId, salidas) : enviarSalidasWhatsApp(usuarioId, salidas);
+  // Con WHAPI_TOKEN, WhatsApp sale por whapi.cloud (demo); si no, por la Cloud API de Meta.
+  if (canal === "whatsapp") return whapiActivo() ? enviarSalidasWhapi(usuarioId, salidas) : enviarSalidasWhatsApp(usuarioId, salidas);
   throw new CanalSinEnvio("El canal web no recibe mensajes iniciados por el sistema");
 }
 
