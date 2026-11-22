@@ -13,7 +13,7 @@
   --borrador: #b91c1c;
   background: var(--papel);
   color: var(--tinta);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   display: flex;
   flex-direction: column;
   overflow: hidden;

@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * PACHA · un solo tema claro. Nada de modo oscuro: era la causa del texto claro sobre fondo claro.
+ * Los colores viven aquí como tokens (clases `bg-fondo`, `text-tinta`, `border-borde`, `bg-roja`…).
+ * Espejo en TS: components/ui/tokens.ts. tests/contraste.test.ts comprueba los dos y el contraste AA.
+ */
+@theme {
+  --color-fondo: #FAF7F2;
+  --color-superficie: #FFFFFF;
+  --color-superficie-2: #F3EEE6;
+  --color-borde: #E7E1D8;
+  --color-borde-fuerte: #857B72;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-tinta: #1C1917;
+  --color-tinta-2: #57534E;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-marca: #1E3A5F;
+  --color-marca-oscura: #152A45;
+  --color-marca-suave: #E6EDF5;
+
+  --color-acento: #B45309;
+
+  --color-roja: #B91C1C;
+  --color-roja-suave: #FCECEC;
+  --color-roja-tinta: #7F1D1D;
+  --color-naranja: #C2410C;
+  --color-naranja-suave: #FDEFE7;
+  --color-naranja-tinta: #7C2D12;
+  --color-ocre: #A16207;
+  --color-ocre-suave: #FBF3DC;
+  --color-ocre-tinta: #713F12;
+  --color-verde: #15803D;
+  --color-verde-suave: #E8F5EC;
+  --color-verde-tinta: #14532D;
+  --color-gris: #78716C;
+  --color-gris-suave: #EFECE8;
+  --color-gris-tinta: #44403C;
+
+  /* Grises de Tailwind que las páginas viejas usan para texto: oscurecidos para que cumplan AA
+     sobre blanco, hueso y stone-100 mientras se migran a `text-tinta-2`. */
+  --color-stone-400: #6B645E;
+  --color-stone-500: #625B55;
+
+  --shadow-suave: 0 1px 2px rgb(28 25 23 / 0.05), 0 1px 3px rgb(28 25 23 / 0.04);
+  --animate-pulso: pulso 2.4s ease-in-out infinite;
+
+  @keyframes pulso {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Fuentes de next/font (variables puestas en <html> por app/layout.tsx) */
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-titulo: var(--font-fraunces), Georgia, "Times New Roman", serif;
+}
+
+@layer base {
+  :root {
+    /* "only light": además evita que Chrome en Android oscurezca la página a la fuerza. */
+    color-scheme: only light;
+  }
+
+  html {
+    background: var(--color-fondo);
+  }
+
+  body {
+    background: var(--color-fondo);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-titulo);
+    text-wrap: balance;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-marca);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Cifras alineadas en tablas y contadores */
+@utility cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

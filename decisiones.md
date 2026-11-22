@@ -153,6 +153,10 @@
 - `/panel` agrupa los reportes confirmados por problema y envía la tarjeta "durante" de ese factor (misma regla que el bot) a las comunidades que lo reportan. No se repite a la misma comunidad por el mismo factor en 24 h. Solo tarjetas publicables.
 - **"Mi reporte" en el bot:** ESTADO o el botón tras confirmar. Muestra estado, puesto en la prioridad pública y entrega. Sin IA.
 
+## Interfaz: base visual (dom 22/11, H1)
+- **Un solo tema claro** (`color-scheme: only light`): el modo oscuro de `globals.css` era la causa del texto ilegible. Tokens de color en `app/globals.css` y `components/ui/tokens.ts`; `tests/contraste.test.ts` exige texto ≥ 4,5:1 y gráficos ≥ 3:1.
+- **Fuentes:** Inter (texto) y Fraunces (títulos), con `next/font`. Componentes compartidos en `components/ui/` (uso en `docs/estado-interfaz.md`).
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
