@@ -191,7 +191,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
               aria-pressed={niveles.has(n.id)}
               onClick={() => alternar(n.id)}
               className={cx(
-                "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3",
+                "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3",
                 niveles.has(n.id) ? "border-tinta bg-superficie text-tinta" : "border-borde bg-superficie-2 text-tinta-2 line-through",
               )}
             >
@@ -209,7 +209,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
               aria-pressed={problema === p.id}
               onClick={() => setProblema(p.id)}
               className={cx(
-                "min-h-9 rounded-full border px-3",
+                "min-h-10 rounded-full border px-3",
                 problema === p.id ? "border-marca bg-marca text-white" : "border-borde-fuerte bg-superficie text-tinta hover:bg-marca-suave",
               )}
             >
@@ -217,7 +217,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
             </button>
           ))}
         </fieldset>
-        <label className="inline-flex min-h-9 cursor-pointer items-center gap-2 font-medium text-tinta">
+        <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 font-medium text-tinta">
           <input type="checkbox" checked={soloSinEntrega} onChange={(e) => setSoloSinEntrega(e.target.checked)} className="size-4 accent-marca" />
           Solo sin entrega todavía
         </label>

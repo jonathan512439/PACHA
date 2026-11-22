@@ -15,7 +15,7 @@ async function Qr({ url, titulo, texto }: { url: string; titulo: string; texto: 
       <h2 className="text-xl font-semibold">{titulo}</h2>
       {/* SVG generado por la librería qrcode a partir de una URL nuestra: no hay contenido de usuarios */}
       <div className="mx-auto w-full max-w-[280px]" dangerouslySetInnerHTML={{ __html: svg }} />
-      <a href={url} className="block break-all text-sm font-semibold text-marca underline">{url}</a>
+      <a href={url} className="flex min-h-10 items-center justify-center break-all text-sm font-semibold text-marca underline">{url}</a>
       <p className="text-sm text-tinta-2">{texto}</p>
     </div>
   );

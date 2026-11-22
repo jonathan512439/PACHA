@@ -75,7 +75,7 @@ export function SeccionesV04({ tarjeta: t, audioUrl }: { tarjeta: Tarjeta; audio
                 {f.titulo} · {paginas.map((p) => (p.startsWith("p") ? p : `p. ${p}`)).join(", ")}
               </p>
               {f.url ? (
-                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-marca underline">
+                <a href={f.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center text-sm font-semibold text-marca underline">
                   Abrir el documento original
                   <ExternalLink aria-hidden="true" className="ml-1 inline size-3.5 align-[-2px]" />
                   <span className="sr-only"> (abre en otra pestaña)</span>

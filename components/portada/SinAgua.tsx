@@ -20,7 +20,7 @@ export function SinAgua({ comunidades }: { comunidades: ComunidadVisible[] }) {
             confirma que llegó la ayuda.
           </p>
         </div>
-        <Link href="/resumen" className="text-sm font-semibold text-marca underline">Resumen para autoridades y prensa</Link>
+        <Link href="/resumen" className="inline-flex min-h-10 items-center text-sm font-semibold text-marca underline">Resumen para autoridades y prensa</Link>
       </div>
       {filas.length === 0 ? (
         <p className="rounded-xl border border-borde bg-superficie p-4 text-tinta">Ninguna comunidad tiene falta de agua o forraje sin resolver.</p>

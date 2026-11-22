@@ -116,7 +116,7 @@ export function Ciclo({ datos: d }: { datos: DatosCiclo }) {
               </div>
               {p.cifra}
               <p className="text-sm text-tinta-2">{p.texto}</p>
-              <Link href={p.enlace.href} className="mt-auto text-sm font-semibold text-marca underline hover:no-underline">
+              <Link href={p.enlace.href} className="mt-auto inline-flex min-h-10 items-center self-start text-sm font-semibold text-marca underline hover:no-underline">
                 {p.enlace.texto}
               </Link>
             </div>

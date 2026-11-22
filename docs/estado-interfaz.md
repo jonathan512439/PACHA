@@ -48,11 +48,17 @@
 - **Bloque 7 · Panel** (en `main`): `/panel`, `/panel/reportes`, `/panel/alertas` y `components/panel/Acciones.tsx` pasan a los tokens (marca, superficie, borde, roja, verde, ocre), con botones de 40 px y títulos en Fraunces. Solo clases: no cambió la estructura ni las acciones.
   - **No lo pude ver en pantalla:** el panel pide login y no tengo contraseña. **Pido a Jhonatan o B** que abran `/panel`, `/panel/reportes` y `/panel/alertas` en el celular y en la PC y me avisen si algo se ve mal.
 
-**En curso:** repaso general (390 y 1280 px) y pendientes de los bloques anteriores.
+- **Repaso final en producción** (`pacha-lilac.vercel.app`, 390 y 1280 px, con el sistema en modo oscuro). Revisé `/`, `/tarjetas`, una tarjeta, `/fuentes`, `/comunidad/<id>`, `/entregas`, `/resumen`, `/probar`, `/suscribirse` e `/ingresar`.
+  - Sin desbordes, sin texto cortado y sin errores de consola. El modo oscuro del sistema no cambia nada: fondo hueso y `color-scheme: light only`.
+  - Corregido: los enlaces sueltos ("← Volver", "Ver el aviso", "Abrir el documento original", las URL de los QR, el logo) y los chips de filtro del mapa ahora miden al menos 40 px de alto.
+- **404 de `/comunidad/<id inexistente>`: queda en HTTP 200** con la página "No encontramos esta página" y `noindex`.
+  - Motivo: con Cache Components y `partialPrefetching: true` (`next.config.ts`), la respuesta empieza con el shell en 200 antes de que la página pueda llamar a `notFound()`. Probé validar el id fuera del `<Suspense>` con `generateStaticParams` y una lista en caché, con `next build && next start`: siguió en 200, así que lo revertí.
+  - Según la guía de Next 16 (`loading.md` › Status codes), el único camino es `proxy.ts`, que es de SERVIDOR. **Opcional para SERVIDOR:** en `proxy.ts`, si `/comunidad/:id` no tiene formato UUID, responder 404 (es rápido y no consulta la base).
 
 **Necesito de SERVIDOR o de Jhonatan:**
-- H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.
-- H3 (`nivelAlerta`) para la banda de la portada. Mientras tanto uso `risk_level`.
+- Jhonatan o B: ver el **panel** con sesión (`/panel`, `/panel/reportes`, `/panel/alertas`), porque yo no puedo entrar.
+
+TERMINADO: 22/11 10:05
 
 ---
 

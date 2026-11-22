@@ -11,7 +11,7 @@ export default function PaginaTarjeta({ params }: PageProps<"/tarjetas/[id]">) {
   return (
     <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:py-8">
       <nav className="print:hidden">
-        <Link href="/tarjetas" className="text-marca underline hover:no-underline">← Todas las tarjetas</Link>
+        <Link href="/tarjetas" className="inline-flex min-h-10 items-center text-marca underline hover:no-underline">← Todas las tarjetas</Link>
       </nav>
       <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando la tarjeta" />}>
         {params.then(({ id }) => <Contenido id={id} />)}

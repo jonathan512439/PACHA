@@ -32,7 +32,7 @@ export default function PaginaFuentes() {
             <div className="mt-3 space-y-1.5 text-sm text-tinta">
               {f.url ? (
                 <p>
-                  <a href={f.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-marca underline">
+                  <a href={f.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center font-semibold text-marca underline">
                     Abrir el documento original
                     <ExternalLink aria-hidden="true" className="ml-1 inline size-3.5 align-[-2px]" />
                     <span className="sr-only"> (abre en otra pestaña)</span>

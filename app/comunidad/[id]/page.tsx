@@ -25,7 +25,7 @@ export default function PaginaComunidad({ params }: PageProps<"/comunidad/[id]">
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:py-8">
       <nav>
-        <Link href="/#mapa" className="text-marca underline hover:no-underline">← Volver al mapa</Link>
+        <Link href="/#mapa" className="inline-flex min-h-10 items-center text-marca underline hover:no-underline">← Volver al mapa</Link>
       </nav>
       <Suspense fallback={<div className="h-72 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando la ficha" />}>
         {params.then(({ id }) => <Ficha id={id} />)}

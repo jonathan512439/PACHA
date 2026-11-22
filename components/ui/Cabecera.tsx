@@ -17,7 +17,7 @@ export function Cabecera() {
         Saltar al contenido
       </a>
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-        <Link href="/" className="flex items-baseline gap-2 text-white no-underline">
+        <Link href="/" className="flex min-h-11 items-center gap-2 text-white no-underline">
           <span className="font-titulo text-2xl font-semibold tracking-wide">PACHA</span>
           <span className="hidden text-sm text-white sm:inline">Del aviso oficial a la ayuda comprobada</span>
         </Link>
