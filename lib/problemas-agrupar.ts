@@ -9,6 +9,7 @@ export const ETIQUETA_FACTOR: Record<string, string> = {
   perdida_por_helada: "Pérdidas por helada",
   perdida_por_nevada: "Pérdidas por nevada",
   camino_cortado: "Camino cortado",
+  cultivos_sin_agua: "Cultivos sin agua",
   otro: "Otros problemas",
 };
 export const etiquetaFactor = (f: string) => ETIQUETA_FACTOR[f] ?? f;

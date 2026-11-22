@@ -1,6 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~03:30_
+_Última actualización: dom 22/11, ~03:50_
 
 ## Hecho
 ### H2 · Tarjeta v0.4 y fuentes (en `main`)
@@ -39,10 +39,29 @@ _Última actualización: dom 22/11, ~03:30_
   - El boletín real del 14–23 nov tiene "Riesgo MEDIO por helada" → **naranja**.
 - El mensaje de WhatsApp y Telegram cambió de formato (v2) y el audio se genera al aprobar. En `/panel/alertas` se ve el texto nuevo en cuanto se aprueba.
 
+### Bloque 4 · Tarjetas nuevas en borrador (H4 y H5 listos)
+**Tabla de ids** (los del plan no cumplen la regla de ids del contrato; los encabezados ya están renombrados en `assets/lessons/<id real>/header.webp`):
+
+| Id del plan | Id real | Pasos | Fuentes |
+|---|---|---|---|
+| `nevada-antes-01` | `nevada-antes_animales-01` | 4 | FAO Caylloma p. 15–16 |
+| `nevada-durante-01` | — (**sin tarjeta**) | — | no hay fuente oficial legible: no se rellena |
+| `helada-despues-01` | `helada-despues-01` | 3 | FAO TCP/RLA/3217 p. 28–30; evita: Senamhi p. 7 |
+| `sequia-cultivos-01` | `sequia-durante-02` | 4 | Senamhi p. 6–7 |
+| `agua-segura-01` | `sequia-durante-03` | 5 | CDC (2 páginas web en español) |
+| `sequia-durante-animales-01` | `sequia-durante-04` | 3 | Senamhi p. 7; FAO manual de alpacas p. 13–14 |
+
+- Todas en **borrador**, cargadas en Supabase, con "por qué importa" y "pide ayuda si…" (FAO Bolivia, cartilla de la Unidad Municipal de Gestión del Riesgo, p. 14). No se publican hasta verificarlas.
+- **Para INTERFAZ:** ya hay tarjetas con 4 y 5 pasos y con `por_que`, `evitar` y `pedir_ayuda`. Para verlas en `/tarjetas/<id>` en local, usa `DEMO_PERMITIR_BORRADOR=1`. `fuentesDeTarjeta(t)` ya las cubre.
+- **Menú del bot:** opción ❄️ Nevada, que aparece sola cuando su tarjeta esté verificada (hoy siguen los 3 botones).
+
 ## En curso
-- Bloque 4: tarjetas nuevas (ids válidos, ver tabla abajo cuando esté) y por qué / evita / pide ayuda de las 6. Después de las 04:30: regenerar el audio de la alerta del demo.
+- Propuestas de "por qué", "evita" y "pide ayuda" para las 6 verificadas (aparte, para no invalidar su verificación). Después de las 04:30: regenerar el audio de la alerta del demo.
 
 ## Necesito de Jhonatan
+- **H5 · Verificar las 5 tarjetas nuevas** (~10 min cada una, con B). La hoja está en `scratch/verificacion/verificacion-tarjetas.md` de **esta carpeta** (`Hackathon-servidor`), local porque lleva citas literales. Los PDF están en `scratch/verificacion/fuentes/`. Para cada tarjeta se cotejan los pasos, el "por qué", el "evita" y el "pide ayuda". Cuando esté, avísame: "`<id>` verificada por `<nombre>`", o qué punto falla.
+- **Agua segura (`sequia-durante-03`):** la fuente es el CDC de EE. UU. (páginas en español). ¿Te sirve, o prefieres esperar una guía del Ministerio de Salud de Bolivia? Sin otra fuente legible, la alternativa es dejarla fuera.
+- **H4 · Imágenes por paso:** prompts en `docs/prompts-imagenes.md` → "Pasos de las tarjetas nuevas". Mejor generarlas cuando cada tarjeta esté verificada.
 **H7 listo para aplicar: v0.4**
 
 - **H7 · Aplicar la migración** `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` en Supabase › SQL Editor. Primero quita cualquier regla CHECK vieja sobre `steps`, `step_sources` o `step_image_paths` (sin importar su nombre) y al final lista las columnas nuevas y los CHECK de `lessons`, para comprobar que solo quedan las de 3 a 5 pasos. Se puede ejecutar más de una vez. **No es urgente**: la app funciona igual sin ella. Hace falta antes de cargar tarjetas con "por qué", "evita" o "pide ayuda" (bloque 4).

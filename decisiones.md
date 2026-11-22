@@ -180,6 +180,15 @@
 - **`guionAudioAlerta(aviso, tarjeta)`:** unos 20 s (máx. 80 palabras, prueba), repite el encabezado al inicio, sin enlace ni la línea de voz sintética.
 - **Audio al aprobar:** si la alerta no trae audio, `aprobarAlerta` hace **1 llamada de TTS** (Kore) y sube el MP3 a `audios/alertas/<id>.mp3`. WhatsApp y Telegram aceptan MP3, así que en Vercel no hace falta ffmpeg. Si falla, la alerta sale solo con texto. El audio pregenerado del demo se conserva y se regenera con `generar-audios --alerta`, que ahora usa el mismo guion.
 
+## Tarjetas nuevas en borrador y menú (dom 22/11, 04:00 · Agente SERVIDOR, bloque 4)
+- **5 tarjetas nuevas en `borrador`** (cargadas con el seed; no se publican hasta verificarlas). Los ids del plan no cumplían la regla de ids del contrato; se usan ids válidos (tabla en `docs/estado-servidor.md`): `nevada-antes_animales-01`, `helada-despues-01`, `sequia-durante-02` (cultivos), `sequia-durante-03` (agua segura) y `sequia-durante-04` (animales).
+- **`nevada-durante-01` queda fuera:** no encontré una fuente oficial que pudiera abrir y leer con qué hacer durante la nevada (animales, techos, caminos). No se rellena.
+- **Fuentes nuevas, todas abiertas y leídas** (en `data/fuentes.json`): FAO Caylloma (al927s), FAO Bolivia, cartilla de la Unidad Municipal de Gestión del Riesgo (a-as967s, reimpresa para Oruro), FAO, manual de alpacas y llamas (w3341s, cap. 4) y dos páginas del CDC en español sobre agua segura. **El CDC es de EE. UU.:** se usó porque no encontré una guía del Ministerio de Salud de Bolivia que pudiera leer; si aparece una, se reemplaza.
+- **Excluido a propósito:** cloro y urea (dosis), y todo lo que no estaba en la página citada.
+- **Contrato:** factor nuevo `cultivos_sin_agua` (sin migración: ninguna tabla restringe el factor). `MENU` agrega las tarjetas nuevas **al final** de cada lista (lo que se ve hoy sale primero) y la opción **❄️ Nevada**. `menuVisible(idsEnviables)` muestra solo las opciones con alguna tarjeta enviable: hoy siguen los 3 botones; con 4 o más, el menú va como lista de WhatsApp (límite de 3 botones).
+- **Las 6 tarjetas verificadas no se tocaron:** agregarles "por qué", "evita" o "pide ayuda" cambia su huella y exige verificarlas de nuevo. Se proponen aparte para cuando haya tiempo de verificarlas.
+- **H4:** prompts por paso en `docs/prompts-imagenes.md`. **H5:** `node scripts/armar-verificacion.mjs` arma la hoja (local, `scratch/verificacion/`) con pasos, por qué, evita y pide ayuda.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

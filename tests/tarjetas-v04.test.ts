@@ -25,7 +25,9 @@ import {
 const crudo: Record<string, unknown>[] = JSON.parse(
   readFileSync(path.join(__dirname, "..", "data", "tarjetas", "tarjetas.json"), "utf8"),
 );
-const tarjetas = crudo.map((t) => Tarjeta.parse(t));
+/** Las 6 tarjetas del MVP (v0.3): siguen sin secciones v0.4 y con su verificación vigente. */
+const IDS_V03 = ["helada-antes_familia-01", "helada-antes_animales-01", "helada-durante-01", "sequia-antes_familia-01", "sequia-antes_animales-01", "sequia-durante-01"];
+const tarjetas = crudo.map((t) => Tarjeta.parse(t)).filter((t) => IDS_V03.includes(t.id));
 const base = tarjetas.find((t) => t.id === "sequia-antes_familia-01")!;
 const fuente = { doc: "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris", page: "p. 51" };
 

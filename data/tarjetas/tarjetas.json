@@ -212,5 +212,276 @@
     "verified_hash": "b89297b2",
     "reviewed_by": null,
     "status": "verificada"
+  },
+  {
+    "id": "nevada-antes_animales-01",
+    "hazard": "nevada",
+    "phase": "antes_animales",
+    "title": "Prepara a tus animales antes de la nevada",
+    "steps": [
+      "Resguarda a las crías y a las madres en cobertizos con techo ante heladas, nevadas o granizadas.",
+      "Si no tienes calamina, techa el cobertizo con ichu.",
+      "Siembra forraje, como avena forrajera o trébol, y guárdalo para las épocas críticas.",
+      "Da ese forraje primero a las madres gestantes y a las crías."
+    ],
+    "step_sources": [
+      {
+        "doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
+        "page": "p. 15"
+      },
+      {
+        "doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
+        "page": "p. 15"
+      },
+      {
+        "doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
+        "page": "p. 16"
+      },
+      {
+        "doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
+        "page": "p. 16"
+      }
+    ],
+    "por_que": {
+      "texto": "En Caylloma, en corrales sin techo moría cerca del 30 % de las crías recién nacidas; con cobertizos, hasta el 10 %.",
+      "fuente": {
+        "doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
+        "page": "p. 15"
+      }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": {
+        "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+        "page": "p. 14"
+      }
+    },
+    "factor_tags": [
+      "perdida_por_nevada",
+      "animales_sin_abrigo",
+      "sin_reserva_forraje"
+    ],
+    "source_doc": "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3217)",
+    "source_page": "p. 15; p. 15; p. 16; p. 16",
+    "author": "FAO",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "helada-despues-01",
+    "hazard": "helada",
+    "phase": "despues",
+    "title": "Después de la helada: ayuda a tu papa a recuperarse",
+    "steps": [
+      "Aplica abono foliar orgánico a la papa dañada por la helada para que se recupere.",
+      "Prepara el abono con bosta fresca de vaca, jugo de alfalfa, leche, chancaca y levadura.",
+      "Déjalo fermentar en un turril cerrado unos 25 días antes de usarlo."
+    ],
+    "step_sources": [
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 28 y 29"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 28 y 29"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 29"
+      }
+    ],
+    "por_que": {
+      "texto": "Una planta fuerte resiste mejor las heladas. En la prueba de un yapuchiri, la papa con abono foliar se recuperó mejor de los daños por helada.",
+      "fuente": {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 28 y 30"
+      }
+    },
+    "evitar": [
+      {
+        "texto": "No hagas pastar a los animales temprano sobre pastos con escarcha.",
+        "fuente": {
+          "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+          "page": "p. 7"
+        }
+      }
+    ],
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": {
+        "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+        "page": "p. 14"
+      }
+    },
+    "factor_tags": [
+      "perdida_por_helada"
+    ],
+    "source_doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+    "source_page": "p. 28 y 29; p. 28 y 29; p. 29",
+    "author": "FAO",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "sequia-durante-02",
+    "hazard": "sequia",
+    "phase": "durante",
+    "title": "Cultivos en sequía: cuida la humedad del suelo",
+    "steps": [
+      "Prefiere variedades precoces y tolerantes a la sequía y a la helada.",
+      "Haz labranza mínima para conservar la humedad del suelo.",
+      "Da riego suplementario a las parcelas de haba, papa y hortalizas.",
+      "Pon barreras contra el viento para proteger las plántulas de quinua y papa."
+    ],
+    "step_sources": [
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7 (Altiplano Sur)"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7 (Altiplano Sur)"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7 (Altiplano Sur)"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 6 y 7"
+      }
+    ],
+    "por_que": {
+      "texto": "Con poca lluvia y vientos fuertes, las plántulas de quinua y papa pueden secarse o quedar enterradas.",
+      "fuente": {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 6"
+      }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": {
+        "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+        "page": "p. 14"
+      }
+    },
+    "factor_tags": [
+      "cultivos_sin_agua"
+    ],
+    "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+    "source_page": "p. 7; p. 7; p. 7; p. 6 y 7",
+    "author": "Senamhi–INSA",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "sequia-durante-03",
+    "hazard": "sequia",
+    "phase": "durante",
+    "title": "Agua segura para tomar cuando falta",
+    "steps": [
+      "Si el agua está turbia, fíltrala con un paño limpio o déjala asentar.",
+      "Hierve el agua clara durante 3 minutos, el tiempo indicado para zonas altas.",
+      "Deja enfriar el agua hervida y guárdala en recipientes limpios con tapa que cierre bien.",
+      "Sirve el agua sin meter las manos ni objetos en el recipiente.",
+      "Lava el recipiente con agua y jabón, y enjuágalo bien con agua limpia."
+    ],
+    "step_sources": [
+      {
+        "doc": "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia",
+        "page": "página web (15 ene 2025)"
+      },
+      {
+        "doc": "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia",
+        "page": "página web (15 ene 2025)"
+      },
+      {
+        "doc": "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia",
+        "page": "página web (15 ene 2025)"
+      },
+      {
+        "doc": "CDC (EE. UU.), Almacenamiento seguro del agua",
+        "page": "página web (18 sep 2025)"
+      },
+      {
+        "doc": "CDC (EE. UU.), Almacenamiento seguro del agua",
+        "page": "página web (18 sep 2025)"
+      }
+    ],
+    "por_que": {
+      "texto": "Hervir el agua es la mejor forma de matar los microbios.",
+      "fuente": {
+        "doc": "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia",
+        "page": "página web (15 ene 2025)"
+      }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": {
+        "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+        "page": "p. 14"
+      }
+    },
+    "factor_tags": [
+      "sin_agua_consumo"
+    ],
+    "source_doc": "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia",
+    "source_page": "página web",
+    "author": "CDC",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
+  },
+  {
+    "id": "sequia-durante-04",
+    "hazard": "sequia",
+    "phase": "durante",
+    "title": "Animales en sequía: suplemento para los que más lo necesitan",
+    "steps": [
+      "Da heno o broza de quinua como suplemento, junto con agua limpia.",
+      "Suplementa primero a las hembras preñadas y en lactancia, y a los animales jóvenes.",
+      "Refuerza los cobertizos y corrales contra el viento."
+    ],
+    "step_sources": [
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7 (Altiplano Sur)"
+      },
+      {
+        "doc": "FAO, Manual de prácticas de manejo de alpacas y llamas (Estudio FAO Producción y Sanidad Animal 130), cap. 4",
+        "page": "p. 14 del PDF (p. 67 impresa)"
+      },
+      {
+        "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+        "page": "p. 7 (Altiplano Sur)"
+      }
+    ],
+    "por_que": {
+      "texto": "En la zona alto-andina el forraje es de baja calidad, sobre todo en la época seca.",
+      "fuente": {
+        "doc": "FAO, Manual de prácticas de manejo de alpacas y llamas (Estudio FAO Producción y Sanidad Animal 130), cap. 4",
+        "page": "p. 13 del PDF (p. 66 impresa)"
+      }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": {
+        "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+        "page": "p. 14"
+      }
+    },
+    "factor_tags": [
+      "sin_reserva_forraje"
+    ],
+    "source_doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026",
+    "source_page": "p. 7; p. 14 (FAO); p. 7",
+    "author": "Senamhi–INSA; FAO",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
   }
 ]

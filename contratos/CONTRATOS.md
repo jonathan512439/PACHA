@@ -104,6 +104,8 @@ Migración: `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` (no borra filas
 
 30. Alerta (H3): `nivelAlerta`, `nivelAlertaDeAviso`, `encabezadoAlerta`, `tonoAlerta` y `guionAudioAlerta`. `construirMensajeAlerta` v2 acepta `boletinUrl` y `conAudio` (opcionales). Las cifras salen solo de las citas literales.
 
+31. Factor nuevo `cultivos_sin_agua`. `MENU` con la opción `nevada` y las tarjetas v0.4 al final de cada lista; `menuVisible(ids)` y `MAX_BOTONES = 3` (con más opciones, el menú va como lista).
+
 ## Pendiente de decidir
 - Pesos de `prioridad.ts` (son de demo).
 - Voz definitiva (Gemini TTS recomendado).

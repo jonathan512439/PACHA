@@ -103,7 +103,7 @@ export async function comunidad(id: string): Promise<Comunidad | null> {
 
 /** Amenaza a la que pertenece cada factor (para elegir la tarjeta "durante" de esa amenaza). */
 const AMENAZA_DE_FACTOR: Record<string, string> = {
-  sin_agua_consumo: "sequia", pozo_o_vertiente_seca: "sequia", sin_reserva_forraje: "sequia",
+  sin_agua_consumo: "sequia", pozo_o_vertiente_seca: "sequia", sin_reserva_forraje: "sequia", cultivos_sin_agua: "sequia",
   cultivos_sin_proteccion_helada: "helada", perdida_por_helada: "helada", animales_sin_abrigo: "helada",
   perdida_por_nevada: "nevada", camino_cortado: "nevada",
 };

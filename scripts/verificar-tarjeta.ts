@@ -17,7 +17,7 @@ import { RAIZ, falla } from "./_comun";
 
 const JSON_TARJETAS = path.join(RAIZ, "data", "tarjetas", "tarjetas.json");
 const CSV_TARJETAS = path.join(RAIZ, "data", "tarjetas", "tarjetas.csv");
-const COLUMNAS_CSV = ["id", "hazard", "phase", "title", "paso_1", "paso_2", "paso_3", "factor_tags", "source_doc",
+const COLUMNAS_CSV = ["id", "hazard", "phase", "title", "paso_1", "paso_2", "paso_3", "paso_4", "paso_5", "factor_tags", "source_doc",
   "source_page", "author", "verified_by", "reviewed_by", "status"];
 
 type Fila = Record<string, unknown> & { id: string };
@@ -41,7 +41,7 @@ function csvDe(filas: Fila[]): string {
   };
   const lineas = filas.map((f) => {
     const steps = f.steps as string[];
-    return [f.id, f.hazard, f.phase, f.title, steps[0], steps[1], steps[2], (f.factor_tags as string[]).join("|"),
+    return [f.id, f.hazard, f.phase, f.title, steps[0], steps[1], steps[2], steps[3] ?? "", steps[4] ?? "", (f.factor_tags as string[]).join("|"),
       f.source_doc, f.source_page, f.author, f.verified_by, f.reviewed_by, f.status].map(q).join(",");
   });
   return [COLUMNAS_CSV.join(","), ...lineas].join("\n");

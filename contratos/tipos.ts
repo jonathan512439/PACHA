@@ -15,6 +15,7 @@ export const FACTORES = [
   "perdida_por_helada",
   "perdida_por_nevada",
   "camino_cortado",
+  "cultivos_sin_agua", // v0.4: cultivos afectados por la sequía (tarjeta sequia-durante-02)
   "otro",
 ] as const;
 export const Factor = z.enum(FACTORES);
@@ -237,14 +238,32 @@ export function etiquetaEstadoTarjeta(t: Pick<Tarjeta, "status" | "reviewed_by">
   return ETIQUETA_BORRADOR;
 }
 
-/** Menú fijo, sin IA. */
+/**
+ * Menú fijo, sin IA. Solo se envían las tarjetas publicables de cada lista (las demás se saltan).
+ * v0.4: tarjetas nuevas al final de cada lista (no cambian lo que se ve hoy) y la opción Nevada.
+ */
 export const MENU = {
-  agua:      { titulo: "💧 Agua",      antes: ["sequia-antes_familia-01"],                             ahora: ["sequia-durante-01"] },
-  animales:  { titulo: "🦙 Animales",  antes: ["sequia-antes_animales-01", "helada-antes_animales-01"], ahora: ["sequia-durante-01", "helada-durante-01"] },
-  // Solo hay una tarjeta de cultivos (helada-antes_familia-01); helada-durante-01 trata de animales desde la v0.3.
-  cultivos:  { titulo: "🌱 Cultivos",  antes: ["helada-antes_familia-01"],                             ahora: ["helada-antes_familia-01"] },
+  agua:      { titulo: "💧 Agua",      antes: ["sequia-antes_familia-01"],                             ahora: ["sequia-durante-01", "sequia-durante-03"] },
+  animales:  { titulo: "🦙 Animales",  antes: ["sequia-antes_animales-01", "helada-antes_animales-01"], ahora: ["sequia-durante-01", "helada-durante-01", "sequia-durante-04"] },
+  // helada-durante-01 trata de animales desde la v0.3: Cultivos no la muestra.
+  cultivos:  { titulo: "🌱 Cultivos",  antes: ["helada-antes_familia-01"],                             ahora: ["helada-antes_familia-01", "sequia-durante-02", "helada-despues-01"] },
+  nevada:    { titulo: "❄️ Nevada",    antes: ["nevada-antes_animales-01"],                            ahora: [] },
 } as const;
 export type OpcionMenu = keyof typeof MENU;
+
+/**
+ * Opciones del menú que se muestran: las que tienen al menos una tarjeta enviable (antes o ahora).
+ * Así una opción nueva (p. ej. Nevada) aparece recién cuando su tarjeta está verificada.
+ * Si no hay ninguna tarjeta enviable (base vacía o caída), se muestran todas: el bot responde "sin tarjetas".
+ */
+export function menuVisible(idsEnviables: ReadonlySet<string>): OpcionMenu[] {
+  const todas = Object.keys(MENU) as OpcionMenu[];
+  const con = todas.filter((op) => [...MENU[op].antes, ...MENU[op].ahora].some((id) => idsEnviables.has(id)));
+  return con.length ? con : todas;
+}
+
+/** WhatsApp admite 3 botones por mensaje: con más opciones el menú va como lista (hasta 10 filas). */
+export const MAX_BOTONES = 3;
 
 /**
  * Tarjeta que acompaña a una alerta: regla fija (amenaza + fase antes_familia).

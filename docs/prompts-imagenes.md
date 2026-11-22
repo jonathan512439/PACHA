@@ -225,3 +225,123 @@ Scene: Inside an adobe kitchen: clean water containers with tight lids resting o
 [BLOQUE DE ESTILO] Wide 16:9 illustration.
 Scene: Dry-season Altiplano with sparse yellow bunchgrass, llamas gathered around a stone water trough fed from a covered reservoir, a small stack of stored forage under a straw cover beside a stone wall.
 ```
+
+## Pasos de las tarjetas nuevas (1:1) — H4, dom 22/11 ~04:00
+
+**Ids reales.** Los ids del plan no cumplen la regla de ids del contrato, así que las tarjetas usan estos (los encabezados ya generados se renombraron al copiarlos):
+
+| Id del plan (nombre del encabezado) | Id real de la tarjeta | Estado |
+|---|---|---|
+| `nevada-antes-01` | `nevada-antes_animales-01` | borrador, 4 pasos |
+| `nevada-durante-01` | — | **sin tarjeta**: no encontré una fuente oficial legible sobre qué hacer durante la nevada |
+| `helada-despues-01` | `helada-despues-01` | borrador, 3 pasos |
+| `sequia-cultivos-01` | `sequia-durante-02` | borrador, 4 pasos |
+| `agua-segura-01` | `sequia-durante-03` | borrador, 5 pasos |
+| `sequia-durante-animales-01` | `sequia-durante-04` | borrador, 3 pasos |
+
+**Nombres:** `<id real>_pasoN.png`. **Cuándo:** mejor después de que la tarjeta esté verificada. Si un paso cambia al verificar, su imagen se rehace. Cada prompt empieza con el `[BLOQUE DE ESTILO]` de arriba.
+
+### nevada-antes_animales-01 — Prepara a tus animales antes de la nevada
+**paso1** — «Resguarda a las crías y a las madres en cobertizos con techo ante heladas, nevadas o granizadas.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A stone llama shelter with a solid sloped roof, a mother llama and her small cria resting inside, dry and protected, while the first snowflakes start to fall outside under heavy grey-violet clouds.
+```
+**paso2** — «Si no tienes calamina, techa el cobertizo con ichu.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: Close view of a stone shelter whose roof is made of thick bundles of golden ichu (bunchgrass) tied over wooden poles; a pile of fresh ichu bundles on the ground beside the wall; no metal sheets anywhere.
+```
+**paso3** — «Siembra forraje, como avena forrajera o trébol, y guárdalo para las épocas críticas.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A small green plot of oat forage growing inside a low stone wall, and next to it a covered stack of dry forage bales under a straw roof, ready for winter.
+```
+**paso4** — «Da ese forraje primero a las madres gestantes y a las crías.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A pregnant female llama (visibly round belly) and a small cria eating from a wooden feeder filled with forage inside a corral, while other adult llamas wait behind a low stone wall.
+```
+
+### helada-despues-01 — Después de la helada: ayuda a tu papa a recuperarse
+**paso1** — «Aplica abono foliar orgánico a la papa dañada por la helada para que se recupere.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A row of potato plants after a frost: some leaves darkened at the edges, fine droplets of a natural liquid fertilizer glistening on the leaves, a plain backpack sprayer resting on the ground at the end of the row, nobody holding it.
+```
+**paso2** — «Prepara el abono con bosta fresca de vaca, jugo de alfalfa, leche, chancaca y levadura.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: On a low stone table outdoors: a clay bowl of fresh green alfalfa juice, a bundle of alfalfa, a small jug of milk, a round block of dark cane sugar (chancaca), and a bucket; a plastic drum in the background. No labels, no text.
+```
+**paso3** — «Déjalo fermentar en un turril cerrado unos 25 días antes de usarlo.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A large closed blue plastic drum with a tight lid, standing in the shade of an adobe wall, soft sun and moon arcs in the sky suggesting days passing (no numbers, no calendar).
+```
+
+### sequia-durante-02 — Cultivos en sequía: cuida la humedad del suelo
+**paso1** — «Prefiere variedades precoces y tolerantes a la sequía y a la helada.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: Small piles of different native quinoa and potato seeds on a woven cloth over dry ground, next to a few sturdy young quinoa plants growing well in dry soil.
+```
+**paso2** — «Haz labranza mínima para conservar la humedad del suelo.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A field where only narrow planting furrows are opened, leaving the rest of the soil and its dry plant cover undisturbed; the soil inside the furrow looks darker and slightly moist compared to the dry surface.
+```
+**paso3** — «Da riego suplementario a las parcelas de haba, papa y hortalizas.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A thin stream of water flowing from a small channel into a plot of broad bean (haba) and potato plants, the rest of the land dry and golden; a covered water tank at the edge.
+```
+**paso4** — «Pon barreras contra el viento para proteger las plántulas de quinua y papa.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A row of dense native shrubs and a low stone wall acting as a windbreak beside a field of tiny quinoa and potato seedlings; dust blowing on the far side of the barrier, calm air on the protected side.
+```
+
+### sequia-durante-03 — Agua segura para tomar cuando falta
+**paso1** — «Si el agua está turbia, fíltrala con un paño limpio o déjala asentar.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A clean white cloth stretched and tied over the mouth of a clay pot, cloudy water above it and clearer water below; beside it a glass jar of water with the sediment settled at the bottom.
+```
+**paso2** — «Hierve el agua clara durante 3 minutos, el tiempo indicado para zonas altas.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A pot of clear water at a rolling boil on a simple adobe stove with a wood fire, steam rising, a small hourglass on the stove ledge (no numbers).
+```
+**paso3** — «Deja enfriar el agua hervida y guárdala en recipientes limpios con tapa que cierre bien.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: Clean water containers with tight screw lids lined up on a raised wooden shelf in an adobe kitchen, a pot cooling next to them with no steam.
+```
+**paso4** — «Sirve el agua sin meter las manos ni objetos en el recipiente.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A water container with a narrow neck resting tilted on a wooden stand so that water pours directly into a cup below; nothing is inside the container. No people, no hands.
+```
+**paso5** — «Lava el recipiente con agua y jabón, y enjuágalo bien con agua limpia.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A freshly washed water container drying upside down on a wooden rack in the sun, a bar of soap and a basin of clean water next to it, a few soap bubbles on the rim.
+```
+
+### sequia-durante-04 — Animales en sequía: suplemento para los que más lo necesitan
+**paso1** — «Da heno o broza de quinua como suplemento, junto con agua limpia.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: Llamas eating from a pile of dry hay and pale quinoa stalks (broza) in a stone corral, a stone trough of clean water beside them, the pasture outside dry and yellow.
+```
+**paso2** — «Suplementa primero a las hembras preñadas y en lactancia, y a los animales jóvenes.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A female llama nursing her cria and a young llama eating forage first at a feeder, while the rest of the herd waits in the background.
+```
+**paso3** — «Refuerza los cobertizos y corrales contra el viento.»
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A corral with a newly raised, taller stone wall on the windward side and a roofed corner, dust blowing outside the wall, llamas resting calmly on the sheltered side.
+```

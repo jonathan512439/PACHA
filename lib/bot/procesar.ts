@@ -4,8 +4,10 @@ import {
   EntradaBot,
   LIMITES,
   MENSAJES,
+  MAX_BOTONES,
   MENU,
   SalidaBot,
+  menuVisible,
   UMBRAL_CONFIANZA_REPORTE,
   type MensajeEntrante,
   type OpcionMenu,
@@ -77,9 +79,9 @@ async function enrutar(e: EntradaBot, s: D.Suscriptor, ctx: D.Contexto): Promise
 
   // ---- Registrado ------------------------------------------------------
   if (e.botonId) return manejarBoton(e.botonId, s, ctx);
-  if (t === "0" || t === "menu" || t === "alerta") return { respuestas: [menuTemas()] };
+  if (t === "0" || t === "menu" || t === "alerta") return { respuestas: [await menuTemas()] };
   if (PIDE_ESTADO.has(t)) return { respuestas: await misReportes(s) };
-  if (e.tipo === "texto" && !e.texto?.trim()) return { respuestas: [menuTemas()] };
+  if (e.tipo === "texto" && !e.texto?.trim()) return { respuestas: [await menuTemas()] };
   return mensajeLibre(e, s, ctx);
 }
 
@@ -118,10 +120,22 @@ async function elegirComunidad(e: EntradaBot): Promise<D.Comunidad | null> {
   return (await D.comunidades()).find((c) => T.normalizar(c.name) === t || T.normalizar(c.name).includes(t)) ?? null;
 }
 
-const menuTemas = (): Salida => ({
-  tipo: "botones", texto: T.MENU,
-  botones: (Object.keys(MENU) as OpcionMenu[]).map((op) => ({ id: `menu:${op}`, titulo: MENU[op].titulo })),
-});
+/**
+ * Menú de temas: solo las opciones con alguna tarjeta enviable (menuVisible). Hasta 3, botones (como siempre);
+ * con más (p. ej. cuando se verifique la de Nevada), lista de WhatsApp. Si la base falla, todas las opciones.
+ */
+async function menuTemas(): Promise<Salida> {
+  let ops: OpcionMenu[];
+  try {
+    ops = menuVisible(new Set((await tarjetasEnviables()).map((t) => t.id)));
+  } catch {
+    ops = Object.keys(MENU) as OpcionMenu[];
+  }
+  const filas = ops.map((op) => ({ id: `menu:${op}`, titulo: MENU[op].titulo }));
+  return ops.length <= MAX_BOTONES
+    ? { tipo: "botones", texto: T.MENU, botones: filas }
+    : { tipo: "lista", texto: T.MENU, boton: "Ver temas", filas };
+}
 
 /* ---------------------------------------------------------------------- */
 async function manejarBoton(id: string, s: D.Suscriptor, ctx: D.Contexto): Promise<Resultado> {
@@ -129,7 +143,12 @@ async function manejarBoton(id: string, s: D.Suscriptor, ctx: D.Contexto): Promi
 
   if (accion === "menu") {
     const op = valor as OpcionMenu;
-    if (!(op in MENU)) return { respuestas: [menuTemas()] };
+    if (!(op in MENU)) return { respuestas: [await menuTemas()] };
+    // Sin tarjetas de "ahora" (p. ej. Nevada) no se pregunta el momento: van directo las de "antes".
+    if (!extra && MENU[op].ahora.length === 0) {
+      const antes = await tarjetasPorIds(MENU[op].antes);
+      return { respuestas: antes.length ? antes : [texto(T.MENU_SIN_TARJETAS)] };
+    }
     if (!extra) return { respuestas: [{
       tipo: "botones", texto: T.MENU_MOMENTO,
       botones: [{ id: `menu:${op}:antes`, titulo: "Antes" }, { id: `menu:${op}:ahora`, titulo: "Está pasando ahora" }],
@@ -165,7 +184,7 @@ async function manejarBoton(id: string, s: D.Suscriptor, ctx: D.Contexto): Promi
     return { respuestas: [texto(!ok ? T.ENTREGA_YA : accion === "ent_si" ? T.ENTREGA_GRACIAS : T.ENTREGA_NO_LLEGO)] };
   }
 
-  return { respuestas: [menuTemas()] };
+  return { respuestas: [await menuTemas()] };
 }
 
 /* ---------------------------------------------------------------------- */
@@ -176,12 +195,12 @@ async function mensajeLibre(e: EntradaBot, s: D.Suscriptor, ctx: D.Contexto): Pr
   const v = ctx.ventana && ahora - ctx.ventana.inicio < LIMITES.ventanaMin * 60_000 ? ctx.ventana : { inicio: ahora, n: 0 };
   ctx.ventana = { inicio: v.inicio, n: v.n + 1 };
   if (ctx.ventana.n > LIMITES.mensajesPorVentana)
-    return { respuestas: ctx.ventana.n === LIMITES.mensajesPorVentana + 1 ? [texto(MENSAJES.muchosMensajes), menuTemas()] : [] };
+    return { respuestas: ctx.ventana.n === LIMITES.mensajesPorVentana + 1 ? [texto(MENSAJES.muchosMensajes), await menuTemas()] : [] };
 
   // Tope diario de IA para los canales públicos (web y Telegram, que usa el jurado).
   const tope = Number(process.env.PROBAR_TOPE_DIARIO || 0);
   if (tope > 0 && (e.canal === "web" || e.canal === "telegram") && (await D.usoIAHoyCanalesPublicos()) >= tope)
-    return { respuestas: [texto(MENSAJES.topeAgotado), menuTemas()] };
+    return { respuestas: [texto(MENSAJES.topeAgotado), await menuTemas()] };
 
   let m: MensajeEntrante;
   try {
@@ -189,7 +208,7 @@ async function mensajeLibre(e: EntradaBot, s: D.Suscriptor, ctx: D.Contexto): Pr
     const r = await interpretarMensaje({ texto: e.texto, audio: e.audio }, await tarjetasEnviables());
     m = r.datos;
   } catch (err) {
-    if (err instanceof GeminiNoDisponible) return { respuestas: [texto(MENSAJES.ocupado), menuTemas()] };
+    if (err instanceof GeminiNoDisponible) return { respuestas: [texto(MENSAJES.ocupado), await menuTemas()] };
     throw err;
   }
 
@@ -211,7 +230,7 @@ async function mensajeLibre(e: EntradaBot, s: D.Suscriptor, ctx: D.Contexto): Pr
   if (m.intencion === "pregunta") {
     if (MEDICINAS.test(m.transcripcion) && m.tarjeta_ids.length === 0) return { respuestas: [texto(MENSAJES.sinMedicinas)] };
     const tarjetas = await tarjetasPorIds(m.tarjeta_ids);
-    return { respuestas: tarjetas.length ? tarjetas : [texto(MENSAJES.sinTarjeta), menuTemas()] };
+    return { respuestas: tarjetas.length ? tarjetas : [texto(MENSAJES.sinTarjeta), await menuTemas()] };
   }
 
   if (m.intencion === "reporte" && m.reporte) {
@@ -233,7 +252,7 @@ async function mensajeLibre(e: EntradaBot, s: D.Suscriptor, ctx: D.Contexto): Pr
     return { respuestas: [preguntaConfirmacion(r, propia?.name ?? "tu comunidad")] };
   }
 
-  return { respuestas: [texto(T.OTRO), menuTemas()] };
+  return { respuestas: [texto(T.OTRO), await menuTemas()] };
 }
 
 async function otraComunidadMencionada(mencion: string | null, propia: D.Comunidad | null): Promise<D.Comunidad | null> {

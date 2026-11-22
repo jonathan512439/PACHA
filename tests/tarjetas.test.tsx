@@ -4,8 +4,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import {
   ETIQUETA_BORRADOR,
+  MAX_BOTONES,
   MENU,
   Tarjeta,
+  menuVisible,
   construirMensajeAlerta,
   contarPalabras,
   type AvisoGemini,
@@ -33,9 +35,9 @@ const porId = (id: string) => tarjetas.find((t) => t.id === id)!;
 const SUPABASE_URL = "https://ejemplo.supabase.co";
 const BASE = baseStorage(SUPABASE_URL);
 
-describe("las 6 tarjetas del paquete", () => {
-  it("validan con el contrato Tarjeta", () => {
-    expect(crudo).toHaveLength(6);
+describe("las tarjetas del paquete", () => {
+  it("validan con el contrato Tarjeta (las 6 del MVP y las nuevas v0.4)", () => {
+    expect(crudo.length).toBeGreaterThanOrEqual(6);
     for (const t of crudo) {
       const r = Tarjeta.safeParse(t);
       expect(r.success, `${(t as { id: string }).id}: ${r.error?.message}`).toBe(true);
@@ -44,7 +46,9 @@ describe("las 6 tarjetas del paquete", () => {
 
   it("ningún paso supera 18 palabras y cada paso tiene su fuente con página", () => {
     for (const t of tarjetas) {
-      expect(t.step_sources).toHaveLength(3);
+      expect(t.step_sources).toHaveLength(t.steps.length);
+      expect(t.steps.length).toBeGreaterThanOrEqual(3);
+      expect(t.steps.length).toBeLessThanOrEqual(5);
       t.steps.forEach((paso, i) => {
         expect(contarPalabras(paso), `${t.id} paso ${i + 1}`).toBeLessThanOrEqual(18);
         expect(t.step_sources[i].doc.trim().length, `${t.id} paso ${i + 1} doc`).toBeGreaterThan(3);
@@ -198,24 +202,42 @@ describe("imágenes con respaldo", () => {
 
 describe("mapeo del menú", () => {
   const idsMenu = [...new Set(Object.values(MENU).flatMap((o) => [...o.antes, ...o.ahora]))];
+  const IDS_MVP = ["helada-antes_familia-01", "helada-antes_animales-01", "helada-durante-01", "sequia-antes_familia-01", "sequia-antes_animales-01", "sequia-durante-01"];
 
   it("coincide con el mapeo fijo de docs/mvp.md", () => {
     expect(MENU.agua.antes).toEqual(["sequia-antes_familia-01"]);
-    expect(MENU.agua.ahora).toEqual(["sequia-durante-01"]);
+    expect(MENU.agua.ahora).toEqual(["sequia-durante-01", "sequia-durante-03"]);
     expect(MENU.animales.antes).toEqual(["sequia-antes_animales-01", "helada-antes_animales-01"]);
-    expect(MENU.animales.ahora).toEqual(["sequia-durante-01", "helada-durante-01"]);
+    expect(MENU.animales.ahora).toEqual(["sequia-durante-01", "helada-durante-01", "sequia-durante-04"]);
     expect(MENU.cultivos.antes).toEqual(["helada-antes_familia-01"]);
-    // Solo hay una tarjeta de cultivos: helada-durante-01 trata de animales desde la v0.3 (corregido sáb 21/11).
-    expect(MENU.cultivos.ahora).toEqual(["helada-antes_familia-01"]);
+    // helada-durante-01 trata de animales desde la v0.3 (corregido sáb 21/11): Cultivos no la muestra.
+    expect(MENU.cultivos.ahora).toEqual(["helada-antes_familia-01", "sequia-durante-02", "helada-despues-01"]);
+    expect(MENU.nevada.antes).toEqual(["nevada-antes_animales-01"]);
+    // Las tarjetas v0.4 van al final: lo que se veía antes sale primero, igual que siempre.
+    expect(MENU.agua.ahora[0]).toBe("sequia-durante-01");
   });
 
   it("'Cultivos' solo muestra tarjetas de cultivos (no de animales)", () => {
-    const deCultivos = (id: string) => tarjetas.find((t) => t.id === id)?.factor_tags.some((f) => f.startsWith("cultivos")) ?? false;
-    for (const id of [...MENU.cultivos.antes, ...MENU.cultivos.ahora]) expect(deCultivos(id), id).toBe(true);
+    const DE_ANIMALES = ["animales_sin_abrigo", "sin_reserva_forraje"];
+    for (const id of [...MENU.cultivos.antes, ...MENU.cultivos.ahora]) {
+      const t = tarjetas.find((x) => x.id === id)!;
+      expect(t.factor_tags.some((f) => DE_ANIMALES.includes(f)), id).toBe(false);
+      expect(t.factor_tags.some((f) => f.startsWith("cultivos") || f === "perdida_por_helada"), id).toBe(true);
+    }
   });
 
-  it("resuelve a los 6 ids de las tarjetas que carga el seed", () => {
-    expect(idsMenu.sort()).toEqual(tarjetas.map((t) => t.id).sort());
+  it("el menú solo muestra opciones con tarjetas enviables; Nevada aparece al verificar la suya", () => {
+    const hoy = new Set(IDS_MVP);
+    expect(menuVisible(hoy)).toEqual(["agua", "animales", "cultivos"]);
+    expect(menuVisible(new Set([...hoy, "nevada-antes_animales-01"]))).toContain("nevada");
+    expect(menuVisible(new Set())).toEqual(Object.keys(MENU)); // base vacía: todas (responde sin tarjetas)
+    expect(MAX_BOTONES).toBe(3);
+  });
+
+  it("cada id del menú es una tarjeta del paquete, y las 6 del MVP están en el menú", () => {
+    const ids = new Set(tarjetas.map((t) => t.id));
+    for (const id of idsMenu) expect(ids.has(id), id).toBe(true);
+    for (const id of IDS_MVP) expect(idsMenu, id).toContain(id);
   });
 });
 

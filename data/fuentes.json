@@ -5,13 +5,18 @@
     "titulo": "Boletín Agrometeorológico Macro Región Altiplano, segunda decena de noviembre (14–23 nov 2026)",
     "anio": 2026,
     "url": "https://senamhi.gob.bo/agromet/boletines_agrometeorologia/boletines_decenales/2026/NOVIEMBRE/2%20DECENA/1%20BOLET%C3%ADN%20ALTIPLANO%202026-11-2.pdf",
-    "claves": ["Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026"],
+    "claves": [
+      "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026"
+    ],
     "tarjetas": [
       "helada-antes_familia-01",
       "helada-antes_animales-01",
       "helada-durante-01",
       "sequia-antes_animales-01",
-      "sequia-durante-01"
+      "sequia-durante-01",
+      "helada-despues-01",
+      "sequia-durante-02",
+      "sequia-durante-04"
     ],
     "consultado": "2026-11-22",
     "nota": null
@@ -22,11 +27,14 @@
     "titulo": "Sistematización de buenas prácticas en el marco de la prevención y mitigación de siniestros climáticos en el sector agropecuario. Caso territorio indígena Jach'a Suyu Pakajaqi en el altiplano central y Yapuchiris en Omasuyos, altiplano norte (TCP/RLA/3112 · TCP/RLA/3217)",
     "anio": 2010,
     "url": "https://www.fao.org/4/al930s/al930s.pdf",
-    "claves": ["FAO, Sistematización de buenas prácticas (TCP/RLA/3217)"],
+    "claves": [
+      "FAO, Sistematización de buenas prácticas (TCP/RLA/3217)"
+    ],
     "tarjetas": [
       "helada-antes_animales-01",
       "sequia-antes_familia-01",
-      "sequia-antes_animales-01"
+      "sequia-antes_animales-01",
+      "helada-despues-01"
     ],
     "consultado": "2026-11-22",
     "nota": "Documento completo de 61 páginas. Las páginas citadas son las del visor de PDF."
@@ -37,9 +45,92 @@
     "titulo": "Propuestas de respuesta integral a la sequía en los valles interandinos",
     "anio": 2024,
     "url": null,
-    "claves": ["CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos"],
-    "tarjetas": ["sequia-durante-01"],
+    "claves": [
+      "CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos"
+    ],
+    "tarjetas": [
+      "sequia-durante-01"
+    ],
     "consultado": "2026-11-22",
     "nota": "Enlace por confirmar: el sitio de CIPCA no respondió el 22/11/2026. Sin enlace verificado no se muestra como enlace."
+  },
+  {
+    "id": "fao-tcp-rla-3217-caylloma",
+    "institucion": "FAO",
+    "titulo": "Sistematización de Buenas Prácticas en la comunidad de Caylloma, Arequipa, Perú (TCP/RLA/3112 · TCP/RLA/3217)",
+    "anio": 2010,
+    "url": "https://www.fao.org/4/al927s/al927s.pdf",
+    "claves": [
+      "FAO, Sistematización de Buenas Prácticas en la comunidad de Caylloma"
+    ],
+    "tarjetas": [
+      "nevada-antes_animales-01"
+    ],
+    "consultado": "2026-11-22",
+    "nota": "Caso de Perú (alpacas en el altiplano de Arequipa), del mismo programa FAO que el caso de Bolivia. 34 páginas."
+  },
+  {
+    "id": "fao-bolivia-cartilla-ugr-2012",
+    "institucion": "FAO Bolivia",
+    "titulo": "Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+    "anio": 2012,
+    "url": "https://www.fao.org/3/a-as967s.pdf",
+    "claves": [
+      "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo"
+    ],
+    "tarjetas": [
+      "nevada-antes_animales-01",
+      "helada-despues-01",
+      "sequia-durante-02",
+      "sequia-durante-03",
+      "sequia-durante-04"
+    ],
+    "consultado": "2026-11-22",
+    "nota": "Reimpresa para comunidades afectadas en Oruro. La p. 14 describe cómo la Unidad Municipal recibe y comunica los eventos (heladas, nevadas…) de las comunidades."
+  },
+  {
+    "id": "fao-manual-alpacas-llamas-1996",
+    "institucion": "FAO",
+    "titulo": "Manual de prácticas de manejo de alpacas y llamas (Estudio FAO Producción y Sanidad Animal 130), capítulo 4: Alimentación",
+    "anio": 1996,
+    "url": "https://www.fao.org/4/w3341s/w3341s02.pdf",
+    "claves": [
+      "FAO, Manual de prácticas de manejo de alpacas y llamas"
+    ],
+    "tarjetas": [
+      "sequia-durante-04"
+    ],
+    "consultado": "2026-11-22",
+    "nota": "El enlace es el PDF del capítulo 4. Las páginas citadas son las del visor de ese PDF (entre paréntesis, la impresa)."
+  },
+  {
+    "id": "cdc-agua-segura-emergencia-2025",
+    "institucion": "CDC (EE. UU.)",
+    "titulo": "Cómo hacer que el agua sea segura en caso de emergencia",
+    "anio": 2025,
+    "url": "https://www.cdc.gov/water-emergency/es/about/how-to-make-water-safe.html",
+    "claves": [
+      "CDC (EE. UU.), Cómo hacer que el agua sea segura en caso de emergencia"
+    ],
+    "tarjetas": [
+      "sequia-durante-03"
+    ],
+    "consultado": "2026-11-22",
+    "nota": "Página web en español, fechada el 15 de enero de 2025. Fuente oficial de salud pública de EE. UU.: si hay una guía equivalente del Ministerio de Salud de Bolivia, se prefiere esa."
+  },
+  {
+    "id": "cdc-almacenamiento-agua-2025",
+    "institucion": "CDC (EE. UU.)",
+    "titulo": "Almacenamiento seguro del agua",
+    "anio": 2025,
+    "url": "https://www.cdc.gov/global-water-sanitation-hygiene/es/about/about-safe-water-storage.html",
+    "claves": [
+      "CDC (EE. UU.), Almacenamiento seguro del agua"
+    ],
+    "tarjetas": [
+      "sequia-durante-03"
+    ],
+    "consultado": "2026-11-22",
+    "nota": "Página web en español, fechada el 18 de septiembre de 2025."
   }
 ]
