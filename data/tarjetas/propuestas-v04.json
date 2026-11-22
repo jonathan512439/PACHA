@@ -1,0 +1,69 @@
+{
+  "_nota": "Propuestas v0.4 (por qué, evita, pide ayuda) para las 6 tarjetas YA verificadas. NO se cargan: pasarlas a tarjetas.json cambia la huella y exige verificar de nuevo. Se cotejan con la hoja H5 (node scripts/armar-verificacion.mjs) y, si están OK, se copian a la tarjeta y se marca otra vez con npm run verificar:tarjeta.",
+  "helada-antes_familia-01": {
+    "por_que": {
+      "texto": "La helada puede quemar las hojas y retrasar el crecimiento de los brotes tiernos de papa, haba y hortalizas.",
+      "fuente": { "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026", "page": "p. 6" }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": { "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo", "page": "p. 14" }
+    }
+  },
+  "helada-antes_animales-01": {
+    "por_que": {
+      "texto": "Los corrales sin techo no protegen de heladas, lluvias ni nevadas. Con corrales semitechados, la muerte de crías bajó de 42 % a 6,5 %.",
+      "fuente": { "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris", "page": "p. 37" }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": { "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo", "page": "p. 14" }
+    }
+  },
+  "helada-durante-01": {
+    "por_que": {
+      "texto": "El frío extremo puede causar abortos en llamas, alpacas y ovejas en gestación avanzada.",
+      "fuente": { "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026", "page": "p. 8" }
+    },
+    "evitar": [
+      {
+        "texto": "Evita las zonas altas y expuestas durante las tormentas eléctricas.",
+        "fuente": { "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026", "page": "p. 8" }
+      }
+    ],
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": { "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo", "page": "p. 14" }
+    }
+  },
+  "sequia-antes_familia-01": {
+    "por_que": {
+      "texto": "Una qotaña que se llena en los 4 meses de lluvia dio agua al ganado durante los 8 meses siguientes.",
+      "fuente": { "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris", "page": "p. 51" }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": { "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo", "page": "p. 14" }
+    }
+  },
+  "sequia-antes_animales-01": {
+    "por_que": {
+      "texto": "En la zona alto-andina el forraje es de baja calidad, sobre todo en la época seca.",
+      "fuente": { "doc": "FAO, Manual de prácticas de manejo de alpacas y llamas (Estudio FAO Producción y Sanidad Animal 130), cap. 4", "page": "p. 13 del PDF (p. 66 impresa)" }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": { "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo", "page": "p. 14" }
+    }
+  },
+  "sequia-durante-01": {
+    "por_que": {
+      "texto": "Con poca lluvia y vientos fuertes, el suelo pierde humedad y las semillas de quinua se secan.",
+      "fuente": { "doc": "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026", "page": "p. 7 (Altiplano Sur)" }
+    },
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": { "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo", "page": "p. 14" }
+    }
+  }
+}

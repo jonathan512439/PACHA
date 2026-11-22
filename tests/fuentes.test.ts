@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { Tarjeta } from "@/contratos/tipos";
 import { FUENTES, citasSinFuente, fuentesDeDoc, fuentesDeTarjeta, listarFuentes } from "@/lib/fuentes";
+import { problemasDeContenido } from "@/lib/tarjeta-contenido";
 
 const tarjetas = (JSON.parse(readFileSync(path.join(__dirname, "..", "data", "tarjetas", "tarjetas.json"), "utf8")) as unknown[])
   .map((t) => Tarjeta.parse(t));
@@ -38,6 +39,18 @@ describe("fuentes oficiales", () => {
     const r = fuentesDeTarjeta(tarjetas.find((t) => t.id === "helada-durante-01")!);
     expect(r).toHaveLength(1);
     expect(r[0].paginas).toEqual(["p. 8"]);
+  });
+
+  it("las propuestas v0.4 para las 6 verificadas validan, citan fuentes de la lista y pasan el filtro de contenido", () => {
+    const propuestas = JSON.parse(readFileSync(path.join(__dirname, "..", "data", "tarjetas", "propuestas-v04.json"), "utf8"));
+    for (const [id, p] of Object.entries(propuestas as Record<string, object>)) {
+      if (id.startsWith("_")) continue;
+      const base = tarjetas.find((t) => t.id === id);
+      expect(base, id).toBeDefined();
+      const conPropuesta = Tarjeta.parse({ ...base, ...p });
+      expect(citasSinFuente(conPropuesta), id).toEqual([]);
+      expect(problemasDeContenido(conPropuesta), id).toEqual([]);
+    }
   });
 
   it("listarFuentes devuelve todas", () => {

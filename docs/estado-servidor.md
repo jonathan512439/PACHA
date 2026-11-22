@@ -1,6 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~03:50_
+_Última actualización: dom 22/11, ~04:05_
 
 ## Hecho
 ### H2 · Tarjeta v0.4 y fuentes (en `main`)
@@ -56,11 +56,13 @@ _Última actualización: dom 22/11, ~03:50_
 - **Menú del bot:** opción ❄️ Nevada, que aparece sola cuando su tarjeta esté verificada (hoy siguen los 3 botones).
 
 ## En curso
-- Propuestas de "por qué", "evita" y "pide ayuda" para las 6 verificadas (aparte, para no invalidar su verificación). Después de las 04:30: regenerar el audio de la alerta del demo.
+- Después de las 04:30: regenerar y subir el audio de la alerta del demo con el guion nuevo (1 TTS).
+- Cuando confirmen cada tarjeta: pasarla a verificada, seed, imágenes, audio y PNG.
 
 ## Necesito de Jhonatan
 - **H5 · Verificar las 5 tarjetas nuevas** (~10 min cada una, con B). La hoja está en `scratch/verificacion/verificacion-tarjetas.md` de **esta carpeta** (`Hackathon-servidor`), local porque lleva citas literales. Los PDF están en `scratch/verificacion/fuentes/`. Para cada tarjeta se cotejan los pasos, el "por qué", el "evita" y el "pide ayuda". Cuando esté, avísame: "`<id>` verificada por `<nombre>`", o qué punto falla.
 - **Agua segura (`sequia-durante-03`):** la fuente es el CDC de EE. UU. (páginas en español). ¿Te sirve, o prefieres esperar una guía del Ministerio de Salud de Bolivia? Sin otra fuente legible, la alternativa es dejarla fuera.
+- **Propuestas para las 6 verificadas** (`data/tarjetas/propuestas-v04.json`): "por qué", "evita" y "pide ayuda", con fuente. Están al final de la misma hoja H5. Si las das por buenas, las copio a cada tarjeta y hay que volver a marcarla verificada (cambia su huella). **No es obligatorio para el demo.**
 - **H4 · Imágenes por paso:** prompts en `docs/prompts-imagenes.md` → "Pasos de las tarjetas nuevas". Mejor generarlas cuando cada tarjeta esté verificada.
 **H7 listo para aplicar: v0.4**
 

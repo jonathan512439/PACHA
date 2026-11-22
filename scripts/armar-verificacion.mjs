@@ -126,6 +126,21 @@ for (const t of lista) {
   if (t.pedir_ayuda) cotejar("Pide ayuda si…", t.pedir_ayuda.texto, t.pedir_ayuda.fuente);
 }
 
+// Propuestas v0.4 para las tarjetas YA verificadas (no se cargan hasta cotejarlas: cambian la huella).
+const ARCHIVO_PROPUESTAS = path.join(RAIZ, "data", "tarjetas", "propuestas-v04.json");
+if (existsSync(ARCHIVO_PROPUESTAS)) {
+  const propuestas = JSON.parse(readFileSync(ARCHIVO_PROPUESTAS, "utf8"));
+  md.push(`---`, ``, `# Propuestas para las tarjetas ya verificadas`, ``,
+    `Solo se cotejan estas secciones nuevas: los pasos ya están verificados. Si quedan OK, se copian a la tarjeta y se vuelve a marcar con \`npm run verificar:tarjeta\`.`, ``);
+  for (const [id, p] of Object.entries(propuestas)) {
+    if (id.startsWith("_")) continue;
+    md.push(`## ${id} (propuesta)`, ``);
+    if (p.por_que) cotejar("Por qué importa", p.por_que.texto, p.por_que.fuente);
+    (p.evitar ?? []).forEach((e, i) => cotejar(`Evita ${i + 1}`, e.texto, e.fuente));
+    if (p.pedir_ayuda) cotejar("Pide ayuda si…", p.pedir_ayuda.texto, p.pedir_ayuda.fuente);
+  }
+}
+
 mkdirSync(path.dirname(SALIDA), { recursive: true });
 writeFileSync(SALIDA, md.join("\n"));
 console.log(`✔ ${path.relative(RAIZ, SALIDA)} (${lista.length} tarjetas)${faltan.length ? ` · faltan PDFs: ${faltan.join(", ")}` : ""}`);

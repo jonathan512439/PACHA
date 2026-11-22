@@ -156,6 +156,18 @@ describe("regla de publicación (DEMO_PERMITIR_BORRADOR)", () => {
   });
 });
 
+describe("tarjetas v0.4 de 4 y 5 pasos", () => {
+  it("se dibujan con todos sus pasos (ícono de respaldo donde no hay imagen)", () => {
+    for (const id of ["sequia-durante-03", "nevada-antes_animales-01"]) {
+      const t = porId(id);
+      const imagenes = resolverImagenes(t, BASE, null);
+      expect(imagenes.pasos).toHaveLength(t.steps.length);
+      const html = renderToStaticMarkup(<TarjetaVisual tarjeta={t} imagenes={imagenes} variante="imagen" />);
+      for (const paso of t.steps) expect(html).toContain(paso.replace(/"/g, "&quot;").slice(0, 30));
+    }
+  });
+});
+
 describe("imágenes con respaldo", () => {
   const t = porId("sequia-durante-01");
 
