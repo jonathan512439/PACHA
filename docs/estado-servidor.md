@@ -76,5 +76,23 @@ _Última actualización: dom 22/11, ~04:05_
 - **Login en Vercel (cuando quieras):** pon **juntas** `SESSION_SECRET` (el mismo u otro de 64 hex) y las líneas nuevas de `PANEL_USERS`; Redeploy; entra por `/ingresar`. Si pones solo una de las dos, el panel queda cerrado o sigue con basic auth.
 - **CIPCA:** su sitio no respondió (error TLS) y no pude confirmar el enlace al boletín "Propuestas de respuesta integral a la sequía…". Si tienes el PDF o el enlace, pásamelo. Mientras tanto, la fuente aparece **sin enlace**.
 
+## Agua segura (`sequia-durante-03`): fuentes OPS/OMS encontradas (sin cambiar la tarjeta todavía)
+Abiertas y leídas el 22/11 (PDF en `scratch/verificacion/fuentes/ops-*.pdf`):
+- **OPS/OMS, Notas técnicas sobre agua, saneamiento e higiene en emergencias n.º 10, "Tratamiento de emergencia de agua potable en el lugar de consumo"**: https://paho.org/sites/default/files/2019-12/Nota-tecnica-sobre-agua-saneamiento-higiene-10.pdf
+  - **p. 3:** el agua se guarda en recipientes limpios, cubiertos, en un lugar fresco y oscuro; mejor de boca ancha y con tapa que cierre bien, porque son fáciles de limpiar.
+  - **p. 4:** agua turbia: dejarla asentar 24 h y pasarla con cuidado a otro recipiente, o colarla con una tela fina; después, hervirla o desinfectarla.
+  - **p. 5:** hervir vigorosamente 1 minuto desde que empieza a hervir a nivel del mar, **y 1 minuto más por cada 1000 m de altitud**; mata casi todos los patógenos.
+- **OPS/OMS, "El agua en situaciones de emergencia" (OPS/HEP/99/34)**: https://paho.org/sites/default/files/2019-12/WtrEmrgS.pdf — **p. 12:** la misma regla (1 minuto más por cada 1000 m).
+- **Diferencia con el CDC:** el CDC dice 3 minutos por encima de unos 2000 m; la regla de la OPS da **unos 5 minutos en Oruro (~3700 m)**. Recomiendo la OPS: es de la región y más prudente en altura.
+- **También FAO** (cartilla de agua segura de un proyecto de Guatemala, 2013, https://www.fao.org/4/ar649s/ar649s.pdf, p. 5): hervir 10 minutos y guardar en recipientes limpios y tapados.
+- **Ministerio de Salud de Bolivia:** no encontré una guía que pudiera abrir y leer.
+- **Versión posible con OPS** (si Jhonatan la elige; cambia la tarjeta y su verificación):
+  1. «Si el agua está turbia, déjala asentar y pásala con cuidado a otro recipiente, o cuélala con una tela fina.» (nota p. 4)
+  2. «Hierve el agua con fuerza un minuto, y un minuto más por cada 1000 metros de altura.» (nota p. 5)
+  3. «Guárdala en recipientes limpios y tapados, en un lugar fresco y oscuro.» (nota p. 3)
+  4. «Usa recipientes de boca ancha con tapa que cierre bien: son fáciles de limpiar.» (nota p. 3)
+  - Por qué: «Hervir el agua mata casi todos los microbios que transmite.» (nota p. 5)
+  - El paso del CDC «sin meter las manos» no está en la OPS: saldría o se queda con el CDC como segunda fuente.
+
 ## Necesito de INTERFAZ
 - Nada por ahora. `/ingresar` ya usa `components/ui` (Campo, Boton, Aviso). Gracias por H1.
