@@ -4,14 +4,14 @@ import { useState, useTransition, type ReactNode } from "react";
 import type { Resultado } from "@/app/panel/acciones";
 
 const estilos = {
-  primario: "bg-emerald-800 text-white hover:bg-emerald-900",
-  peligro: "bg-red-700 text-white hover:bg-red-800",
-  secundario: "bg-white border border-stone-300 hover:bg-stone-50",
+  primario: "bg-marca text-white hover:bg-marca-oscura",
+  peligro: "bg-roja text-white hover:bg-roja-tinta",
+  secundario: "bg-superficie border border-borde-fuerte hover:bg-superficie-2",
 } as const;
 
 function Aviso({ r }: { r: Resultado | null }) {
   if (!r) return null;
-  return <p role="status" className={`text-sm ${r.ok ? "text-emerald-800" : "text-red-700"}`}>{r.mensaje}</p>;
+  return <p role="status" className={`text-sm ${r.ok ? "text-verde-tinta" : "text-roja"}`}>{r.mensaje}</p>;
 }
 
 /** Botón que ejecuta una Server Action sin argumentos (ya enlazada con .bind) y refresca la página. */
@@ -25,7 +25,7 @@ export function BotonAccion({ accion, children, confirmar, variante = "primario"
     <div className="space-y-1">
       <button type="button" disabled={pendiente || deshabilitado}
         onClick={() => { if (confirmar && !confirm(confirmar)) return; iniciar(async () => { setR(await accion()); router.refresh(); }); }}
-        className={`rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos[variante]}`}>
+        className={`inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos[variante]}`}>
         {pendiente ? "Procesando…" : children}
       </button>
       <Aviso r={r} />
@@ -47,7 +47,7 @@ export function FormAccion({ accion, children, boton, className = "" }: {
       iniciar(async () => { setR(await accion(f)); router.refresh(); });
     }}>
       {children}
-      <button type="submit" disabled={pendiente} className={`rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos.primario}`}>
+      <button type="submit" disabled={pendiente} className={`inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos.primario}`}>
         {pendiente ? "Procesando…" : boton}
       </button>
       <Aviso r={r} />
@@ -78,7 +78,7 @@ export function FormEntrega({ accion, communityId, reportId, sugerido }: {
   const [r, setR] = useState<Resultado | null>(null);
   const [tipo, setTipo] = useState<"cisterna" | "forraje">(sugerido);
   return (
-    <form className="grid gap-2 sm:grid-cols-[auto_auto_1fr_auto] items-end rounded-lg bg-stone-50 p-3" onSubmit={(e) => {
+    <form className="grid gap-2 sm:grid-cols-[auto_auto_1fr_auto] items-end rounded-lg bg-superficie-2 p-3" onSubmit={(e) => {
       e.preventDefault();
       const f = new FormData(e.currentTarget);
       iniciar(async () => {
@@ -92,18 +92,18 @@ export function FormEntrega({ accion, communityId, reportId, sugerido }: {
       <input type="hidden" name="communityId" value={communityId} />
       <input type="hidden" name="reportId" value={reportId} />
       <label className="text-sm">Tipo
-        <select name="kind" value={tipo} onChange={(e) => setTipo(e.target.value as "cisterna" | "forraje")} className="block rounded border border-stone-300 px-2 py-1">
+        <select name="kind" value={tipo} onChange={(e) => setTipo(e.target.value as "cisterna" | "forraje")} className="block rounded border border-borde-fuerte px-2 py-1">
           <option value="cisterna">Cisterna de agua</option>
           <option value="forraje">Forraje (kg)</option>
         </select>
       </label>
       <label className="text-sm">{tipo === "cisterna" ? "Cisternas" : "Kilos"}
-        <input name="quantity" type="number" min="1" step="1" required defaultValue={tipo === "cisterna" ? 1 : 200} className="block w-24 rounded border border-stone-300 px-2 py-1" />
+        <input name="quantity" type="number" min="1" step="1" required defaultValue={tipo === "cisterna" ? 1 : 200} className="block w-24 rounded border border-borde-fuerte px-2 py-1" />
       </label>
       <label className="text-sm">Foto (sin personas)
         <input name="foto" type="file" accept="image/*" capture="environment" className="block text-xs" />
       </label>
-      <button type="submit" disabled={pendiente} className={`rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos.primario}`}>
+      <button type="submit" disabled={pendiente} className={`inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos.primario}`}>
         {pendiente ? "Registrando…" : "Registrar entrega"}
       </button>
       <div className="sm:col-span-4"><Aviso r={r} /></div>

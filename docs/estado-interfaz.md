@@ -45,7 +45,10 @@
   - `/suscribirse`: 3 pasos, QR grandes en tinta, "Qué recibes".
   - ⚠️ Al revisar `/probar` toqué "Empezar" una vez: el bot creó **un suscriptor web anónimo en estado "nuevo"** (sin datos personales). No lo borré, porque no escribo en Supabase. Se va con "Reiniciar demo".
 
-**En curso:** bloque 7, el estilo del panel (`/panel`, `/panel/reportes`, `/panel/alertas`; solo JSX y clases).
+- **Bloque 7 · Panel** (en `main`): `/panel`, `/panel/reportes`, `/panel/alertas` y `components/panel/Acciones.tsx` pasan a los tokens (marca, superficie, borde, roja, verde, ocre), con botones de 40 px y títulos en Fraunces. Solo clases: no cambió la estructura ni las acciones.
+  - **No lo pude ver en pantalla:** el panel pide login y no tengo contraseña. **Pido a Jhonatan o B** que abran `/panel`, `/panel/reportes` y `/panel/alertas` en el celular y en la PC y me avisen si algo se ve mal.
+
+**En curso:** repaso general (390 y 1280 px) y pendientes de los bloques anteriores.
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.

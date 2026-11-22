@@ -20,7 +20,7 @@ const fecha = (iso: string) => new Date(iso).toLocaleString("es-BO", { timeZone:
 
 export default function Reportes() {
   return (
-    <Suspense fallback={<p className="text-stone-500">Cargando reportes…</p>}>
+    <Suspense fallback={<p className="text-tinta-2">Cargando reportes…</p>}>
       <Lista />
     </Suspense>
   );
@@ -32,15 +32,15 @@ async function Lista() {
   return (
     <div className="space-y-6">
       <RefrescoAuto segundos={20} />
-      <h1 className="text-xl font-bold">Reportes de las comunidades</h1>
+      <h1 className="text-2xl font-semibold">Reportes de las comunidades</h1>
       {GRUPOS.map((g) => {
         const lista = reportes.filter((r) => r.status === g.estado);
         if (lista.length === 0 && (g.estado === "atendido" || g.estado === "descartado" || g.estado === "por_confirmar")) return null;
         return (
           <section key={g.estado} className="space-y-2">
-            <h2 className="font-semibold">{g.titulo} <span className="text-stone-500 font-normal">({lista.length})</span></h2>
-            {g.ayuda && <p className="text-xs text-stone-500">{g.ayuda}</p>}
-            {lista.length === 0 ? <p className="text-sm text-stone-400">Ninguno.</p> : (
+            <h2 className="font-semibold">{g.titulo} <span className="text-tinta-2 font-normal">({lista.length})</span></h2>
+            {g.ayuda && <p className="text-xs text-tinta-2">{g.ayuda}</p>}
+            {lista.length === 0 ? <p className="text-sm text-tinta-2">Ninguno.</p> : (
               <ul className="space-y-3">{lista.map((r) => <Reporte key={r.id} r={r} />)}</ul>
             )}
           </section>
@@ -53,28 +53,28 @@ async function Lista() {
 function Reporte({ r }: { r: ReportePanel }) {
   const p = r.payload as Record<string, number | null>;
   return (
-    <li className="rounded-lg bg-white border border-stone-200 p-3 space-y-2">
+    <li className="rounded-lg bg-superficie border border-borde p-3 space-y-2">
       <div className="flex flex-wrap items-baseline gap-x-3 text-sm">
         <span className="font-semibold">{r.comunidad}</span>
         <span>{TIPO[r.type] ?? r.type}</span>
         {r.priority_score !== null && <span>Prioridad <b>{r.priority_score}</b></span>}
-        <span className="text-stone-500">{fecha(r.created_at)}{r.canal ? ` · ${r.canal}` : ""}</span>
-        {r.esEjemplo && <span className="rounded bg-amber-100 px-1.5 text-[10px] font-semibold text-amber-900">EJEMPLO</span>}
-        {r.confidence !== null && r.confidence < 0.6 && <span className="text-red-700 text-xs">confianza {r.confidence}</span>}
+        <span className="text-tinta-2">{fecha(r.created_at)}{r.canal ? ` · ${r.canal}` : ""}</span>
+        {r.esEjemplo && <span className="rounded bg-ocre-suave px-1.5 text-[10px] font-semibold text-ocre-tinta">EJEMPLO</span>}
+        {r.confidence !== null && r.confidence < 0.6 && <span className="text-roja text-xs">confianza {r.confidence}</span>}
       </div>
-      {r.transcript && <p className="text-sm italic text-stone-700">“{r.transcript}”</p>}
+      {r.transcript && <p className="text-sm italic text-tinta">“{r.transcript}”</p>}
       {r.audioUrl && <audio controls src={r.audioUrl} className="w-full max-w-md" />}
-      <p className="text-xs text-stone-600">
+      <p className="text-xs text-tinta-2">
         Días sin recurso: {p.dias_sin_recurso ?? "—"} · Familias: {p.familias_afectadas ?? "—"} · Animales: {p.animales_afectados ?? "—"}{r.factor ? ` · Factor: ${r.factor}` : ""}
       </p>
 
       {["revisar", "por_confirmar", "confirmado"].includes(r.status) && (
         <details className="text-sm">
-          <summary className="cursor-pointer text-stone-600">Corregir datos</summary>
+          <summary className="cursor-pointer text-tinta-2">Corregir datos</summary>
           <FormAccion accion={corregirReporte.bind(null, r.id)} boton="Guardar corrección" className="mt-2">
             <div className="flex flex-wrap gap-3">
               {([["dias", "Días", p.dias_sin_recurso], ["familias", "Familias", p.familias_afectadas], ["animales", "Animales", p.animales_afectados]] as const).map(([n, t, v]) => (
-                <label key={n} className="text-xs">{t}<input name={n} type="number" min="0" step="1" defaultValue={v ?? ""} className="block w-24 rounded border border-stone-300 px-2 py-1" /></label>
+                <label key={n} className="text-xs">{t}<input name={n} type="number" min="0" step="1" defaultValue={v ?? ""} className="block w-24 rounded border border-borde-fuerte px-2 py-1" /></label>
               ))}
             </div>
           </FormAccion>
