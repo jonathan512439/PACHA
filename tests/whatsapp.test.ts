@@ -6,7 +6,7 @@ vi.mock("server-only", () => ({}));
 const procesarMensaje = vi.fn();
 vi.mock("@/lib/bot/procesar", () => ({ procesarMensaje: (...a: unknown[]) => procesarMensaje(...a) }));
 
-const { firmaValida, verificarSuscripcion, mensajesDelWebhook, manejarMensaje } = await import("@/lib/canales/whatsapp");
+const { firmaValida, verificarSuscripcion, mensajesDelWebhook, fallosDelWebhook, manejarMensaje } = await import("@/lib/canales/whatsapp");
 
 const SECRETO = "app-secret-de-prueba";
 const PHONE_ID = "100000000000001";
@@ -63,6 +63,18 @@ describe("lectura del payload", () => {
     expect(mensajesDelWebhook({ object: "page", entry: [] })).toHaveLength(0);
     expect(mensajesDelWebhook({ object: "whatsapp_business_account",
       entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: PHONE_ID } } }] }] })).toHaveLength(0);
+  });
+});
+
+describe("estados de entrega", () => {
+  it("toma solo los estados 'failed' del número propio, con su código", () => {
+    const w = { object: "whatsapp_business_account", entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: PHONE_ID },
+      statuses: [{ id: "wamid.1", status: "delivered", recipient_id: "000000000001" },
+                 { id: "wamid.2", status: "failed", recipient_id: "000000000001", errors: [{ code: 131030, title: "Recipient phone number not in allowed list" }] }] } }] }] };
+    const f = fallosDelWebhook(w);
+    expect(f).toHaveLength(1);
+    expect(f[0].errors?.[0].code).toBe(131030);
+    expect(fallosDelWebhook({ ...w, entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: "999" }, statuses: w.entry[0].changes[0].value.statuses } }] }] })).toHaveLength(0);
   });
 });
 

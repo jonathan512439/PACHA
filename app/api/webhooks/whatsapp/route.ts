@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { firmaValida, manejarMensaje, mensajesDelWebhook, verificarSuscripcion, type WebhookWA } from "@/lib/canales/whatsapp";
+import { firmaValida, manejarMensaje, mensajesDelWebhook, fallosDelWebhook, registrarFalloEntrega, verificarSuscripcion, type WebhookWA } from "@/lib/canales/whatsapp";
 
 // Webhook de WhatsApp Cloud API. URL a configurar en Meta: https://<app>/api/webhooks/whatsapp
 export const maxDuration = 60;
@@ -20,5 +20,7 @@ export async function POST(request: Request) {
   try { w = JSON.parse(crudo) as WebhookWA; } catch { return new Response("ok"); }
   const mensajes = mensajesDelWebhook(w);
   if (mensajes.length) after(async () => { for (const m of mensajes) await manejarMensaje(m); });
+  const fallos = fallosDelWebhook(w);
+  if (fallos.length) after(async () => { for (const f of fallos) await registrarFalloEntrega(f).catch(() => {}); });
   return new Response("ok"); // también para estados de entrega (sent/delivered/read), que se ignoran
 }

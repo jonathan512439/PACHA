@@ -1,4 +1,5 @@
 import "server-only";
+import { db } from "@/lib/supabase";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { MENSAJES, type EntradaBot, type SalidaBot } from "@/contratos/tipos";
 import { procesarMensaje } from "@/lib/bot/procesar";
@@ -27,10 +28,35 @@ type MensajeWA = {
   interactive?: { type: "button_reply" | "list_reply"; button_reply?: { id: string }; list_reply?: { id: string } };
   button?: { payload?: string; text?: string }; // respuesta rápida de una plantilla
 };
+export type EstadoWA = {
+  id?: string; status?: string; recipient_id?: string; timestamp?: string;
+  errors?: { code?: number; title?: string; message?: string; error_data?: { details?: string } }[];
+};
 export type WebhookWA = {
   object?: string;
-  entry?: { changes?: { field?: string; value?: { metadata?: { phone_number_id?: string }; messages?: MensajeWA[] } }[] }[];
+  entry?: { changes?: { field?: string; value?: { metadata?: { phone_number_id?: string }; messages?: MensajeWA[]; statuses?: EstadoWA[] } }[] }[];
 };
+
+/** Estados "failed" del payload (Meta aceptó el mensaje pero no lo entregó): sin esto el motivo se perdía. */
+export function fallosDelWebhook(w: WebhookWA): EstadoWA[] {
+  if (w.object !== "whatsapp_business_account") return [];
+  const propio = env("WHATSAPP_PHONE_NUMBER_ID");
+  return (w.entry ?? []).flatMap((e) => e.changes ?? [])
+    .filter((c) => c.field === "messages" && (!propio || c.value?.metadata?.phone_number_id === propio))
+    .flatMap((c) => c.value?.statuses ?? [])
+    .filter((s) => s.status === "failed");
+}
+
+/** Guarda el último fallo de entrega en el contexto de la persona (y en el log), para diagnosticar sin acceso a Vercel. */
+export async function registrarFalloEntrega(s: EstadoWA): Promise<void> {
+  const e = s.errors?.[0];
+  const fallo = { code: e?.code ?? null, title: e?.title ?? null, detalle: e?.error_data?.details ?? e?.message ?? null, en: new Date().toISOString() };
+  console.error(`WhatsApp: mensaje no entregado (${fallo.code}) ${fallo.title ?? ""} ${fallo.detalle ?? ""}`);
+  if (!s.recipient_id) return;
+  const { data } = await db().from("subscribers").select("id, contexto").eq("channel", "whatsapp").eq("channel_user_id", s.recipient_id).maybeSingle();
+  if (!data) return;
+  await db().from("subscribers").update({ contexto: { ...(data.contexto ?? {}), ultimoFalloEntrega: fallo } }).eq("id", data.id);
+}
 
 // ---- Seguridad ---------------------------------------------------------------
 /** Verificación del webhook (GET): Meta envía hub.verify_token y espera hub.challenge de vuelta. */
