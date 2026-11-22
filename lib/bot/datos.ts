@@ -101,16 +101,31 @@ export async function comunidad(id: string): Promise<Comunidad | null> {
   return data as Comunidad | null;
 }
 
+/** Amenaza a la que pertenece cada factor (para elegir la tarjeta "durante" de esa amenaza). */
+const AMENAZA_DE_FACTOR: Record<string, string> = {
+  sin_agua_consumo: "sequia", pozo_o_vertiente_seca: "sequia", sin_reserva_forraje: "sequia",
+  cultivos_sin_proteccion_helada: "helada", perdida_por_helada: "helada", animales_sin_abrigo: "helada",
+  perdida_por_nevada: "nevada", camino_cortado: "nevada",
+};
+const ORDEN_FASE: Record<string, number> = { durante: 0, antes_animales: 1, antes_familia: 2, despues: 3 };
+
 /**
- * Id de la primera tarjeta publicable etiquetada con ese factor (coincidencia exacta, sin IA).
+ * Tarjeta para un reporte confirmado (regla fija, sin IA). Un reporte describe algo que YA está pasando:
+ *   1) fase "durante" con ese factor · 2) fase "durante" de la amenaza del factor · 3) cualquier fase con ese factor.
+ * Ej.: "la vertiente está seca" (pozo_o_vertiente_seca) -> sequia-durante-01, no "Guarda agua ANTES de la sequía".
  * La tarjeta en sí la arma lib/tarjetas.salidaTarjeta (regla de publicación y etiquetas).
  */
 export async function idTarjetaPorFactor(factor: string): Promise<string | null> {
   const { data, error } = await db()
-    .from("lessons").select("id")
-    .contains("factor_tags", [factor]).in("status", [...estadosPublicables(permitirBorrador())]).order("id").limit(1);
+    .from("lessons").select("id, hazard, phase, factor_tags").in("status", [...estadosPublicables(permitirBorrador())]);
   falla("buscar tarjeta por factor", error);
-  return (data?.[0]?.id as string | undefined) ?? null;
+  const todas = (data ?? []) as { id: string; hazard: string; phase: string; factor_tags: string[] }[];
+  const porOrden = (a: { id: string; phase: string }, b: { id: string; phase: string }) =>
+    (ORDEN_FASE[a.phase] ?? 9) - (ORDEN_FASE[b.phase] ?? 9) || a.id.localeCompare(b.id);
+  const conFactor = todas.filter((t) => t.factor_tags?.includes(factor)).sort(porOrden);
+  const durante = conFactor.find((t) => t.phase === "durante")
+    ?? todas.filter((t) => t.phase === "durante" && t.hazard === AMENAZA_DE_FACTOR[factor]).sort(porOrden)[0];
+  return (durante ?? conFactor[0])?.id ?? null;
 }
 
 export async function crearReporte(r: Omit<Reporte, "id"> & { media_path?: string | null }): Promise<Reporte> {
