@@ -61,7 +61,7 @@ async function Registro() {
         ))}
       </dl>
 
-      <div className="overflow-x-auto rounded-xl border border-borde bg-superficie">
+      <div className="relative overflow-x-auto rounded-xl border border-borde bg-superficie">
         <table className="w-full min-w-[720px] border-collapse text-left text-sm">
           <caption className="sr-only">Entregas registradas, de la más reciente a la más antigua</caption>
           <thead className="border-b border-borde bg-superficie-2 text-tinta">

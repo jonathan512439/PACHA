@@ -1,4 +1,9 @@
 /** Formatos de fecha y número para el público, siempre en hora de Bolivia. */
+import { fechaLarga, rangoFechas } from "@/contratos/tipos";
+
+/** Periodo de un aviso: "14 al 23 de noviembre de 2026", o "22 de noviembre de 2026" si es un solo día (no "22 al 22"). */
+export const periodo = (desde: string, hasta: string) => (desde === hasta ? fechaLarga(hasta) : rangoFechas(desde, hasta));
+
 const ZONA = "America/La_Paz";
 
 /** "22/11, 02:45" */

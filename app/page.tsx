@@ -1,7 +1,6 @@
 import { cache, Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
-import { rangoFechas } from "@/contratos/tipos";
 import { alertaActiva } from "@/lib/datos-publicos";
 import { comunidadesVisibles } from "@/lib/visibilidad";
 import { etiquetaFactor } from "@/lib/problemas-agrupar";
@@ -11,7 +10,7 @@ import { urgenciaDe } from "@/components/mapa/colores";
 import RefrescoAuto from "@/components/RefrescoAuto";
 import { BandaAviso, nivelBanda } from "@/components/portada/BandaAviso";
 import { ResumenComunidades } from "@/components/portada/SinAgua";
-import { hoyBolivia } from "@/components/ui/formato";
+import { hoyBolivia, periodo } from "@/components/ui/formato";
 
 // Una sola consulta por petición aunque la pidan la banda, el mapa y el resumen.
 const alerta = cache(alertaActiva);
@@ -42,7 +41,7 @@ export default function Inicio() {
       <section id="mapa" aria-labelledby="mapa-titulo" className="scroll-mt-4 space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <h2 id="mapa-titulo" className="text-2xl font-semibold">Prioridad de atención</h2>
-          <Link href="/como-funciona#como-se-calcula" className="text-sm text-marca underline">Cómo se calcula</Link>
+          <Link href="/como-funciona#como-se-calcula" className="inline-flex min-h-10 items-center text-sm text-marca underline">Cómo se calcula</Link>
         </div>
         <Suspense fallback={<Cargando alto="h-[480px]" texto="Cargando el mapa" />}>
           <MapaYRanking />
@@ -84,7 +83,7 @@ async function MapaYRanking() {
   });
   const aviso: AvisoMapa =
     a && a.valid_to >= hoyBolivia()
-      ? { nivel: nivelBanda(a), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: rangoFechas(a.valid_from, a.valid_to) }
+      ? { nivel: nivelBanda(a), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: periodo(a.valid_from, a.valid_to) }
       : null;
   return (
     <>

@@ -16,7 +16,7 @@ export function ComoSeCalcula() {
       </summary>
       <div className="space-y-3 px-5 pb-5 text-sm leading-relaxed text-tinta">
         <p>Se suman cuatro criterios, hasta 100 puntos. Cada uno cuenta de 0 al máximo, hasta su tope:</p>
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <table className="w-full min-w-[320px] border-collapse text-left">
             <thead>
               <tr className="border-b border-borde-fuerte text-tinta-2">

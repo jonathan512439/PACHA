@@ -1,11 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { rangoFechas } from "@/contratos/tipos";
 import { alertasPanel } from "@/lib/datos-publicos";
 import { BotonAccion, FormAccion } from "@/components/panel/Acciones";
 import { aprobar, buscarBoletinAhora, crearComunicado, descartar, enviar, subirBoletin } from "../acciones";
-import { hoyBolivia } from "@/components/ui/formato";
+import { hoyBolivia, periodo } from "@/components/ui/formato";
 import { CampoArchivo } from "@/components/ui/CampoArchivo";
 import { ChevronDown, FileUp } from "lucide-react";
 
@@ -113,7 +112,7 @@ async function Lista() {
           <li key={a.id} className="rounded-lg bg-superficie border border-borde p-4 space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${ESTADO[a.status] ?? ""}`}>{a.status}</span>
-              <h2 className="font-semibold">Aviso de {a.hazard} · {rangoFechas(a.valid_from, a.valid_to)}</h2>
+              <h2 className="font-semibold">Aviso de {a.hazard} · {periodo(a.valid_from, a.valid_to)}</h2>
               {a.boletin?.source_url && <a href={a.boletin.source_url} target="_blank" rel="noreferrer" className="text-sm text-marca underline">Fuente original</a>}
               {a.boletin?.pdfUrl && <a href={a.boletin.pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-verde-tinta underline">Copia guardada (PDF)</a>}
             </div>

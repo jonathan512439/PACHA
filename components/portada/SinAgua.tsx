@@ -24,7 +24,7 @@ export function ResumenComunidades({ comunidades }: { comunidades: ComunidadVisi
     <section aria-labelledby="resumen-titulo" className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 id="resumen-titulo" className="text-2xl font-semibold">Resumen</h2>
-        <Link href="/resumen" className="inline-flex items-center gap-1.5 text-sm text-marca underline"><Printer aria-hidden="true" className="size-4" />Imprimir</Link>
+        <Link href="/resumen" className="inline-flex min-h-10 items-center gap-1.5 text-sm text-marca underline"><Printer aria-hidden="true" className="size-4" />Imprimir</Link>
       </div>
 
       <dl className="grid grid-cols-2 divide-borde overflow-hidden rounded-xl border border-borde bg-superficie sm:grid-cols-4 sm:divide-x">
@@ -39,7 +39,7 @@ export function ResumenComunidades({ comunidades }: { comunidades: ComunidadVisi
       {afectadas.length === 0 ? (
         <p className="text-tinta-2">Ninguna comunidad tiene falta de agua o forraje pendiente.</p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-borde bg-superficie">
+        <div className="relative overflow-x-auto rounded-xl border border-borde bg-superficie">
           <table className="w-full min-w-[620px] border-collapse text-left text-sm">
             <thead className="border-b border-borde bg-superficie-2 text-tinta">
               <tr>

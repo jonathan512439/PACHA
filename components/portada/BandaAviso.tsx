@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { nivelAlerta, rangoFechas, type NivelSenamhi, type Riesgo } from "@/contratos/tipos";
+import { nivelAlerta, type NivelSenamhi, type Riesgo } from "@/contratos/tipos";
 import { Aviso } from "@/components/ui/Aviso";
-import { hoyBolivia } from "@/components/ui/formato";
+import { hoyBolivia, periodo } from "@/components/ui/formato";
 import type { AlertaPublica } from "@/lib/datos-publicos";
 
 const AMENAZA: Record<string, string> = { helada: "helada", sequia: "sequía", nevada: "nevada" };
@@ -13,6 +13,19 @@ const AMENAZA: Record<string, string> = { helada: "helada", sequia: "sequía", n
 export function nivelBanda(a: { risk_level: string | null; senamhi_level?: string | null }): "roja" | "naranja" | "info" {
   return nivelAlerta({ risk_level: a.risk_level as Riesgo | null, senamhi_level: (a.senamhi_level ?? null) as NivelSenamhi | null }) ?? "info";
 }
+
+/**
+ * La cita es LITERAL, pero puede venir cortada a 200 caracteres en medio de una palabra:
+ * se corta en la última palabra completa y se marca con "…" (no se agrega ni se cambia nada más).
+ */
+export function citaLegible(cita: string): string {
+  const t = cita.trim();
+  if (t.length < 190 || /[.!?;:)»"”]$/.test(t)) return t;
+  const corte = t.lastIndexOf(" ");
+  return `${(corte > 0 ? t.slice(0, corte) : t).replace(/[\s,;:]+$/, "")}…`;
+}
+
+const CLASES_ENLACE = "inline-flex min-h-10 items-center";
 
 /** Banda del aviso oficial vigente, arriba de la portada. */
 export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPublica & { fuente_url: string | null }) | null; hoy?: string }) {
@@ -39,10 +52,10 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
       titulo={titulo}
       role="region"
       accion={
-        <span className="flex flex-wrap gap-x-5 gap-y-1">
-          {alerta.lesson_id && <Link href={`/tarjetas/${alerta.lesson_id}`}>Qué hacer</Link>}
+        <span className="flex flex-wrap gap-x-5">
+          {alerta.lesson_id && <Link href={`/tarjetas/${alerta.lesson_id}`} className={CLASES_ENLACE}>Qué hacer</Link>}
           {alerta.fuente_url && (
-            <a href={alerta.fuente_url} target="_blank" rel="noopener noreferrer">
+            <a href={alerta.fuente_url} target="_blank" rel="noopener noreferrer" className={CLASES_ENLACE}>
               Boletín del Senamhi (PDF)<span className="sr-only">, abre en otra pestaña</span>
             </a>
           )}
@@ -50,11 +63,11 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
       }
     >
       <p className="font-semibold">
-        {alerta.zona ?? "Altiplano"} · {rangoFechas(alerta.valid_from, alerta.valid_to)}
+        {alerta.zona ?? "Altiplano"} · {periodo(alerta.valid_from, alerta.valid_to)}
         {alerta.risk_level && <> · Riesgo {alerta.risk_level.toUpperCase()} según el Senamhi</>}
       </p>
-      <p>El boletín dice: “{alerta.cita_evento}”</p>
-      {alerta.cita_riesgo && <p>Riesgo: “{alerta.cita_riesgo}”</p>}
+      <p>El boletín dice: “{citaLegible(alerta.cita_evento)}”</p>
+      {alerta.cita_riesgo && <p>Riesgo: “{citaLegible(alerta.cita_riesgo)}”</p>}
       <p className="text-xs opacity-95">Fuente: Senamhi, boletín agrometeorológico decenal.</p>
     </Aviso>
   );

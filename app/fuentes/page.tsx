@@ -90,7 +90,7 @@ async function Boletines() {
   const lista = await boletinesPublicos();
   if (lista.length === 0) return <p className="text-tinta-2">Todavía no se procesó ningún boletín.</p>;
   return (
-    <div className="overflow-x-auto rounded-xl border border-borde bg-superficie">
+    <div className="relative overflow-x-auto rounded-xl border border-borde bg-superficie">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead className="border-b border-borde bg-superficie-2 text-tinta">
           <tr>

@@ -242,7 +242,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
                 )}
               >
                 <IconoAviso aria-hidden="true" className={cx("size-4 shrink-0", false)} />
-                <span className="truncate">
+                <span className="leading-snug">
                   {aviso.nivel === "roja" ? "ALERTA ROJA · " : aviso.nivel === "naranja" ? "ALERTA NARANJA · " : "Aviso · "}
                   {aviso.amenaza} · {aviso.zona} · {aviso.fechas}
                 </span>

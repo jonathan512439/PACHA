@@ -83,7 +83,7 @@ async function Resumen() {
         {afectadas.length === 0 ? (
           <p className="text-sm">Ninguna comunidad tiene falta de agua o forraje pendiente.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <table className="w-full min-w-[560px] border-collapse text-left text-sm">
               <thead className="border-b border-borde-fuerte">
                 <tr>

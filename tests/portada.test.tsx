@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { BandaAviso, nivelBanda } from "@/components/portada/BandaAviso";
+import { BandaAviso, citaLegible, nivelBanda } from "@/components/portada/BandaAviso";
 
 const alerta = (o: Partial<Parameters<typeof BandaAviso>[0]["alerta"] & object> = {}) => ({
   id: "a1",
@@ -34,6 +34,16 @@ describe("banda del aviso en la portada", () => {
     expect(html).toContain('href="/tarjetas/helada-antes_familia-01"');
     expect(html).toContain('href="https://senamhi.gob.bo/boletin.pdf"');
     expect(html).toContain("Fuente: Senamhi");
+  });
+
+  it("un solo día no dice «22 al 22»; la cita cortada termina en palabra completa con «…»", () => {
+    const larga = "Se pronostica cielo despejado durante el día, nuboso con probables chubascos aislados por la noche, la humedad relativa variará entre 40 % y 70 %, vientos CALMOS por la mañana, de dirección NOROESTE p";
+    const html = renderToStaticMarkup(<BandaAviso alerta={alerta({ valid_from: "2026-11-22", valid_to: "2026-11-22", cita_evento: larga })} hoy="2026-11-22" />);
+    expect(html).toContain("22 de noviembre");
+    expect(html).not.toContain("22 al 22");
+    expect(html).toContain("de dirección NOROESTE…”");
+    expect(citaLegible("Se prevén heladas.")).toBe("Se prevén heladas.");
+    expect(citaLegible("Se prevén heladas en el altiplano")).toBe("Se prevén heladas en el altiplano");
   });
 
   it("riesgo medio: ALERTA NARANJA · HELADA (sin «FUERTE»)", () => {

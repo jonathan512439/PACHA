@@ -68,6 +68,15 @@ TERMINADO: 22/11 10:05
 - `scripts/subir-imagenes.ts --ids` acepta también tarjetas creadas en el panel (lee cuántos pasos tienen en `lessons`).
 - Las imágenes viejas no se borran del bucket: quedan como historial.
 
+**Logo y última revisión (22/11, a pedido de Jhonatan):**
+- Logo de PACHA guardado en `public/marca/pacha-logo.png` (original, 1254 px) y `public/marca/pacha-logo-512.webp` (versión web).
+- Íconos: `app/favicon.ico` (16, 32 y 48 px, en RGBA, porque Turbopack no lee un ICO con PNG RGB), `app/icon.png` (192 px) y `app/apple-icon.png` (180 px). Next agrega las etiquetas solo. Se borraron los SVG de la plantilla de Next en `public/`, que nada usaba.
+- Revisión de todas las páginas públicas a 390 y 1280 px, sin errores de consola. Corregido:
+  - `/fuentes` se desbordaba en el celular: los `sr-only` de la tabla de boletines escapaban del contenedor con scroll. Ahora los contenedores `overflow-x-auto` llevan `relative`.
+  - Un aviso de un solo día decía «22 al 22 de noviembre». Ahora dice «22 de noviembre de 2026» (helper `periodo` en `components/ui/formato.ts`), en la banda, el mapa, «Cómo funciona» y Panel › Alertas.
+  - La cita del boletín cortada a 200 caracteres terminaba a mitad de palabra. Ahora termina en la última palabra completa con «…».
+  - «Qué hacer», «Boletín del Senamhi», «Cómo se calcula» e «Imprimir» miden 40 px. La etiqueta de la alerta sobre el mapa pasa a dos líneas en vez de cortarse.
+
 ---
 
 ## Componentes de `components/ui` (para SERVIDOR: solo usarlos)

@@ -2,12 +2,11 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
-import { rangoFechas } from "@/contratos/tipos";
 import { alertaActiva, resumenCiclo } from "@/lib/datos-publicos";
 import { comunidadesVisibles } from "@/lib/visibilidad";
 import { Ciclo } from "@/components/portada/Ciclo";
 import { ComoSeCalcula } from "@/components/portada/ComoSeCalcula";
-import { hoyBolivia } from "@/components/ui/formato";
+import { hoyBolivia, periodo } from "@/components/ui/formato";
 
 export const metadata: Metadata = {
   title: "Cómo funciona",
@@ -52,7 +51,7 @@ async function Pasos() {
   return (
     <Ciclo
       datos={{
-        aviso: a ? { vigente, detalle: `${a.hazard === "sequia" ? "Sequía" : a.hazard === "nevada" ? "Nevada" : "Helada"} · ${rangoFechas(a.valid_from, a.valid_to)}` } : null,
+        aviso: a ? { vigente, detalle: `${a.hazard === "sequia" ? "Sequía" : a.hazard === "nevada" ? "Nevada" : "Helada"} · ${periodo(a.valid_from, a.valid_to)}` } : null,
         ...r,
         comunidadesConReporte: cs.filter((c) => c.prioridad.estado === "activa").length,
         ahora: new Date(),
