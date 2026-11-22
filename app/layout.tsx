@@ -9,7 +9,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "sw
 const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "PACHA · Altiplano de Oruro", template: "%s · PACHA" },
+  title: { default: "PACHA", template: "%s · PACHA" },
   description:
     "Avisos del Senamhi, reportes de las comunidades y registro de entregas de agua y forraje en el Altiplano de Oruro.",
 };

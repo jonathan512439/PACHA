@@ -19,7 +19,6 @@ export function Cabecera() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
         <Link href="/" className="flex min-h-11 items-center gap-2 text-white no-underline">
           <span className="font-titulo text-2xl font-semibold tracking-wide">PACHA</span>
-          <span className="hidden text-sm text-white/85 sm:inline">Altiplano de Oruro</span>
         </Link>
         <nav aria-label="Principal" className="order-last w-full sm:order-none sm:w-auto">
           <ul className="flex flex-wrap gap-x-1 gap-y-1 text-[15px]">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Printer } from "lucide-react";
 import { textoContador, textoEntrega, textoRespuesta } from "@/lib/visibilidad-calculo";
 import type { ComunidadVisible } from "@/lib/visibilidad";
 import { fechaHora } from "@/components/ui/formato";
@@ -23,7 +24,7 @@ export function ResumenComunidades({ comunidades }: { comunidades: ComunidadVisi
     <section aria-labelledby="resumen-titulo" className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 id="resumen-titulo" className="text-2xl font-semibold">Resumen</h2>
-        <Link href="/resumen" className="text-sm text-marca underline">Versión para imprimir</Link>
+        <Link href="/resumen" className="inline-flex items-center gap-1.5 text-sm text-marca underline"><Printer aria-hidden="true" className="size-4" />Imprimir</Link>
       </div>
 
       <dl className="grid grid-cols-2 divide-borde overflow-hidden rounded-xl border border-borde bg-superficie sm:grid-cols-4 sm:divide-x">
