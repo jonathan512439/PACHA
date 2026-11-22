@@ -1,5 +1,5 @@
 // Crea la línea de un usuario del panel para PANEL_USERS (contraseña con scrypt; nunca en texto plano).
-//   npm run panel:usuario -- <usuario> <tecnico|admin>
+//   npm run panel:usuario -- <usuario> <tecnico|editor|verificador|admin>
 // Pide la contraseña dos veces SIN mostrarla e imprime "usuario:rol:scrypt.<sal>.<hash>".
 // Varias líneas se juntan con comas: PANEL_USERS=ana:tecnico:scrypt...,jhonatan:admin:scrypt...
 // Sin terminal (p. ej. en CI) lee la contraseña de la primera línea de la entrada estándar.
@@ -46,7 +46,7 @@ function leerOculto(pregunta: string): Promise<string> {
 async function main() {
   const [usuarioCrudo, rol] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
   const usuario = (usuarioCrudo ?? "").trim().toLowerCase();
-  if (!usuario || !rol) falla("Uso: npm run panel:usuario -- <usuario> <tecnico|admin>");
+  if (!usuario || !rol) falla("Uso: npm run panel:usuario -- <usuario> <tecnico|editor|verificador|admin>");
   if (!nombreValido(usuario)) falla("Usuario: de 2 a 32 caracteres, solo letras, números, punto, guion o guion bajo.");
   if (!(ROLES as readonly string[]).includes(rol)) falla(`Rol "${rol}" no válido. Usa: ${ROLES.join(" o ")}.`);
 

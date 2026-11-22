@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { Tarjeta } from "@/contratos/tipos";
 import { problemasDeContenido, problemasDeVerificacion } from "@/lib/tarjeta-contenido";
+import { huellaVerificacion } from "@/lib/tarjeta-publica";
 import { RAIZ, clienteSupabase, falla } from "./_comun";
 
 const ARCHIVO = path.join(RAIZ, "data", "tarjetas", "tarjetas.json");
@@ -56,6 +57,24 @@ async function main() {
   for (const t of tarjetas) console.log(`   ${t.id.padEnd(26)} ${t.status}`);
   if (process.argv.includes("--validar")) return;
 
+  // Desde el editor del panel la base manda: si una tarjeta se publicó o retiró allí y el JSON no tiene ese cambio,
+  // el seed la pisaría. Se detiene y pide traer los cambios primero (npm run tarjetas:bajar).
+  const sb = clienteSupabase();
+  const { data: editadas, error: errEd } = await sb.from("lesson_versions").select("lesson_id").in("estado", ["publicada", "retiro"]);
+  if (!errEd && editadas?.length) {
+    const ids = [...new Set(editadas.map((e) => e.lesson_id as string))];
+    const { data: enBase } = await sb.from("lessons").select("*").in("id", ids);
+    const distintas = (enBase ?? []).filter((fila) => {
+      const json = tarjetas.find((t) => t.id === fila.id);
+      const base = Tarjeta.safeParse({ ...fila, source_url: fila.source_url ?? undefined });
+      return !json || !base.success || huellaVerificacion(json) !== huellaVerificacion(base.data) || json.status !== base.data.status;
+    });
+    if (distintas.length) {
+      falla(`Estas tarjetas se editaron en el panel y el JSON no tiene el cambio: ${distintas.map((d) => d.id).join(", ")}.\n` +
+        "  Corre primero `npm run tarjetas:bajar` (trae los cambios al JSON) y vuelve a correr el seed.");
+    }
+  }
+
   const v04 = COLUMNAS_V04.filter((c) => tarjetas.some((t) => (t as Record<string, unknown>)[c] != null));
   if (v04.length) console.log(`  (incluye columnas v0.4: ${v04.join(", ")}; requiere la migración 2026-11-22_tarjetas_v0.4.sql)`);
   const columnas = [...COLUMNAS_CONTENIDO, ...v04];
@@ -63,7 +82,7 @@ async function main() {
     Object.fromEntries(columnas.map((c) => [c, (t as Record<string, unknown>)[c] ?? null])),
   );
   // Un solo upsert = una sola transacción en PostgREST: entra todo o nada.
-  const { error } = await clienteSupabase().from("lessons").upsert(filas, { onConflict: "id" });
+  const { error } = await sb.from("lessons").upsert(filas, { onConflict: "id" });
   if (error) falla(`Supabase rechazó el upsert (no se cargó nada): ${error.message}`);
   console.log(`✔ Upsert de ${filas.length} tarjetas en lessons.`);
 }

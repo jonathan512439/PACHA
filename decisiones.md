@@ -196,6 +196,15 @@
 - **Comunicado manual (`/panel/alertas`):** la técnica copia el texto literal y el enlace del comunicado oficial. Se crea la alerta en borrador, sin IA, con el mismo camino: aprobar → audio → enviar. Con "simulacro", el texto y el audio lo dicen al inicio, y el audio lo repite al final.
 - **Revisión periódica:** GitHub Actions (`.github/workflows/revisar-senamhi.yml`) llama a `/api/boletin/buscar` cada 15 min con `CRON_SECRET`, porque el plan gratuito de Vercel solo permite un cron diario. Solo revisa el boletín decenal: las alertas de color del Senamhi están en una app sin API pública.
 
+## Editor de tarjetas y fuentes en el panel (dom 22/11, 11:45 · Agente SERVIDOR, opción 2)
+- **Tablas nuevas** (migración `2026-11-22_editor_tarjetas.sql`): `sources`, fuentes registradas desde el panel, que se suman a `data/fuentes.json`, y `lesson_versions`, cada versión de una tarjeta (borrador → publicada, devuelta o descartada, más los retiros). Una regla en la base impide que la misma persona redacte y verifique.
+- **Flujo:** editar crea una versión en borrador y la vigente sigue publicada hasta que otra persona coteja y publica la nueva. Al publicar se genera el audio MP3 (1 TTS) y se descartan el PNG y el OGG viejos. Retirar deja de publicar con un motivo, sin borrar nada.
+- **Roles nuevos:** `editor` (redacta y registra fuentes) y `verificador` (publica o devuelve). `admin` puede todo y es el único que retira. Sin `SESSION_SECRET` (Vercel hoy) todos son admin, pero la regla de dos personas sigue valiendo por nombre de usuario.
+- **Fuentes:** una fuente solo se registra si su enlace https responde, y una tarjeta solo puede citar fuentes registradas.
+- **La base manda:** `npm run tarjetas:bajar` trae al JSON lo publicado en el panel. El seed se detiene si el JSON pisaría una edición del panel.
+- **Contenido:** agua segura pasa a la OPS/OMS (hervir 1 minuto más por cada 1000 m) como versión por verificar. Tarjeta nueva `sequia-despues-01` (FAO p. 39–40, trasplante de chilliwa), en borrador y en Animales › Ahora. Se cargan con `npm run proponer:versiones`.
+- **Imágenes del lote 3:** 24 de paso más 1 encabezado, revisadas (sin texto, personas ni manos) y subidas. PNG regenerados.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

@@ -1,12 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~
-
-## Hecho
-### H2 · Tarjeta v0.4 y fuentes (en `main`)
-**Para INTERFAZ, cómo usarlo:**
-- **`Tarjeta` (`contratos/tipos.ts`)**, campos nuevos, todos **opcionales** (pueden ser `undefined` o `null`):
-  - `por_que?: { texto, fuente: { doc, page } }`: "Por qué importa".
+_Última actualización: dom 22/11, ~11:45_que?: { texto, fuente: { doc, page } }`: "Por qué importa".
   - `evitar?: { texto, fuente }[]`: "Evita", de 0 a 2.
   - `pedir_ayuda?: { texto, fuente | null }`: "Pide ayuda si…".
   - Para el texto que se muestra usa **`textoPedirAyuda(t)`**: devuelve el de la tarjeta o el texto fijo `PEDIR_AYUDA_FIJO`.
@@ -119,4 +113,15 @@ Abiertas y leídas el 22/11 (PDF en `scratch/verificacion/fuentes/ops-*.pdf`):
   - El paso del CDC «sin meter las manos» no está en la OPS: saldría o se queda con el CDC como segunda fuente.
 
 ## Necesito de INTERFAZ
-- Nada por ahora. `/ingresar` ya usa `components/ui` (Campo, Boton, Aviso). Gracias por H1.
+- Nada por ahora. `/ingresar` ya usa `components/ui` (Campo, Boton, Aviso). Gracias por H1.## ▶ Para la demo: leer `docs/demo-tarjetas.md`
+**Necesito de Jhonatan (5 min):** aplicar `contratos/migraciones/2026-11-22_editor_tarjetas.sql` y correr `npm run proponer:versiones`. Después, en `/panel/tarjetas › Por verificar`, verificar y publicar «Agua segura (OPS)» y «Después de la sequía».
+
+### Editor de tarjetas (opción 2) · en `main`
+- `/panel/tarjetas` (por verificar, devueltas, todas, editar, nueva, retirar), `/panel/tarjetas/version/<id>` (comparación, enlace a la página citada, verificar y publicar o devolver) y `/panel/fuentes`.
+- Probado en el navegador (local): listado, formulario con la versión vigente, rechazo de pasos de más de 18 palabras y de pasos sin fuente, y lista de fuentes con sus tarjetas. Publicar se prueba en el demo, con la migración aplicada.
+- **Para INTERFAZ:** rutas nuevas en `app/panel/tarjetas/**` y `app/panel/fuentes/**`, más los enlaces «Tarjetas» y «Fuentes» en `app/panel/layout.tsx` (archivo de SERVIDOR).
+
+### Imágenes del lote 3 · subidas
+- Los 19 pasos de las 5 tarjetas nuevas (agua segura con los pasos 4 y 5 del CDC mientras siga vigente), el paso 4 de la OPS y las 5 imágenes de `sequia-despues-01`. PNG regenerados.
+
+

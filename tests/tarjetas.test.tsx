@@ -220,7 +220,7 @@ describe("mapeo del menú", () => {
     expect(MENU.agua.antes).toEqual(["sequia-antes_familia-01"]);
     expect(MENU.agua.ahora).toEqual(["sequia-durante-01", "sequia-durante-03"]);
     expect(MENU.animales.antes).toEqual(["sequia-antes_animales-01", "helada-antes_animales-01"]);
-    expect(MENU.animales.ahora).toEqual(["sequia-durante-01", "helada-durante-01", "sequia-durante-04"]);
+    expect(MENU.animales.ahora).toEqual(["sequia-durante-01", "helada-durante-01", "sequia-durante-04", "sequia-despues-01"]);
     expect(MENU.cultivos.antes).toEqual(["helada-antes_familia-01"]);
     // helada-durante-01 trata de animales desde la v0.3 (corregido sáb 21/11): Cultivos no la muestra.
     expect(MENU.cultivos.ahora).toEqual(["helada-antes_familia-01", "sequia-durante-02", "helada-despues-01"]);

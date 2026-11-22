@@ -244,7 +244,7 @@ export function etiquetaEstadoTarjeta(t: Pick<Tarjeta, "status" | "reviewed_by">
  */
 export const MENU = {
   agua:      { titulo: "💧 Agua",      antes: ["sequia-antes_familia-01"],                             ahora: ["sequia-durante-01", "sequia-durante-03"] },
-  animales:  { titulo: "🦙 Animales",  antes: ["sequia-antes_animales-01", "helada-antes_animales-01"], ahora: ["sequia-durante-01", "helada-durante-01", "sequia-durante-04"] },
+  animales:  { titulo: "🦙 Animales",  antes: ["sequia-antes_animales-01", "helada-antes_animales-01"], ahora: ["sequia-durante-01", "helada-durante-01", "sequia-durante-04", "sequia-despues-01"] },
   // helada-durante-01 trata de animales desde la v0.3: Cultivos no la muestra.
   cultivos:  { titulo: "🌱 Cultivos",  antes: ["helada-antes_familia-01"],                             ahora: ["helada-antes_familia-01", "sequia-durante-02", "helada-despues-01"] },
   nevada:    { titulo: "❄️ Nevada",    antes: ["nevada-antes_animales-01"],                            ahora: [] },

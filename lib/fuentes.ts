@@ -35,8 +35,8 @@ export function obtenerFuente(id: string): Fuente | null {
 }
 
 /** Fuentes a las que corresponde un `doc` citado (un paso puede citar dos: "Senamhi… / CIPCA…"). */
-export function fuentesDeDoc(doc: string): Fuente[] {
-  return FUENTES.filter((f) => f.claves.some((c) => doc.includes(c)));
+export function fuentesDeDoc(doc: string, lista: readonly Fuente[] = FUENTES): Fuente[] {
+  return lista.filter((f) => f.claves.some((c) => doc.includes(c)));
 }
 
 /** Todas las citas {doc, page} de una tarjeta: pasos y, si existen, por qué, evita y pide ayuda. */
@@ -57,10 +57,11 @@ export function citasDeTarjeta(
  */
 export function fuentesDeTarjeta(
   t: Parameters<typeof citasDeTarjeta>[0],
+  lista: readonly Fuente[] = FUENTES,
 ): { fuente: Fuente; paginas: string[] }[] {
   const porId = new Map<string, { fuente: Fuente; paginas: string[] }>();
   for (const cita of citasDeTarjeta(t)) {
-    for (const fuente of fuentesDeDoc(cita.doc)) {
+    for (const fuente of fuentesDeDoc(cita.doc, lista)) {
       const item = porId.get(fuente.id) ?? { fuente, paginas: [] };
       if (!item.paginas.includes(cita.page)) item.paginas.push(cita.page);
       porId.set(fuente.id, item);
@@ -70,8 +71,8 @@ export function fuentesDeTarjeta(
 }
 
 /** Citas de una tarjeta que no corresponden a ninguna fuente de la lista (deben ser 0: lo comprueba una prueba). */
-export function citasSinFuente(t: Parameters<typeof citasDeTarjeta>[0]): string[] {
-  return citasDeTarjeta(t).filter((c) => fuentesDeDoc(c.doc).length === 0).map((c) => c.doc);
+export function citasSinFuente(t: Parameters<typeof citasDeTarjeta>[0], lista: readonly Fuente[] = FUENTES): string[] {
+  return citasDeTarjeta(t).filter((c) => fuentesDeDoc(c.doc, lista).length === 0).map((c) => c.doc);
 }
 
 /** Texto corto para mostrar: "FAO (2010)". */

@@ -12,7 +12,14 @@ import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypt
 
 type Entorno = Record<string, string | undefined>;
 
-export const ROLES = ["tecnico", "admin"] as const;
+/**
+ * Roles del panel:
+ * - tecnico: aprobar y enviar alertas, corregir reportes, registrar entregas, reenviar tarjetas.
+ * - editor: además, redactar tarjetas y registrar fuentes (quedan en borrador).
+ * - verificador: además, cotejar y publicar versiones de tarjetas (nunca las que redactó).
+ * - admin: todo, incluido Buscar boletín, Reiniciar demo y retirar tarjetas.
+ */
+export const ROLES = ["tecnico", "editor", "verificador", "admin"] as const;
 export type Rol = (typeof ROLES)[number];
 
 export const COOKIE_SESION = "pacha_sesion";
@@ -30,8 +37,11 @@ export function secretoSesion(env: Entorno = process.env): string | null {
 }
 export const modoSesion = (env: Entorno = process.env) => secretoSesion(env) !== null;
 
-/** admin puede todo; tecnico, solo lo de tecnico. */
-export const rolAlcanza = (tiene: Rol, pide: Rol) => tiene === "admin" || pide === "tecnico";
+/** admin puede todo; los demás, lo de su rol y lo de tecnico (editor y verificador también operan el panel). */
+export const rolAlcanza = (tiene: Rol, pide: Rol) => tiene === "admin" || pide === "tecnico" || tiene === pide;
+
+/** Nombre del rol para mostrar. */
+export const NOMBRE_ROL: Record<Rol, string> = { tecnico: "técnico", editor: "editor", verificador: "verificador", admin: "admin" };
 
 /* ---------------------------------------------------------------------------
  * Contraseñas: scrypt (N=2^14, r=8, p=1, 32 bytes) con sal aleatoria de 16 bytes.

@@ -34,7 +34,8 @@
       "helada-antes_animales-01",
       "sequia-antes_familia-01",
       "sequia-antes_animales-01",
-      "helada-despues-01"
+      "helada-despues-01",
+      "sequia-despues-01"
     ],
     "consultado": "2026-11-22",
     "nota": "Documento completo de 61 páginas. Las páginas citadas son las del visor de PDF."
@@ -53,6 +54,19 @@
     ],
     "consultado": "2026-11-22",
     "nota": "Enlace por confirmar: el sitio de CIPCA no respondió el 22/11/2026. Sin enlace verificado no se muestra como enlace."
+  },
+  {
+    "id": "ops-nota-tecnica-wash-10",
+    "institucion": "OPS/OMS",
+    "titulo": "Notas técnicas sobre agua, saneamiento e higiene en emergencias, n.º 10: Tratamiento de emergencia de agua potable en el lugar de consumo",
+    "anio": 2012,
+    "url": "https://paho.org/sites/default/files/2019-12/Nota-tecnica-sobre-agua-saneamiento-higiene-10.pdf",
+    "claves": [
+      "OPS/OMS, Nota técnica 10 sobre agua, saneamiento e higiene en emergencias"
+    ],
+    "tarjetas": [],
+    "consultado": "2026-11-22",
+    "nota": "Hervir 1 minuto a nivel del mar y 1 minuto más por cada 1000 m de altitud (p. 5). Versión en PDF de la OPS de 2012."
   },
   {
     "id": "fao-tcp-rla-3217-caylloma",
@@ -83,7 +97,8 @@
       "helada-despues-01",
       "sequia-durante-02",
       "sequia-durante-03",
-      "sequia-durante-04"
+      "sequia-durante-04",
+      "sequia-despues-01"
     ],
     "consultado": "2026-11-22",
     "nota": "Reimpresa para comunidades afectadas en Oruro. La p. 14 describe cómo la Unidad Municipal recibe y comunica los eventos (heladas, nevadas…) de las comunidades."

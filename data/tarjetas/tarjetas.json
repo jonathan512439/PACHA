@@ -488,5 +488,67 @@
     "verified_hash": "b939bb60",
     "reviewed_by": null,
     "status": "verificada"
+  },
+  {
+    "id": "sequia-despues-01",
+    "hazard": "sequia",
+    "phase": "despues",
+    "title": "Después de la sequía: recupera los pastos nativos",
+    "steps": [
+      "Trasplanta chilliwa en época de lluvias, entre septiembre y noviembre, o en lugares húmedos.",
+      "Elige plantas de chilliwa vigorosas y frondosas, y divídelas en varias plantas hijas.",
+      "Prepara pequeños hoyos en el suelo para cada planta hija.",
+      "Trasplanta en líneas rectas, como un cultivo sembrado."
+    ],
+    "step_sources": [
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 39"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 39"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 39"
+      },
+      {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 40"
+      }
+    ],
+    "por_que": {
+      "texto": "La chilliwa resiste sequías, heladas y granizadas. Trasplantada con humedad, prende más del 90 %.",
+      "fuente": {
+        "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+        "page": "p. 39 y 40"
+      }
+    },
+    "evitar": [
+      {
+        "texto": "No trasplantes en lugares secos: ahí la práctica no prospera.",
+        "fuente": {
+          "doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+          "page": "p. 40"
+        }
+      }
+    ],
+    "pedir_ayuda": {
+      "texto": "Si hay daños, animales enfermos o te quedas sin agua, avisa a la Unidad de Gestión de Riesgos de tu municipio. También puedes responder con un audio al bot.",
+      "fuente": {
+        "doc": "FAO, Cartilla de capacitación para la implementación de la Unidad Municipal de Gestión del Riesgo",
+        "page": "p. 14"
+      }
+    },
+    "factor_tags": [
+      "sin_reserva_forraje"
+    ],
+    "source_doc": "FAO, Sistematización de buenas prácticas (TCP/RLA/3217), caso Jach'a Suyu Pakajaqi y Yapuchiris",
+    "source_page": "p. 39; p. 39; p. 39; p. 40",
+    "author": "FAO",
+    "verified_by": null,
+    "reviewed_by": null,
+    "status": "borrador"
   }
 ]
