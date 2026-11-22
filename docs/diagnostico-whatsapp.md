@@ -1,5 +1,9 @@
 # Diagnóstico de WhatsApp, paso a paso
 
+> **✅ Resuelto (dom 22/11, 12:50).** La causa era el paso 4: la cuenta de WhatsApp Business (WABA `1154936837458918`) solo tenía suscrita una app interna de Meta («WA DevX Webhook Events 1P App»), no la app **Pacha** (`2340026593488679`). Se suscribió con `POST /1154936837458918/subscribed_apps` (`success: true`). El primer mensaje real llegó al servidor y el bot respondió.
+> **Para la demo:** cada teléfono del equipo tiene que escribirle al bot el mismo día. WhatsApp solo deja enviar alertas dentro de las 24 h siguientes al último mensaje de la persona, salvo con plantillas aprobadas.
+
+
 **Para:** quien configure Meta (Jhonatan o Sergio) · **Tiempo:** unos 20 minutos.
 **Situación (sáb 21/11, 21:40):** el bot no responde y **ningún mensaje llega a nuestro servidor**.
 

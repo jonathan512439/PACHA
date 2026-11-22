@@ -217,6 +217,10 @@
 - README completo para el repositorio público. `.env.example` suma las variables opcionales y dice `.env`, no `.env.local`.
 - `MENU` sin cambios: «❄️ Nevada» no pregunta «antes o ahora» y manda directo su tarjeta. Una prueba exige que toda opción tenga al menos una tarjeta de «antes».
 
+## WhatsApp en funcionamiento (dom 22/11, 12:50)
+- Causa: la WABA no tenía suscrita la app Pacha. Solución: `POST /{WABA_ID}/subscribed_apps` con el token permanente. Sin cambios de código ni de variables.
+- Límite para la demo: ventana de 24 h. Los teléfonos del equipo escriben al bot antes de la demo para poder recibir la alerta.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
