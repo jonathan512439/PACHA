@@ -225,6 +225,9 @@ describe("mapeo del menú", () => {
     // helada-durante-01 trata de animales desde la v0.3 (corregido sáb 21/11): Cultivos no la muestra.
     expect(MENU.cultivos.ahora).toEqual(["helada-antes_familia-01", "sequia-durante-02", "helada-despues-01"]);
     expect(MENU.nevada.antes).toEqual(["nevada-antes_animales-01"]);
+    expect(MENU.nevada.ahora).toEqual(["nevada-antes_animales-01"]);
+    // Ninguna opción del menú puede quedar vacía: la persona recibiría "no hay recomendaciones".
+    for (const op of Object.values(MENU)) { expect(op.antes.length).toBeGreaterThan(0); expect(op.ahora.length).toBeGreaterThan(0); }
     // Las tarjetas v0.4 van al final: lo que se veía antes sale primero, igual que siempre.
     expect(MENU.agua.ahora[0]).toBe("sequia-durante-01");
   });

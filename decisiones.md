@@ -213,6 +213,9 @@
 - **Revisión periódica:** cada 30 min, no 15. El boletín decenal sale cada 10 días y así se consulta menos la web del Senamhi. Cuesta poco: unas 48 llamadas por día, sin IA salvo que haya un boletín nuevo.
 - **`CRON_SECRET`:** sin él, la ruta rechaza el cron. Tiene que tener el mismo valor en Vercel y en GitHub (secreto del repositorio).
 
+## Revisión final (dom 22/11, 12:30)
+- **Contrato (`MENU`):** «❄️ Nevada › Está pasando ahora» usa `nevada-antes_animales-01`, que también aplica durante la nevada. Antes respondía «no hay recomendaciones». Una prueba impide que una opción del menú quede vacía.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

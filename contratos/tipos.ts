@@ -247,7 +247,8 @@ export const MENU = {
   animales:  { titulo: "🦙 Animales",  antes: ["sequia-antes_animales-01", "helada-antes_animales-01"], ahora: ["sequia-durante-01", "helada-durante-01", "sequia-durante-04", "sequia-despues-01"] },
   // helada-durante-01 trata de animales desde la v0.3: Cultivos no la muestra.
   cultivos:  { titulo: "🌱 Cultivos",  antes: ["helada-antes_familia-01"],                             ahora: ["helada-antes_familia-01", "sequia-durante-02", "helada-despues-01"] },
-  nevada:    { titulo: "❄️ Nevada",    antes: ["nevada-antes_animales-01"],                            ahora: [] },
+  // La única tarjeta de nevada sirve antes y durante (paso 1: resguardar a las crías ante nevadas). Sin ella, "Ahora" quedaba vacío.
+  nevada:    { titulo: "❄️ Nevada",    antes: ["nevada-antes_animales-01"],                            ahora: ["nevada-antes_animales-01"] },
 } as const;
 export type OpcionMenu = keyof typeof MENU;
 
