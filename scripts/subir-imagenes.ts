@@ -1,11 +1,13 @@
 // Sube las ilustraciones ya optimizadas a Supabase Storage y guarda las rutas en `lessons`.
 //   npx tsx scripts/subir-imagenes.ts                  (todas las tarjetas de data/tarjetas/tarjetas.json)
-//   npx tsx scripts/subir-imagenes.ts --ids id1,id2    (solo esas)
+//   npx tsx scripts/subir-imagenes.ts --ids id1,id2    (solo esas; también tarjetas creadas en el panel, que no están en el JSON)
 //   npx tsx scripts/subir-imagenes.ts --validar        (solo comprueba los archivos locales)
 // Origen:  assets/lessons/<id>/header.jpg|webp|png  y  paso1.webp … pasoN.webp (N = pasos de la tarjeta, 3 a 5)
 // Destino: bucket 'tarjetas', lessons/<id>/header.<ext> y lessons/<id>/pasoN.webp
 // Si falta o falla un paso, su posición queda en null y la tarjeta muestra el ícono de respaldo.
 // Si falta un encabezado, la web usa el de helada-antes_animales-01 (y si tampoco está, una franja neutra).
+// OJO: escribe directo en `lessons` (sin pasar por la verificación). Para tarjetas ya publicadas, lo normal es
+// subir las imágenes desde el editor del panel (Tarjetas › Editar), que las publica al verificar la versión.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { BUCKET_IMAGENES } from "@/lib/tarjeta-publica";
@@ -22,11 +24,21 @@ const arg = (n: string) => {
 /** Tarjetas del paquete y cuántos pasos tiene cada una (v0.4: de 3 a 5). */
 const PAQUETE = (JSON.parse(readFileSync(path.join(RAIZ, "data", "tarjetas", "tarjetas.json"), "utf8")) as { id: string; steps: string[] }[])
   .map((t) => ({ id: t.id, pasos: t.steps.length }));
-const PEDIDAS = arg("--ids")?.split(",").map((s) => s.trim());
-const TARJETAS = PAQUETE.filter((t) => !PEDIDAS || PEDIDAS.includes(t.id)).sort((a, b) => a.id.localeCompare(b.id));
-if (PEDIDAS) {
-  const desconocidas = PEDIDAS.filter((id) => !PAQUETE.some((t) => t.id === id));
-  if (desconocidas.length) falla(`No están en tarjetas.json: ${desconocidas.join(", ")}`);
+const PEDIDAS = arg("--ids")?.split(",").map((s) => s.trim()).filter(Boolean);
+let TARJETAS = PAQUETE.filter((t) => !PEDIDAS || PEDIDAS.includes(t.id));
+
+/** Las pedidas que no están en el JSON (creadas en el panel) se buscan en `lessons` para saber cuántos pasos tienen. */
+async function agregarTarjetasDelPanel() {
+  const fuera = (PEDIDAS ?? []).filter((id) => !PAQUETE.some((t) => t.id === id));
+  if (fuera.length) {
+    const { data, error } = await clienteSupabase().from("lessons").select("id, steps").in("id", fuera);
+    if (error) falla(`No se pudo leer lessons: ${error.message}`);
+    const halladas = (data ?? []).map((f) => ({ id: f.id as string, pasos: (f.steps as string[]).length }));
+    const desconocidas = fuera.filter((id) => !halladas.some((t) => t.id === id));
+    if (desconocidas.length) falla(`No existen (ni en tarjetas.json ni en lessons): ${desconocidas.join(", ")}`);
+    TARJETAS = [...TARJETAS, ...halladas];
+  }
+  TARJETAS.sort((a, b) => a.id.localeCompare(b.id));
 }
 
 type Plan = { id: string; encabezado: { local: string; remoto: string; ext: keyof typeof MIME } | null; pasos: ({ local: string; remoto: string } | null)[] };
@@ -54,6 +66,7 @@ function planificar(): { planes: Plan[]; faltan: string[] } {
 }
 
 async function main() {
+  await agregarTarjetasDelPanel();
   const { planes, faltan } = planificar();
   const encabezados = planes.filter((p) => p.encabezado).length;
   const pasos = planes.reduce((n, p) => n + p.pasos.filter(Boolean).length, 0);

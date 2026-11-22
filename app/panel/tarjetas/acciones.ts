@@ -1,6 +1,6 @@
 "use server";
 import { ErrorAcceso, exigirAcceso } from "@/lib/acceso-panel";
-import { contenidoDesdeFormulario } from "@/lib/editor-tarjetas-contenido";
+import { archivosDeImagenes, contenidoDesdeFormulario } from "@/lib/editor-tarjetas-contenido";
 import {
   ErrorEditor,
   crearVersion,
@@ -33,7 +33,12 @@ const texto = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 export async function guardarVersion(form: FormData): Promise<Resultado> {
   return ejecutar("editor", async (u) => {
     const contenido = contenidoDesdeFormulario(form);
-    await crearVersion(contenido, texto(form, "motivo"), u);
+    const archivos = archivosDeImagenes(form);
+    const bytes = async (a: File | null) => (a ? new Uint8Array(await a.arrayBuffer()) : null);
+    await crearVersion(contenido, texto(form, "motivo"), u, {
+      encabezado: await bytes(archivos.encabezado),
+      pasos: await Promise.all(archivos.pasos.map(bytes)),
+    });
     return `Versión de ${contenido.id} guardada en borrador. Ahora otra persona tiene que verificarla en Tarjetas › Por verificar. Mientras tanto se sigue enviando la versión vigente.`;
   });
 }

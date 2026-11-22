@@ -5,9 +5,10 @@ import { Aviso, CLASES_CONTROL } from "@/components/ui";
 import { FormAccion } from "@/components/panel/Acciones";
 import { textoPedirAyuda, type FuentePaso } from "@/contratos/tipos";
 import { accesoActual } from "@/lib/acceso-panel";
-import { enlaceAPagina, validarContenido } from "@/lib/editor-tarjetas-contenido";
+import { enlaceAPagina, mismasImagenes, validarContenido, type ContenidoTarjeta } from "@/lib/editor-tarjetas-contenido";
 import { fuentesRegistradas, obtenerVersion } from "@/lib/editor-tarjetas";
 import { fuentesDeDoc, type Fuente } from "@/lib/fuentes";
+import { BUCKET_IMAGENES, baseStorage, urlPublica } from "@/lib/tarjeta-publica";
 import { obtenerTarjeta } from "@/lib/tarjetas";
 import { devolver, publicar } from "../../acciones";
 
@@ -43,6 +44,45 @@ function Bloque({ titulo, nuevo, antes, f, fuentes }: { titulo: string; nuevo: s
       <p>{nuevo}</p>
       <Cita f={f} fuentes={fuentes} />
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> Lo encontré en la página citada</label>
+    </div>
+  );
+}
+
+type ConImagenes = Pick<ContenidoTarjeta, "header_image_path" | "step_image_paths">;
+
+/** Imágenes de la versión (solo si cambian): la nueva junto a la vigente, para revisar que no tengan texto, personas ni manos. */
+function Imagenes({ c, vigente }: { c: ContenidoTarjeta; vigente: ConImagenes | null }) {
+  const antes: ConImagenes = vigente ?? { header_image_path: null, step_image_paths: [] };
+  if (mismasImagenes(c, antes)) return null;
+  const base = baseStorage(process.env.SUPABASE_URL);
+  const filas = [
+    { titulo: "Encabezado", nueva: c.header_image_path ?? null, vieja: antes.header_image_path ?? null, ancho: true },
+    ...c.steps.map((_, i) => ({ titulo: `Paso ${i + 1}`, nueva: c.step_image_paths?.[i] ?? null, vieja: antes.step_image_paths?.[i] ?? null, ancho: false })),
+  ].filter((x) => x.nueva !== x.vieja);
+  const Miniatura = ({ ruta, ancho, tachada }: { ruta: string | null; ancho: boolean; tachada?: boolean }) => {
+    const src = urlPublica(base, BUCKET_IMAGENES, ruta);
+    return (
+      <span className={`flex items-center justify-center overflow-hidden rounded-md border border-borde bg-superficie-2 text-xs text-tinta-2 ${ancho ? "aspect-video w-36" : "aspect-square w-20"} ${tachada ? "opacity-50" : ""}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- miniatura de Storage */}
+        {src ? <img src={src} alt="" className="size-full object-cover" /> : "sin imagen"}
+      </span>
+    );
+  };
+  return (
+    <div className="space-y-3 rounded-lg border border-borde bg-superficie p-3">
+      <p className="text-sm font-semibold">Imágenes · cambian</p>
+      <ul className="space-y-3">
+        {filas.map((x) => (
+          <li key={x.titulo} className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="w-24 font-semibold">{x.titulo}</span>
+            <Miniatura ruta={x.vieja} ancho={x.ancho} tachada />
+            <span aria-hidden="true">→</span>
+            <Miniatura ruta={x.nueva} ancho={x.ancho} />
+            <span className="text-tinta-2">{x.nueva ? (x.vieja ? "se cambia" : "se agrega") : x.ancho ? "se quita (usará el encabezado de respaldo)" : "se quita (mostrará un ícono)"}</span>
+          </li>
+        ))}
+      </ul>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" /> Las imágenes nuevas no tienen texto, personas ni manos</label>
     </div>
   );
 }
@@ -85,6 +125,7 @@ async function Revision({ params }: Pick<PageProps<"/panel/tarjetas/version/[id]
         <Bloque key={`e${i}`} titulo={`Evita ${i + 1}`} nuevo={e.texto} antes={vigente ? vigente.evitar?.[i]?.texto ?? null : undefined} f={e.fuente} fuentes={fuentes} />
       ))}
       <Bloque titulo="Pide ayuda si…" nuevo={textoPedirAyuda(c)} f={c.pedir_ayuda?.fuente} fuentes={fuentes} />
+      <Imagenes c={c} vigente={vigente} />
 
       {v.estado === "borrador" && (
         <div className="grid gap-4 md:grid-cols-2">

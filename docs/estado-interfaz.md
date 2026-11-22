@@ -60,6 +60,14 @@
 
 TERMINADO: 22/11 10:05
 
+**Después del cierre, a pedido de Jhonatan (22/11):** imágenes de las tarjetas desde el panel.
+- En `Tarjetas › Editar` y en `Nueva tarjeta` hay una sección **Imágenes** (encabezado 16:9) y una imagen cuadrada dentro de cada paso, con los botones Subir imagen, Cambiar, Quitar y Deshacer (`components/panel/CampoImagenTarjeta.tsx`).
+- El navegador la achica (1600 px el encabezado, 900 px los pasos) y la vuelve a codificar en WebP, sin metadatos. El servidor la valida otra vez con `validarFoto` (formato real, ≤ 5 MB, sin EXIF).
+- Al guardar el borrador se sube a `tarjetas/lessons/<id>/<sello>-header.webp` (o `-pasoN.webp`), con un nombre nuevo cada vez: nunca pisa la imagen publicada. Se publica cuando otra persona verifica la versión. La página de verificación muestra antes → después y la casilla «sin texto, personas ni manos».
+- Al publicar, las imágenes de la versión mandan: así se puede **quitar** una (el encabezado vuelve al de respaldo y el paso, al ícono). Si solo cambian las imágenes, también se puede guardar la versión.
+- `scripts/subir-imagenes.ts --ids` acepta también tarjetas creadas en el panel (lee cuántos pasos tienen en `lessons`).
+- Las imágenes viejas no se borran del bucket: quedan como historial.
+
 ---
 
 ## Componentes de `components/ui` (para SERVIDOR: solo usarlos)

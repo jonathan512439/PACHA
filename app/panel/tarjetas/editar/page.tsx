@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Aviso, CLASES_CONTROL } from "@/components/ui";
 import { FormAccion } from "@/components/panel/Acciones";
+import { CampoImagenTarjeta } from "@/components/panel/CampoImagenTarjeta";
 import { AMENAZAS, FACTORES, FASES, PASOS_MAX, PEDIR_AYUDA_FIJO, type FuentePaso } from "@/contratos/tipos";
 import { fuentesRegistradas } from "@/lib/editor-tarjetas";
 import type { Fuente } from "@/lib/fuentes";
 import { etiquetaFactor } from "@/lib/problemas-agrupar";
+import { BUCKET_IMAGENES, baseStorage, urlPublica } from "@/lib/tarjeta-publica";
 import { obtenerTarjeta } from "@/lib/tarjetas";
 import { guardarVersion } from "../acciones";
 
@@ -51,6 +53,8 @@ async function Editor({ searchParams }: Pick<PageProps<"/panel/tarjetas/editar">
   const id = typeof sp.id === "string" ? sp.id : "";
   const [t, fuentes] = await Promise.all([id ? obtenerTarjeta(id) : Promise.resolve(null), fuentesRegistradas()]);
   if (id && !t) return <Aviso nivel="error">No existe la tarjeta {id}.</Aviso>;
+  const base = baseStorage(process.env.SUPABASE_URL);
+  const url = (ruta: string | null | undefined) => urlPublica(base, BUCKET_IMAGENES, ruta);
 
   return (
     <div className="space-y-4">
@@ -65,8 +69,6 @@ async function Editor({ searchParams }: Pick<PageProps<"/panel/tarjetas/editar">
         {t ? (
           <>
             <input type="hidden" name="id" value={t.id} />
-            <input type="hidden" name="header_image_path" value={t.header_image_path ?? ""} />
-            <input type="hidden" name="step_image_paths" value={JSON.stringify(t.step_image_paths ?? [])} />
           </>
         ) : (
           <fieldset className="grid gap-3 sm:grid-cols-3">
@@ -87,6 +89,23 @@ async function Editor({ searchParams }: Pick<PageProps<"/panel/tarjetas/editar">
           <input name="titulo" required maxLength={80} defaultValue={t?.title ?? ""} className={CLASES_CONTROL} />
         </label>
 
+        <fieldset className="space-y-3 rounded-lg border border-borde p-3">
+          <legend className="px-1 font-semibold">Imágenes</legend>
+          <p className="text-sm text-tinta-2">
+            Ilustraciones <strong>sin texto, sin personas y sin manos</strong>; se publican con la nota «Ilustraciones generadas con IA».
+            La imagen de cada paso se elige dentro del paso. Se achican y se limpian (sin ubicación) antes de subir; las nuevas
+            se publican recién cuando otra persona verifica la versión.
+          </p>
+          <CampoImagenTarjeta
+            nombre="header"
+            etiqueta="Encabezado (horizontal, 16:9)"
+            rutaActual={t?.header_image_path ?? null}
+            urlActual={url(t?.header_image_path)}
+            formato="horizontal"
+            sinImagen="Sin imagen: se usa el encabezado de respaldo."
+          />
+        </fieldset>
+
         <fieldset className="space-y-2">
           <legend className="font-semibold">Por qué importa (opcional, con fuente)</legend>
           <textarea name="por_que" rows={2} defaultValue={t?.por_que?.texto ?? ""} className={CLASES_CONTROL} />
@@ -101,6 +120,14 @@ async function Editor({ searchParams }: Pick<PageProps<"/panel/tarjetas/editar">
                 <textarea name={`paso${i + 1}`} rows={2} defaultValue={t?.steps[i] ?? ""} className={CLASES_CONTROL} />
               </label>
               <SelectorFuente nombre={`paso${i + 1}`} fuentes={fuentes} valor={t?.step_sources[i]} />
+              <CampoImagenTarjeta
+                nombre={`paso${i + 1}`}
+                etiqueta={`Imagen del paso ${i + 1} (cuadrada)`}
+                rutaActual={t?.step_image_paths?.[i] ?? null}
+                urlActual={url(t?.step_image_paths?.[i])}
+                formato="cuadrada"
+                sinImagen="Sin imagen: se muestra un ícono."
+              />
             </div>
           ))}
         </fieldset>

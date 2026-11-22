@@ -44,6 +44,8 @@ Flat editorial illustration with a soft painterly-vector look and subtle paper g
 
 Las imágenes **no cambian el texto verificado**: no hace falta re-verificar.
 
+**Otra forma, sin script (desde el 22/11):** en el panel, `Tarjetas › Editar` (o `Nueva tarjeta`) tiene una sección Imágenes con el encabezado y una imagen por paso: Subir, Cambiar o Quitar. Se guardan con la versión en borrador y se publican cuando otra persona la verifica. Es la forma de poner imágenes a las tarjetas creadas en el panel. El script también las acepta ahora con `--ids`.
+
 ## 3. Grupo A · tarjetas publicadas (pasos cotejados otra vez con la fuente)
 
 Leyenda: ✔ el paso está en la página citada · ⚠ está, pero con una lectura más amplia (se explica).

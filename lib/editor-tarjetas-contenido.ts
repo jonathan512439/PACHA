@@ -61,18 +61,20 @@ export const idTarjeta = (amenaza: string, fase: string, numero: number) =>
  *   id (o amenaza + fase + numero si es nueva), titulo,
  *   paso1..paso5 + paso1_fuente/paso1_pagina…, por_que + por_que_fuente/_pagina,
  *   evitar1..2 + evitar1_fuente/_pagina, pedir_ayuda + pedir_ayuda_fuente/_pagina,
- *   factor (varios), header_image_path y step_image_paths (JSON, para conservar las imágenes).
+ *   factor (varios), header_image_path y paso1_imagen…paso5_imagen (o step_image_paths en JSON, formato anterior).
  * Los pasos vacíos se ignoran. No valida: para eso, validarContenido.
  */
 export function contenidoDesdeFormulario(f: Lector): ContenidoTarjeta {
   const id = txt(f, "id") || idTarjeta(txt(f, "amenaza"), txt(f, "fase"), Number(txt(f, "numero") || "1"));
   const [hazard, ...resto] = id.split("-");
   const phase = resto.slice(0, -1).join("-");
-  const pasos: { texto: string; fuente: FuentePaso }[] = [];
+  const pasos: { texto: string; fuente: FuentePaso; imagen: string | null }[] = [];
+  // Editor con imagen por paso (paso1_imagen…): la imagen va pegada a SU paso aunque haya pasos vacíos en medio.
+  const imagenPorPaso = Array.from({ length: PASOS_MAX }, (_, i) => f.get(`paso${i + 1}_imagen`)).some((x) => x !== null);
   for (let i = 1; i <= PASOS_MAX; i++) {
     const texto = txt(f, `paso${i}`);
     if (!texto) continue;
-    pasos.push({ texto, fuente: fuente(f, `paso${i}`) ?? { doc: "", page: "" } });
+    pasos.push({ texto, fuente: fuente(f, `paso${i}`) ?? { doc: "", page: "" }, imagen: txt(f, `paso${i}_imagen`) || null });
   }
   const conFuente = (k: string): TextoConFuente | null => {
     const texto = txt(f, k);
@@ -99,9 +101,34 @@ export function contenidoDesdeFormulario(f: Lector): ContenidoTarjeta {
     pedir_ayuda: pedirAyudaTexto ? { texto: pedirAyudaTexto, fuente: fuente(f, "pedir_ayuda") } : null,
     factor_tags: f.getAll("factor").map(String).filter((x): x is Factor => (FACTORES as readonly string[]).includes(x)),
     ...resumenFuentes(step_sources),
-    header_image_path: txt(f, "header_image_path") || null,
-    step_image_paths: stepImages.slice(0, pasos.length),
+    // header_imagen: editor con campo de imagen (vacío = se quitó); header_image_path: formato anterior.
+    header_image_path: (f.get("header_imagen") !== null ? txt(f, "header_imagen") : txt(f, "header_image_path")) || null,
+    step_image_paths: imagenPorPaso ? pasos.map((p) => p.imagen) : stepImages.slice(0, pasos.length),
   };
+}
+
+const archivo = (f: Lector, k: string) => {
+  const v = f.get(k);
+  return typeof v === "object" && v !== null && "size" in v && v.size > 0 ? (v as File) : null;
+};
+
+/**
+ * Imágenes NUEVAS elegidas en el editor (header_archivo, paso1_archivo…), alineadas con los pasos que se guardan
+ * (los pasos vacíos se saltan, igual que en contenidoDesdeFormulario).
+ */
+export function archivosDeImagenes(f: Lector): { encabezado: File | null; pasos: (File | null)[] } {
+  const pasos: (File | null)[] = [];
+  for (let i = 1; i <= PASOS_MAX; i++) if (txt(f, `paso${i}`)) pasos.push(archivo(f, `paso${i}_archivo`));
+  return { encabezado: archivo(f, "header_archivo"), pasos };
+}
+
+/** true si las imágenes de la versión son las mismas que las de la tarjeta vigente (por posición de paso). */
+export function mismasImagenes(
+  a: Pick<ContenidoTarjeta, "header_image_path" | "step_image_paths" | "steps">,
+  b: Pick<ContenidoTarjeta, "header_image_path" | "step_image_paths">,
+): boolean {
+  if ((a.header_image_path ?? null) !== (b.header_image_path ?? null)) return false;
+  return a.steps.every((_, i) => (a.step_image_paths?.[i] ?? null) === (b.step_image_paths?.[i] ?? null));
 }
 
 /**

@@ -7,11 +7,13 @@ import { db } from "@/lib/supabase";
 import { FUENTES, type Fuente } from "@/lib/fuentes";
 import { sintetizarVoz } from "@/lib/gemini";
 import { obtenerTarjeta } from "@/lib/tarjetas";
-import { BUCKET_AUDIOS, huellaVerificacion, rutaAudioTarjeta } from "@/lib/tarjeta-publica";
+import { validarFoto } from "@/lib/storage/foto";
+import { BUCKET_AUDIOS, BUCKET_IMAGENES, huellaVerificacion, rutaAudioTarjeta } from "@/lib/tarjeta-publica";
 import {
   contenidoDeTarjeta,
   guionAudioTarjeta,
   huellaDeContenido,
+  mismasImagenes,
   validarContenido,
   type ContenidoTarjeta,
 } from "@/lib/editor-tarjetas-contenido";
@@ -62,17 +64,61 @@ export async function historial(lessonId: string): Promise<Version[]> {
   return (data ?? []) as Version[];
 }
 
-/** Guarda una versión en borrador. Valida con las mismas reglas que el seed. Devuelve su id. */
-export async function crearVersion(contenido: ContenidoTarjeta, motivo: string, usuario: string): Promise<string> {
+/** Imágenes nuevas elegidas en el editor (ya re-codificadas en el navegador), alineadas con los pasos. */
+export type ImagenesNuevas = { encabezado: Uint8Array | null; pasos: (Uint8Array | null)[] };
+const EXT_IMAGEN: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+
+/**
+ * Sube las imágenes nuevas al bucket 'tarjetas' con un nombre ÚNICO (lessons/<id>/<sello>-header.webp…):
+ * nunca pisa las de la versión publicada, que se sigue mostrando hasta que se verifique esta.
+ */
+async function subirImagenes(c: ContenidoTarjeta, imagenes: ImagenesNuevas): Promise<ContenidoTarjeta> {
+  const lista = [
+    ...(imagenes.encabezado ? [{ bytes: imagenes.encabezado, nombre: "header", que: "La imagen del encabezado" }] : []),
+    ...imagenes.pasos.flatMap((b, i) => (b ? [{ bytes: b, nombre: `paso${i + 1}`, que: `La imagen del paso ${i + 1}` }] : [])),
+  ];
+  if (!lista.length) return c;
+  // Primero se validan TODAS (formato real, ≤ 5 MB, sin EXIF); recién entonces se sube algo.
+  const validadas = lista.map((x) => {
+    try { return { ...x, mime: validarFoto(Buffer.from(x.bytes), x.que) }; }
+    catch (e) { throw new ErrorEditor(e instanceof Error ? e.message : String(e)); }
+  });
+  const sello = Date.now().toString(36);
+  const rutas: Record<string, string> = {};
+  for (const x of validadas) {
+    const ruta = `lessons/${c.id}/${sello}-${x.nombre}.${EXT_IMAGEN[x.mime]}`;
+    const { error } = await db().storage.from(BUCKET_IMAGENES).upload(ruta, x.bytes, { contentType: x.mime, cacheControl: "3600" });
+    if (error) throw new Error(`No se pudo subir ${x.que.toLowerCase()}: ${error.message}`);
+    rutas[x.nombre] = ruta;
+  }
+  return {
+    ...c,
+    header_image_path: rutas.header ?? c.header_image_path ?? null,
+    step_image_paths: c.steps.map((_, i) => rutas[`paso${i + 1}`] ?? c.step_image_paths?.[i] ?? null),
+  };
+}
+
+/** Guarda una versión en borrador (con sus imágenes nuevas, si hay). Valida con las mismas reglas que el seed. Devuelve su id. */
+export async function crearVersion(
+  contenido: ContenidoTarjeta,
+  motivo: string,
+  usuario: string,
+  imagenes: ImagenesNuevas = { encabezado: null, pasos: [] },
+): Promise<string> {
   if (motivo.trim().length < 5) throw new ErrorEditor("Escribe el motivo del cambio (para el historial).");
   const problemas = validarContenido(contenido, await fuentesRegistradas());
   if (problemas.length) throw new ErrorEditor(`No se guardó. Corrige: ${problemas.join(" · ")}`);
   const vigente = await obtenerTarjeta(contenido.id);
-  if (vigente && vigente.status !== "borrador" && huellaVerificacion(vigente) === huellaDeContenido(contenido)) {
+  const imagenesNuevas = !!imagenes.encabezado || imagenes.pasos.some(Boolean);
+  if (
+    vigente && vigente.status !== "borrador" && !imagenesNuevas &&
+    huellaVerificacion(vigente) === huellaDeContenido(contenido) && mismasImagenes(contenido, vigente)
+  ) {
     throw new ErrorEditor("No hay cambios respecto de la versión publicada.");
   }
+  const final = await subirImagenes(contenido, imagenes);
   const { data, error } = await db().from("lesson_versions").insert({
-    lesson_id: contenido.id, contenido, estado: "borrador", motivo: motivo.trim(), huella: huellaDeContenido(contenido), created_by: usuario,
+    lesson_id: final.id, contenido: final, estado: "borrador", motivo: motivo.trim(), huella: huellaDeContenido(final), created_by: usuario,
   }).select("id").single();
   if (error) throw new Error(error.message);
   return data.id as string;
@@ -106,14 +152,17 @@ export async function publicarVersion(id: string, usuario: string, observacion: 
 
   const c = v.contenido;
   const vigente = await obtenerTarjeta(c.id);
-  const imagenes = (c.step_image_paths?.length ? c.step_image_paths : vigente?.step_image_paths ?? []).slice(0, c.steps.length);
+  // Las imágenes de la versión mandan (así se puede QUITAR una). Solo si la versión no trae el campo (formato viejo)
+  // se conservan las de la vigente.
+  const imagenes = ("step_image_paths" in c ? c.step_image_paths ?? [] : vigente?.step_image_paths ?? []).slice(0, c.steps.length);
+  const encabezado = "header_image_path" in c ? c.header_image_path ?? null : vigente?.header_image_path ?? null;
   const audioMp3 = await audioDe(c);
   const fila = {
     id: c.id, hazard: c.hazard, phase: c.phase, title: c.title, steps: c.steps, step_sources: c.step_sources,
     por_que: c.por_que ?? null, evitar: c.evitar ?? null, pedir_ayuda: c.pedir_ayuda ?? null,
     factor_tags: c.factor_tags, source_doc: c.source_doc, source_page: c.source_page, source_url: c.source_url ?? null,
     author: c.author, status: "verificada", verified_by: usuario, reviewed_by: null,
-    header_image_path: c.header_image_path ?? vigente?.header_image_path ?? null,
+    header_image_path: encabezado,
     step_image_paths: imagenes,
     // El PNG y el OGG viejos dicen otro texto: se descartan (el bot ya no los adjuntaría).
     card_image_path: null, audio_ogg_path: null, audio_mp3_path: audioMp3,

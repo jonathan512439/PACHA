@@ -4,11 +4,13 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { Tarjeta } from "@/contratos/tipos";
 import {
+  archivosDeImagenes,
   contenidoDeTarjeta,
   contenidoDesdeFormulario,
   enlaceAPagina,
   guionAudioTarjeta,
   huellaDeContenido,
+  mismasImagenes,
   resumenFuentes,
   validarContenido,
   type ContenidoTarjeta,
@@ -78,6 +80,44 @@ describe("formulario → contenido", () => {
     const cambiada = contenidoDesdeFormulario(formulario({ ...campos, paso1: "Prefiere variedades precoces." }));
     expect(huellaDeContenido(cambiada)).not.toBe(huellaVerificacion(t));
     expect(contenidoDeTarjeta(t)).not.toHaveProperty("status");
+  });
+});
+
+describe("imágenes en el editor", () => {
+  const conPasoVacio = { ...base, paso2: "", paso4: "Trasplanta en líneas rectas.", paso4_fuente: FAO, paso4_pagina: "p. 40" };
+
+  it("la imagen de cada paso va pegada a SU paso aunque haya un paso vacío en medio", () => {
+    const c = contenidoDesdeFormulario(formulario({
+      ...conPasoVacio, paso1_imagen: "lessons/x/a.webp", paso2_imagen: "lessons/x/b.webp", paso3_imagen: "", paso4_imagen: "lessons/x/d.webp", paso5_imagen: "",
+    }));
+    expect(c.steps).toHaveLength(3);
+    expect(c.step_image_paths).toEqual(["lessons/x/a.webp", null, "lessons/x/d.webp"]);
+  });
+
+  it("encabezado: vacío en el campo nuevo = se quitó; sin el campo nuevo se lee el formato anterior", () => {
+    expect(contenidoDesdeFormulario(formulario({ ...base, header_imagen: "", header_image_path: "lessons/x/h.webp" })).header_image_path).toBeNull();
+    expect(contenidoDesdeFormulario(formulario({ ...base, header_imagen: "lessons/x/h.webp" })).header_image_path).toBe("lessons/x/h.webp");
+    expect(contenidoDesdeFormulario(formulario({ ...base, header_image_path: "lessons/x/h.webp" })).header_image_path).toBe("lessons/x/h.webp");
+  });
+
+  it("los archivos nuevos se alinean con los pasos que se guardan; los vacíos no cuentan", () => {
+    const f = formulario(conPasoVacio);
+    const img = (n: string) => new File([new Uint8Array([1, 2, 3])], n, { type: "image/webp" });
+    f.append("header_archivo", img("h.webp"));
+    f.append("paso2_archivo", img("ignorada.webp")); // paso 2 vacío
+    f.append("paso4_archivo", img("p4.webp"));
+    f.append("paso1_archivo", new File([], "")); // input sin archivo
+    const a = archivosDeImagenes(f);
+    expect(a.encabezado?.name).toBe("h.webp");
+    expect(a.pasos.map((x) => x?.name ?? null)).toEqual([null, null, "p4.webp"]);
+  });
+
+  it("detecta cuando solo cambian las imágenes", () => {
+    const vigente = { header_image_path: "h.webp", step_image_paths: ["a.webp", "b.webp", null] };
+    const c = { steps: ["1", "2", "3"], header_image_path: "h.webp", step_image_paths: ["a.webp", "b.webp"] };
+    expect(mismasImagenes(c, vigente)).toBe(true);
+    expect(mismasImagenes({ ...c, header_image_path: null }, vigente)).toBe(false);
+    expect(mismasImagenes({ ...c, step_image_paths: ["a.webp", null, null] }, vigente)).toBe(false);
   });
 });
 
