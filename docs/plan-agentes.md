@@ -49,8 +49,8 @@ git push origin HEAD:main
 ## Entregas entre agentes (con hora límite)
 | # | Qué | De → A | Hasta | Dónde se ve |
 |---|---|---|---|---|
-| H1 | **Tokens de color y componentes base** (`globals.css`, `components/ui/*`: Boton, Tarjeta, Insignia, Aviso, Cifra, Campo) | INTERFAZ → SERVIDOR | **03:45** | en `main` + `estado-interfaz.md` |
-| H2 | **Tipo `Tarjeta` v0.4** (campos nuevos **opcionales**, para que las 6 actuales sigan valiendo) y **`lib/fuentes.ts`** con `data/fuentes.json` | SERVIDOR → INTERFAZ | **03:45** | en `main` + `estado-servidor.md` |
+| H1 | **Tokens de color y componentes base** (`globals.css`, `components/ui/*`: Boton, Tarjeta, Insignia, Aviso, Cifra, Campo) | INTERFAZ → SERVIDOR | **04:00** | en `main` + `estado-interfaz.md` |
+| H2 | **Tipo `Tarjeta` v0.4** (campos nuevos **opcionales**, para que las 6 actuales sigan valiendo) y **`lib/fuentes.ts`** con `data/fuentes.json` | SERVIDOR → INTERFAZ | **04:00** | en `main` + `estado-servidor.md` |
 | H3 | **Formato de la alerta por nivel** (`nivelAlerta(aviso)` en `contratos/tipos.ts`: `roja` · `naranja`) para la banda de la portada | SERVIDOR → INTERFAZ | 04:30 | `main` |
 | H4 | **Prompts de imágenes por paso** de las tarjetas nuevas | SERVIDOR → Jhonatan | 05:30 | `docs/prompts-imagenes.md` |
 | H5 | **Hoja de verificación** de las tarjetas nuevas | SERVIDOR → Jhonatan / B | 05:30 | `scratch/verificacion/` (local) + aviso |
@@ -84,7 +84,7 @@ Mientras espera una entrega, cada agente sigue con otro bloque suyo: ninguno se 
 > 4. `decisiones.md`.
 >
 > **Tu trabajo, en este orden:**
-> 1. **Base visual y contraste (H1, hasta 03:45).**
+> 1. **Base visual y contraste (H1, hasta 04:00).**
 >    - Un solo tema claro con *tokens*. Quita el modo oscuro de `globals.css`, que es la causa del texto ilegible, y pon `color-scheme: light`.
 >    - Paleta, tipografías (Fraunces y Inter con `next/font`) y componentes en `components/ui/`, según el plan (3.2).
 >    - **Todo texto debe tener contraste ≥ 4,5:1.** Agrega `tests/contraste.test.ts`, que calcule el contraste de cada par de tokens texto/fondo.
@@ -109,9 +109,9 @@ Mientras espera una entrega, cada agente sigue con otro bloque suyo: ninguno se 
 >    - **Sin nombres ni teléfonos; lo de ejemplo, con EJEMPLO.**
 > 6. **`/entregas`, `/probar` (Chat) y `/suscribirse`** con el sistema nuevo.
 > 7. **Estilo del panel** (`/panel`, `/panel/reportes`, `/panel/alertas`): solo JSX y clases. No toques `acciones.ts` ni `layout.tsx` (son de SERVIDOR).
-> 8. **Imágenes de Higgsfield (H6).**
->    - Las tuyas (portada, ciclo) llegan a `D:\Jonathan\Desktop\SOFTWARE\Hackathon\assets\higgsfield\lote2\`.
->    - Revísalas: sin texto, personas ni manos, y sin contradecir el paso.
+> 8. **Imágenes de Higgsfield (H6, ya generadas: úsalas desde el paso 2).**
+>    - Las tuyas están en `D:\Jonathan\Desktop\SOFTWARE\Hackathon\assets\higgsfield\lote2\portada\` y `...\lote2\ciclo\`.
+>    - Revísalas: sin texto, personas ni manos.
 >    - Optimízalas (WebP, ≤ 200 KB) y ponlas en `public/ilustraciones/`, con el pie "Ilustraciones generadas con IA".
 >
 > **Reglas que no se rompen:**
@@ -137,7 +137,7 @@ Mientras espera una entrega, cada agente sigue con otro bloque suyo: ninguno se 
 > 4. `decisiones.md`, `contratos/CONTRATOS.md`, `docs/siguientes-pasos-tarjetas.md` e `docs/instructivo-salida-tarjetas.md`.
 >
 > **Tu trabajo, en este orden:**
-> 1. **Contrato v0.4 de tarjetas y fuentes (H2, hasta 03:45).**
+> 1. **Contrato v0.4 de tarjetas y fuentes (H2, hasta 04:00).**
 >    - En `contratos/tipos.ts`, el tipo `Tarjeta` agrega `por_que`, `evitar` y `pedir_ayuda`, cada uno con su fuente, y `pasos` admite 3–5. **Todo opcional**, para que las 6 tarjetas actuales sigan valiendo.
 >    - Adapta `SalidaBot` y los adaptadores (Telegram y WhatsApp). La web `/probar` es de INTERFAZ: avísale el cambio de forma.
 >    - Escribe la migración SQL en `contratos/migraciones/`. **No la apliques: se la pasas a Jhonatan (H7).**
@@ -170,7 +170,10 @@ Mientras espera una entrega, cada agente sigue con otro bloque suyo: ninguno se 
 >    - imágenes de Higgsfield (H6) → `assets/lessons/<id>/` → `npm run subir:imagenes`;
 >    - audios (**máximo 10 TTS por día en el plan gratis**: prioriza las del demo);
 >    - `npm run exportar:tarjetas`.
-> 6. **Bot:** en cada tarjeta, el enlace "Ver tarjeta completa" a `/tarjetas/<id>`. Revisa que «Mi reporte» y los problemas activos sigan funcionando.
+> 6. **Imágenes ya listas (hazlo en el bloque 1, son 5 min):**
+>    - `D:\Jonathan\Desktop\SOFTWARE\Hackathon\assets\higgsfield\lote2\tarjetas\sequia-antes_familia-01\paso2.webp` y `paso3.webp`, ya aprobadas: cópialas a `assets/lessons/sequia-antes_familia-01/`, luego `npm run subir:imagenes` y `npm run exportar:tarjetas`;
+>    - `...\lote2\headers\<id>_header.webp`: encabezados de las tarjetas nuevas, para cuando se verifiquen.
+> 7. **Bot:** en cada tarjeta, el enlace "Ver tarjeta completa" a `/tarjetas/<id>`. Revisa que «Mi reporte» y los problemas activos sigan funcionando.
 >
 > **Reglas que no se rompen:**
 > - Repositorio público: nada de claves, tokens ni teléfonos en el código. Todo en `.env` (el equipo usa `.env`, no `.env.local`), y en `.env.example` solo los nombres.
