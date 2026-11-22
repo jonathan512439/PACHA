@@ -4,7 +4,7 @@
 export const BIENVENIDA =
   "Hola 👋 Soy PACHA, el asistente de avisos para el Altiplano de Oruro. " +
   "Te mando los avisos oficiales del Senamhi y qué hacer, siempre con su fuente. " +
-  "Los audios usan voz sintética. ¿Quieres recibir los avisos?";
+  "¿Quieres recibir los avisos?";
 
 export const RECHAZO = "Está bien, no te mandaré avisos. Si cambias de opinión, escribe ALERTA.";
 export const ELIGE_COMUNIDAD = "¿De qué comunidad eres?";

@@ -341,7 +341,6 @@ type TarjetaDeAlerta = Pick<Tarjeta, "steps" | "source_doc" | "source_page" | "s
  * - Cifras: SOLO dentro de las citas LITERALES del boletín (cita_evento, cita_riesgo). Nada se calcula ni se resume.
  * - "QUÉ HACER HOY" con los pasos de la tarjeta de la regla y su fuente.
  * - Fuente oficial y enlace al PDF ORIGINAL del Senamhi (bulletins.source_url), si se descargó de su sitio.
- * - La voz sintética se declara por escrito si va un audio.
  */
 export function construirMensajeAlerta(p: {
   aviso: AvisoGemini;                       // debe haber pasado decidirAlerta
@@ -351,7 +350,7 @@ export function construirMensajeAlerta(p: {
   simulacro?: boolean;                      // comunicado manual de práctica: el encabezado dice SIMULACRO
   comunicado?: boolean;                     // comunicado de última hora cargado a mano (no el boletín decenal)
   boletinUrl?: string | null;               // bulletins.source_url; null si el PDF se subió a mano
-  conAudio?: boolean;                       // true si la alerta lleva audio (se declara la voz sintética)
+  conAudio?: boolean;                       // true si la alerta lleva audio (no cambia el texto: decisión de A, dom 22/11)
 }): string {
   const { aviso, tarjeta, boletinEsEjemplo } = p;
   if (!aviso.cita_evento) throw new Error("Sin cita_evento no se arma la alerta");
@@ -377,7 +376,7 @@ export function construirMensajeAlerta(p: {
     "",
     p.comunicado ? "Fuente oficial: comunicado del Senamhi." : "Fuente oficial: Senamhi, boletín agrometeorológico decenal del Altiplano.",
     p.boletinUrl ? `${p.comunicado ? "Ver el comunicado original" : "Ver el boletín original"}: ${p.boletinUrl}` : null,
-    `${p.conAudio ? "🔊 Audio con voz sintética. " : ""}Si hay daños, responde con un audio.`,
+    "Si hay daños, responde con un audio.",
   ].filter((l) => l !== null).join("\n");
 }
 
@@ -385,7 +384,7 @@ export function construirMensajeAlerta(p: {
 const zonaHablada = (zona: string | null) => zona?.replace(/\s*\([^)]*\)/g, "").trim() || null;
 
 /**
- * Guion del audio de la alerta (~20 s). Sin enlace ni la línea de voz sintética (la declaración va escrita).
+ * Guion del audio de la alerta (~20 s). Sin enlace y sin mencionar la voz sintética (decisión de A, dom 22/11).
  * El encabezado se repite al inicio para captar la atención. Sin cifras propias: solo fechas del boletín y los pasos.
  */
 export function guionAudioAlerta(aviso: AvisoGemini, tarjeta: Pick<Tarjeta, "steps"> | null): string {

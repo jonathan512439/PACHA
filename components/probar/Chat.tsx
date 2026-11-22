@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Mic, SendHorizontal, Square, Volume2 } from "lucide-react";
+import { Mic, SendHorizontal, Square } from "lucide-react";
 import { Insignia } from "@/components/ui/Insignia";
 import { clasesBoton } from "@/components/ui/Boton";
 import type { BotWebRequest, SalidaBot } from "@/contratos/tipos";
@@ -121,7 +121,7 @@ function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: strin
       return (
         <div className={caja}>
           <audio controls src={s.mp3Url ?? s.oggUrl} className="max-w-full" />
-          <p className="mt-1 flex items-center gap-1 text-xs text-tinta-2"><Volume2 aria-hidden="true" className="size-3.5" />Audio con voz sintética</p>
+          
         </div>
       );
     case "botones":
@@ -162,7 +162,7 @@ function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: strin
             {(s.audioMp3Url ?? s.audioOggUrl) && (
               <div>
                 <audio controls src={s.audioMp3Url ?? s.audioOggUrl} className="w-full" />
-                <p className="mt-1 flex items-center gap-1 text-xs text-tinta-2"><Volume2 aria-hidden="true" className="size-3.5" />Audio con voz sintética</p>
+                
               </div>
             )}
             {s.urlCompleta && (

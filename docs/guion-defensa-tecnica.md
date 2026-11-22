@@ -53,7 +53,7 @@
  │        ▼                                                    │                       │
  │  Tarjetas verificadas (lib/tarjetas) · Prioridad (contratos/prioridad)              │
  │                                                                                     │
- │  Cron diario ─► /api/boletin/buscar ─► Gemini lee el PDF ─► alerta en BORRADOR      │
+ │  Revisión cada 30 min ─► /api/boletin/buscar ─► Gemini lee el PDF ─► alerta BORRADOR│
  │  Panel (/panel, con login) ─► aprobar ─► enviar por canal ─► registrar entrega      │
  └──────────────────────────────┬──────────────────────────────────────────────────────┘
                                 ▼
@@ -82,13 +82,25 @@
 ## 4. Los cuatro flujos, de punta a punta
 
 ### 4.1 Aviso oficial → alerta aprobada (sin pronosticar nada)
-1. **Detección:** un **cron diario** de Vercel llama a `/api/boletin/buscar` (protegido con `CRON_SECRET`). También existe el botón "Buscar boletín ahora" del panel.
+1. **Detección:**
+   - **cada 30 minutos**, GitHub Actions llama a `/api/boletin/buscar` (protegido con `CRON_SECRET`); Vercel también lo llama una vez al día;
+   - también está el botón «Buscar boletín ahora» del panel.
 2. Esa ruta lee la página de boletines del Senamhi, toma el **ALTIPLANO** más reciente y descarga el PDF.
 3. **Lectura del PDF:** Gemini devuelve `AvisoGemini`: zona, período, fenómeno, nivel de riesgo y **citas literales**.
 4. **Validación:** Zod valida la respuesta. El **código** (no la IA) decide con `decidirAlerta` si corresponde alertar: riesgo medio o alto. El nivel se toma de la cita del Senamhi.
 5. **Borrador:** se arma la alerta con la tarjeta "qué hacer" de esa amenaza, el **enlace al PDF original** y el encabezado por nivel (🔴 roja, 🟠 naranja). Queda en `borrador` y se avisa a la técnica.
 6. **Aprobación:** la técnica entra con su usuario y aprueba. Se genera **un** audio corto (TTS) y la alerta pasa a `aprobada`.
 7. **Envío** a las personas suscritas de esas comunidades, por su canal. Cada entrega queda registrada (`alert_deliveries`).
+
+### 4.1 b · Comunicado de última hora (emergencia)
+Las alertas de color del Senamhi se publican en una aplicación sin acceso público para leerlas. Para una emergencia, la técnica las carga en 3 pasos desde `/panel/alertas`:
+1. **Cargar:** elige fenómeno, nivel y fechas; pega el texto literal del comunicado y su enlace oficial. Se crea la alerta en `borrador`, sin IA.
+2. **Aprobar:** se genera el audio.
+3. **Enviar:** llega a todas las personas suscritas.
+
+**Simulacro:** con la casilla marcada, el mensaje empieza con «SIMULACRO ·» y el audio lo dice al inicio y al final. Así se puede ensayar con teléfonos reales sin que nadie lo confunda con una emergencia.
+
+**Transparencia:** cada boletín y comunicado usado aparece en `/fuentes`, con el enlace original y, si es un PDF, la copia guardada.
 
 ### 4.2 La comunidad reporta por voz
 1. Llega una nota de voz por WhatsApp o Telegram. El adaptador verifica la **firma** del canal y responde 200.
@@ -141,7 +153,7 @@
 | Tecnología | Por qué la elegimos | Alternativas y por qué no |
 |---|---|---|
 | **Next.js 16 (App Router, TypeScript)** | Un solo proyecto para web pública, API, webhooks, cron y panel. Server Components (rápido en celulares modestos), Server Actions (panel sin API aparte), `after()` para webhooks. TypeScript de punta a punta con los contratos | **Django/Laravel + SPA:** dos proyectos y dos lenguajes. **Express suelto:** habría que armar a mano lo que Next ya trae. **SvelteKit/Remix:** válidos, pero el equipo domina React |
-| **Vercel** | Despliegue en cada push, HTTPS, cron incluido, sin servidores que mantener, costo cero para empezar | **VPS propio:** hay que administrarlo y asegurarlo. **Railway/Render:** similares, pero Vercel es nativo de Next. *Límite conocido:* en el plan gratis el cron corre una vez por día |
+| **Vercel** | Despliegue en cada push, HTTPS, cron incluido, sin servidores que mantener, costo cero para empezar | **VPS propio:** hay que administrarlo y asegurarlo. **Railway/Render:** similares, pero Vercel es nativo de Next. *Límite conocido:* en el plan gratis el cron corre una vez por día; por eso la revisión cada 30 minutos la hace GitHub Actions |
 | **Supabase (Postgres + Storage)** | **Postgres de verdad:** relaciones (reporte → entrega → confirmación), restricciones y SQL. Storage en el mismo lugar. Región São Paulo (la más cercana a Bolivia). Gratis para empezar. **Postgres estándar: se puede migrar a cualquier servidor** | **Firebase:** NoSQL, sin restricciones relacionales, más difícil de auditar. **Postgres propio:** más trabajo de operación. **No usamos Supabase Auth:** las comunidades nunca inician sesión; solo unos pocos técnicos, y para eso basta una sesión propia simple y segura |
 | **Gemini (`@google/genai`)**: `flash-lite` para leer y entender, `flash-tts` para voz | **Un solo proveedor** que lee el **PDF** directamente, **transcribe audio OGG/Opus sin convertir**, devuelve **JSON con esquema obligatorio** y genera **voz en español**. Barato y rápido (el boletín se lee en ~4 s) | **Whisper + GPT:** dos proveedores y conversión de audio. **ElevenLabs:** otro proveedor solo para voz. **Modelo local:** sin GPU en el servidor y peor calidad en español del Altiplano |
 | **Zod v4** | Un solo esquema da los **tipos** de TypeScript, la **validación** en tiempo de ejecución y el **JSON Schema** que se le pasa a Gemini. El contrato no puede desalinearse | **Tipos a mano + validación aparte:** se desincronizan |
@@ -161,7 +173,7 @@
 | **Panel** | `/ingresar` con contraseñas **scrypt**, sesión en cookie **firmada (HMAC)**, `HttpOnly`, `Secure`, 8 h. Roles `tecnico` y `admin`. Bloqueo tras 5 intentos. **Cada acción revalida** sesión y rol |
 | **Transparencia** | Mapa, prioridad con su desglose, tarjetas, fuentes, entregas, fichas y resumen son **públicos y sin login**. La fórmula de prioridad está escrita en la portada |
 | **Privacidad** | Lo público no muestra teléfonos, nombres ni transcripciones. Los audios de reportes están en un bucket privado. Las fotos de entregas, sin personas ni EXIF |
-| **IA responsable** | La IA no redacta consejos ni alertas: extrae datos y elige de una lista cerrada. Las cifras de la alerta son **citas literales** del Senamhi. Cada alerta la aprueba una persona. La voz sintética se declara por escrito |
+| **IA responsable** | La IA no redacta consejos ni alertas: extrae datos y elige de una lista cerrada. Las cifras de la alerta son **citas literales** del Senamhi. Cada alerta la aprueba una persona. Los mensajes y audios no mencionan la voz sintética (decisión del equipo); el sitio web la declara en el pie y en «Cómo funciona» |
 | **Información verificable** | Cada paso de cada tarjeta cita documento y página. Solo se publican tarjetas `verificada` o `revisada` |
 | **Abuso y costos** | Límite de mensajes por persona, tope diario de IA para los canales públicos, audios de máximo 60 s, deduplicación |
 | **Datos de demostración** | Comunidades, reportes y entregas marcados **EJEMPLO**. El boletín sí es real (Senamhi, 14–23 nov 2026) |
@@ -173,7 +185,7 @@
 - **WhatsApp:** el número de prueba de Meta solo llega a 5 números registrados.
 - **Ventana de 24 h de WhatsApp:** fuera de ella, para avisar a alguien que no escribió hace poco, Meta exige **plantillas aprobadas**.
 - **Plan gratis:**
-  - el cron corre 1 vez al día;
+  - la revisión automática solo cubre el boletín decenal; las alertas de color del Senamhi se cargan a mano (no tienen acceso público);
   - la voz de Gemini permite pocas llamadas por día (hoy, 10).
 - **Envío de alertas en secuencia** dentro de una función: alcanza para cientos de personas, no para decenas de miles.
 - **Bloqueo de intentos del login en memoria:** no es global entre servidores.
@@ -222,6 +234,9 @@
 > - **WhatsApp:** está Telegram.
 > - **Supabase:** es Postgres estándar; se respalda y se migra a cualquier servidor.
 > - **Vercel:** Next.js corre en cualquier servidor con Node.
+
+**«¿Y si hay una emergencia de última hora?»**
+> El sistema revisa el boletín del Senamhi cada 30 minutos. Para un comunicado urgente, la técnica lo carga en el panel con su enlace oficial, lo aprueba y lo envía: son tres pasos y menos de un minuto. Una persona sigue aprobando siempre.
 
 **"¿Quién paga esto?"**
 > Hoy cuesta cero, con los planes gratuitos. En producción el costo grande es WhatsApp por conversación y la IA por uso; los dos escalan con el uso real y los asume el municipio o la Gobernación.

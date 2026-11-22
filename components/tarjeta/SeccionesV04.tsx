@@ -62,7 +62,6 @@ export function SeccionesV04({ tarjeta: t, audioUrl }: { tarjeta: Tarjeta; audio
           <audio controls preload="none" src={audioUrl} className="w-full">
             Tu navegador no puede reproducir el audio.
           </audio>
-          <p className="text-xs text-tinta-2">Audio con voz sintética.</p>
         </Seccion>
       )}
 

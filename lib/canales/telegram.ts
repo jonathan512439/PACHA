@@ -109,7 +109,6 @@ function textoTarjeta(t: Extract<SalidaBot, { tipo: "tarjeta" }>): string {
     "",
     `<i>Fuente: ${html(t.fuente)}</i>`, // `fuente` ya trae la página de cada paso
     `<i>${html(t.etiquetaEstado)}</i>`,
-    ...(t.audioOggUrl || t.audioMp3Url ? ["<i>🔊 Audio con voz sintética</i>"] : []),
     ...(t.fuenteUrl ? [`<a href="${html(t.fuenteUrl)}">Ver documento</a>`] : []),
     ...(t.urlCompleta ? [`<a href="${html(t.urlCompleta)}">Ver tarjeta completa</a>`] : []),
   ].join("\n");

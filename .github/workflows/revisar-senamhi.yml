@@ -1,4 +1,4 @@
-# Revisión periódica del boletín del Senamhi (cada 15 min).
+# Revisión periódica del boletín del Senamhi (cada 30 min).
 # El plan gratuito de Vercel solo permite un cron diario; este workflow llama a la misma ruta protegida.
 # Requiere el secreto del repositorio CRON_SECRET (el mismo valor que en Vercel).
 # Para pausarlo (por ejemplo, durante una demo): gh workflow disable "Revisar boletín del Senamhi"
@@ -6,7 +6,7 @@ name: Revisar boletín del Senamhi
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 permissions:

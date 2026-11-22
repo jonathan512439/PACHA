@@ -179,3 +179,39 @@ export async function resumenPanel() {
   ]);
   return { confirmados, revisar, atendidos, suscriptores, borradores };
 }
+
+/* ---------------------------------------------------------------------- */
+export type BoletinPublico = {
+  id: string; tipo: "boletin" | "comunicado"; desde: string | null; hasta: string | null; procesado: string | null;
+  fenomeno: string | null; alerta: { nivel: string | null; riesgo: string | null; estado: string } | null;
+  original: string | null; copia: string | null; ejemplo: boolean;
+};
+
+/**
+ * Boletines y comunicados del Senamhi que el sistema leyó (página Fuentes). Público: solo enlaces y resultado.
+ * Los comunicados cargados a mano cuya alerta se descartó (pruebas) no se listan.
+ */
+export async function boletinesPublicos(): Promise<BoletinPublico[]> {
+  const { data, error } = await db().from("bulletins")
+    .select("id, source_url, pdf_path, period_start, period_end, processed_at, is_example, extracted, alerts(status, senamhi_level, risk_level)")
+    .eq("status", "procesado").order("period_start", { ascending: false, nullsFirst: false });
+  if (error) throw new Error(error.message);
+  type Fila = {
+    id: string; source_url: string | null; pdf_path: string; period_start: string | null; period_end: string | null; processed_at: string | null;
+    is_example: boolean; extracted: { fenomeno?: string } | null; alerts: { status: string; senamhi_level: string | null; risk_level: string | null }[] | null;
+  };
+  return ((data ?? []) as unknown as Fila[]).flatMap((b) => {
+    const comunicado = b.pdf_path.startsWith("manual-texto/");
+    const alertas = b.alerts ?? [];
+    const vigente = alertas.find((a) => a.status !== "descartada") ?? null;
+    if (comunicado && !vigente) return [];
+    return [{
+      id: b.id, tipo: comunicado ? "comunicado" : "boletin", desde: b.period_start, hasta: b.period_end, procesado: b.processed_at,
+      fenomeno: b.extracted?.fenomeno && b.extracted.fenomeno !== "ninguno" ? b.extracted.fenomeno : null,
+      alerta: vigente ? { nivel: vigente.senamhi_level, riesgo: vigente.risk_level, estado: vigente.status } : null,
+      original: b.source_url,
+      copia: comunicado ? null : db().storage.from("boletines").getPublicUrl(b.pdf_path).data.publicUrl,
+      ejemplo: b.is_example,
+    } satisfies BoletinPublico];
+  });
+}

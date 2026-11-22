@@ -204,6 +204,14 @@
 - **La base manda:** `npm run tarjetas:bajar` trae al JSON lo publicado en el panel. El seed se detiene si el JSON pisaría una edición del panel.
 - **Contenido:** agua segura pasa a la OPS/OMS (hervir 1 minuto más por cada 1000 m) como versión por verificar. Tarjeta nueva `sequia-despues-01` (FAO p. 39–40, trasplante de chilliwa), en borrador y en Animales › Ahora. Se cargan con `npm run proponer:versiones`.
 - **Imágenes del lote 3:** 24 de paso más 1 encabezado, revisadas (sin texto, personas ni manos) y subidas. PNG regenerados.
+## Voz sintética, fuentes y frecuencia de revisión (dom 22/11, 12:00)
+- **Voz sintética (decisión de A):** los mensajes del bot, el texto de las alertas y los audios **no la mencionan bajo ninguna circunstancia**.
+  - Se quitaron: la bienvenida, la etiqueta junto a las tarjetas (Telegram, WhatsApp, `/probar` y la página de la tarjeta) y la línea de la alerta.
+  - Una prueba lo exige (`tests/alerta-nivel.test.ts`).
+  - El sitio web la sigue declarando en el pie, en «Cómo funciona» y en «Suscribirse».
+- **Fuentes:** `/fuentes` lista los boletines y comunicados del Senamhi usados, con su resultado, el enlace original y la copia guardada (PDF, solo para boletines). Los comunicados de prueba descartados no se listan.
+- **Revisión periódica:** cada 30 min, no 15. El boletín decenal sale cada 10 días y así se consulta menos la web del Senamhi. Cuesta poco: unas 48 llamadas por día, sin IA salvo que haya un boletín nuevo.
+- **`CRON_SECRET`:** sin él, la ruta rechaza el cron. Tiene que tener el mismo valor en Vercel y en GitHub (secreto del repositorio).
 
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.

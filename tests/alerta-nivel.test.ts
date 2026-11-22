@@ -86,8 +86,8 @@ describe("mensaje de alerta v2 (boletín real)", () => {
     expect(m).toContain("Verificada contra fuente");
   });
 
-  it("la voz sintética se declara solo si hay audio", () => {
-    expect(m).toContain("🔊 Audio con voz sintética");
+  it("el mensaje nunca menciona la voz sintética, haya o no audio", () => {
+    expect(m).not.toContain("voz sintética");
     expect(construirMensajeAlerta({ aviso, tarjeta, boletinEsEjemplo: false })).not.toContain("voz sintética");
   });
 

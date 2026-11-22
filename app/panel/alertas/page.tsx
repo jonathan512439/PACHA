@@ -21,7 +21,7 @@ export default function Alertas() {
         <p className="text-sm text-tinta-2">
           Busca el boletín agrometeorológico decenal más reciente del Altiplano. La IA solo extrae los datos y las citas;
           el código decide si corresponde alertar y la alerta queda en <b>borrador</b> hasta que una persona la aprueba.
-          (También se revisa solo cada 15 minutos.)
+          (También se revisa solo cada 30 minutos.)
         </p>
         <BotonAccion accion={buscarBoletinAhora}>Buscar boletín ahora</BotonAccion>
         <details className="text-sm">
