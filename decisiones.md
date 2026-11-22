@@ -214,7 +214,8 @@
 - **`CRON_SECRET`:** sin él, la ruta rechaza el cron. Tiene que tener el mismo valor en Vercel y en GitHub (secreto del repositorio).
 
 ## Revisión final (dom 22/11, 12:30)
-- **Contrato (`MENU`):** «❄️ Nevada › Está pasando ahora» usa `nevada-antes_animales-01`, que también aplica durante la nevada. Antes respondía «no hay recomendaciones». Una prueba impide que una opción del menú quede vacía.
+- README completo para el repositorio público. `.env.example` suma las variables opcionales y dice `.env`, no `.env.local`.
+- `MENU` sin cambios: «❄️ Nevada» no pregunta «antes o ahora» y manda directo su tarjeta. Una prueba exige que toda opción tenga al menos una tarjeta de «antes».
 
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
