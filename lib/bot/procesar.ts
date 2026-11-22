@@ -15,6 +15,8 @@ import { interpretarMensaje, GeminiNoDisponible } from "@/lib/gemini";
 import { tarjetasEnviables, salidaTarjeta } from "@/lib/tarjetas";
 import * as D from "@/lib/bot/datos";
 import * as T from "@/lib/bot/textos";
+import { comunidadesConPrioridad } from "@/lib/datos-publicos";
+import { urlApp } from "@/lib/url";
 
 /*
  * procesarMensaje: el bot completo, igual para web, Telegram y WhatsApp.
@@ -26,7 +28,7 @@ import * as T from "@/lib/bot/textos";
  *   optin:si | optin:no | com:<uuid>
  *   menu:<agua|animales|cultivos> | menu:<op>:<antes|ahora>
  *   rep_si:<uuid> | rep_no:<uuid> | rep_com:mia | rep_com:<uuid>
- *   ent_si:<uuid> | ent_no:<uuid>
+ *   ent_si:<uuid> | ent_no:<uuid> | misrep
  */
 
 type Salida = SalidaBot;
@@ -76,6 +78,7 @@ async function enrutar(e: EntradaBot, s: D.Suscriptor, ctx: D.Contexto): Promise
   // ---- Registrado ------------------------------------------------------
   if (e.botonId) return manejarBoton(e.botonId, s, ctx);
   if (t === "0" || t === "menu" || t === "alerta") return { respuestas: [menuTemas()] };
+  if (PIDE_ESTADO.has(t)) return { respuestas: await misReportes(s) };
   if (e.tipo === "texto" && !e.texto?.trim()) return { respuestas: [menuTemas()] };
   return mensajeLibre(e, s, ctx);
 }
@@ -154,6 +157,8 @@ async function manejarBoton(id: string, s: D.Suscriptor, ctx: D.Contexto): Promi
     if (destino.id !== r.community_id) await D.actualizarReporte(r.id, { community_id: destino.id });
     return { respuestas: [preguntaConfirmacion({ ...r, community_id: destino.id }, destino.name)] };
   }
+
+  if (accion === "misrep") return { respuestas: await misReportes(s) };
 
   if (accion === "ent_si" || accion === "ent_no") {
     const ok = await D.confirmarEntrega(valor, s.community_id!, accion === "ent_si");
@@ -264,11 +269,39 @@ async function confirmarReporte(r: D.Reporte): Promise<Resultado> {
     status: "confirmado", confirmed_at: new Date().toISOString(), updated_by: "persona",
     priority_score: res.score, priority_breakdown: { ...res, urgencia: urgencia(res.score) },
   });
-  const respuestas: Salida[] = [texto(T.reporteConfirmado(c?.name ?? "tu comunidad"))];
+  const respuestas: Salida[] = [{
+    tipo: "botones", texto: T.reporteConfirmado(c?.name ?? "tu comunidad"), botones: [{ id: "misrep", titulo: T.VER_MI_REPORTE }],
+  }];
   const idFactor = r.factor ? await D.idTarjetaPorFactor(r.factor) : null;
   const tarjeta = idFactor ? await salidaTarjeta(idFactor) : null;
   if (tarjeta) respuestas.push(texto(T.MIENTRAS_TANTO), tarjeta);
   return { respuestas };
+}
+
+/* ---------------------------------------------------------------------- */
+// "Mi reporte": sin IA y sin gastar el límite de mensajes.
+const PIDE_ESTADO = new Set(["estado", "mi reporte", "mis reportes", "ver mi reporte", "como va mi reporte"]);
+
+async function misReportes(s: D.Suscriptor): Promise<Salida[]> {
+  const reportes = await D.reportesDelSuscriptor(s.id);
+  if (!reportes.length) return [texto(T.SIN_REPORTES)];
+  const activas = (await comunidadesConPrioridad()).filter((c) => c.prioridad.estado === "activa");
+  const lineas = reportes.map((r) => {
+    const i = activas.findIndex((c) => c.id === r.comunidadId);
+    const p = i >= 0 ? activas[i].prioridad : null;
+    return {
+      comunidad: r.comunidad, tipo: r.type, status: r.status, creado: r.created_at, entrega: r.entrega,
+      prioridad: r.status === "confirmado" && p?.estado === "activa" ? { urgencia: p.urgencia, puesto: i + 1, total: activas.length } : null,
+    };
+  });
+  const salidas: Salida[] = [texto(T.textoMisReportes(lineas, urlApp()))];
+  // Si hay una entrega de SU comunidad sin respuesta, se ofrece responder ahí mismo.
+  const pendiente = reportes.find((r) => r.entrega?.confirmed_by_community === null && r.comunidadId === s.community_id)?.entrega;
+  if (pendiente) salidas.push({
+    tipo: "botones", texto: "¿Llegó la entrega?",
+    botones: [{ id: `ent_si:${pendiente.id}`, titulo: "✅ Llegó" }, { id: `ent_no:${pendiente.id}`, titulo: "❌ No llegó" }],
+  });
+  return salidas;
 }
 
 /** Tarjetas en el orden pedido, armadas por lib/tarjetas (regla de publicación y etiquetas). Las no publicables se omiten. */

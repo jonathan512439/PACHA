@@ -165,4 +165,29 @@ export async function confirmarEntrega(id: string, communityId: string, llego: b
   return (data ?? []).length > 0;
 }
 
+export type MiReporte = {
+  id: string; type: string; status: string; created_at: string; comunidadId: string; comunidad: string;
+  entrega: { id: string; kind: string; quantity: number; unit: string; delivered_at: string; confirmed_by_community: boolean | null } | null;
+};
+
+/** Últimos reportes de ESE suscriptor (sin los descartados), con su entrega más reciente si la hay. */
+export async function reportesDelSuscriptor(subscriberId: string, limite = 3): Promise<MiReporte[]> {
+  const { data, error } = await db().from("reports")
+    .select("id, type, status, created_at, community_id, communities(name), deliveries(id, kind, quantity, unit, delivered_at, confirmed_by_community, is_example)")
+    .eq("subscriber_id", subscriberId).neq("status", "descartado")
+    .order("created_at", { ascending: false }).limit(limite);
+  falla("leer mis reportes", error);
+  type Entrega = NonNullable<MiReporte["entrega"]> & { is_example: boolean };
+  type Fila = { id: string; type: string; status: string; created_at: string; community_id: string;
+    communities: { name: string } | null; deliveries: Entrega[] | null };
+  return ((data ?? []) as unknown as Fila[]).map((r) => {
+    const e = (r.deliveries ?? []).filter((d) => !d.is_example).sort((a, b) => b.delivered_at.localeCompare(a.delivered_at))[0];
+    return {
+      id: r.id, type: r.type, status: r.status, created_at: r.created_at, comunidadId: r.community_id,
+      comunidad: r.communities?.name ?? "tu comunidad",
+      entrega: e ? { id: e.id, kind: e.kind, quantity: Number(e.quantity), unit: e.unit, delivered_at: e.delivered_at, confirmed_by_community: e.confirmed_by_community } : null,
+    };
+  });
+}
+
 export const urlPublica = (bucket: string, ruta: string) => db().storage.from(bucket).getPublicUrl(ruta).data.publicUrl;

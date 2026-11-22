@@ -16,7 +16,7 @@ export const registrado = (comunidad: string) =>
   "Escribe 0 para ver qué hacer. Para dejar de recibir avisos, escribe BAJA.";
 
 export const REACTIVADO = "Listo, vuelves a recibir los avisos. Escribe 0 para ver qué hacer.";
-export const MENU = "¿Sobre qué quieres saber?";
+export const MENU = "¿Sobre qué quieres saber?\n(Para ver cómo va tu reporte, escribe ESTADO.)";
 export const MENU_MOMENTO = "¿Antes de que pase o está pasando ahora?";
 export const MENU_SIN_TARJETAS = "Todavía no hay recomendaciones verificadas para eso. Consulta al técnico de tu municipio.";
 export const OTRO =
@@ -31,7 +31,50 @@ export const ENTREGA_NO_LLEGO = "Gracias por avisar. Queda registrado públicame
 export const ENTREGA_YA = "Esa entrega ya fue confirmada.";
 
 export const reporteConfirmado = (comunidad: string) =>
-  `Gracias. Tu reporte de ${comunidad} quedó registrado y ya cuenta en el mapa público de prioridades.`;
+  `Gracias. Tu reporte de ${comunidad} quedó registrado y ya cuenta en el mapa público de prioridades. ` +
+  "Para ver cómo avanza, toca el botón o escribe ESTADO.";
+
+/* ---- "Mi reporte": la comunidad ve en qué está su pedido ---------------- */
+export const VER_MI_REPORTE = "📋 Ver mi reporte";
+export const SIN_REPORTES =
+  "Todavía no mandaste ningún reporte. Si pasa algo en tu comunidad, mándame un audio contando qué pasa.";
+const ESTADO: Record<string, string> = {
+  por_confirmar: "⏳ Falta que lo confirmes (toca ✅ Sí en el mensaje «Entendí…»)",
+  confirmado: "✅ Confirmado · ya está en el mapa público",
+  atendido: "🚚 Atendido · se registró una entrega",
+  revisar: "👀 Una persona del municipio lo está revisando",
+};
+const URGENCIA: Record<string, string> = { rojo: "🔴 muy urgente", naranja: "🟠 urgente", amarillo: "🟡 atención", verde: "🟢 baja" };
+const UNIDAD: Record<string, [string, string]> = { cisternas: ["cisterna", "cisternas"], kg: ["kg", "kg"] };
+const fecha = (iso: string) =>
+  new Date(iso).toLocaleDateString("es-BO", { day: "numeric", month: "numeric", timeZone: "America/La_Paz" });
+
+export type LineaMiReporte = {
+  comunidad: string; tipo: string; status: string; creado: string;
+  prioridad: { urgencia: string; puesto: number; total: number } | null;
+  entrega: { quantity: number; unit: string; kind: string; delivered_at: string; confirmed_by_community: boolean | null } | null;
+};
+
+/** Estado de los últimos reportes de la persona, en lenguaje simple. */
+export function textoMisReportes(reportes: LineaMiReporte[], urlMapa: string): string {
+  const bloques = reportes.map((r, i) => {
+    const l = [
+      `${reportes.length > 1 ? `${i + 1}) ` : ""}${r.comunidad} · ${TIPO[r.tipo] ?? "problema"} · ${fecha(r.creado)}`,
+      ESTADO[r.status] ?? r.status,
+    ];
+    if (r.prioridad)
+      l.push(`Prioridad: ${URGENCIA[r.prioridad.urgencia] ?? r.prioridad.urgencia} · puesto ${r.prioridad.puesto} de ${r.prioridad.total} comunidades con reportes`);
+    if (r.entrega) {
+      const [uno, varios] = UNIDAD[r.entrega.unit] ?? [r.entrega.unit, r.entrega.unit];
+      const cant = `${r.entrega.quantity} ${r.entrega.quantity === 1 ? uno : varios}${r.entrega.kind === "forraje" ? " de forraje" : ""}`;
+      const resp = r.entrega.confirmed_by_community === null ? "falta que confirmes si llegó"
+        : r.entrega.confirmed_by_community ? "confirmaste que llegó ✅" : "avisaste que no llegó ❌";
+      l.push(`Entrega: ${cant} el ${fecha(r.entrega.delivered_at)} · ${resp}`);
+    }
+    return l.join("\n");
+  });
+  return [`📋 ${reportes.length > 1 ? "Tus últimos reportes" : "Tu reporte"}`, ...bloques, `Mapa público: ${urlMapa}`].join("\n\n");
+}
 
 export const preguntaComunidad = "¿El reporte es para tu comunidad o para otra?";
 
