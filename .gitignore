@@ -50,3 +50,6 @@ verificacion_paso_a_paso.csv
 
 # Hoja de verificación de tarjetas: contiene citas literales de las fuentes (van solo a Drive, nunca al repo)
 scratch/verificacion/
+
+# Imágenes originales de Higgsfield (se optimizan antes de usarse)
+assets/higgsfield/

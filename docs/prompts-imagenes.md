@@ -146,3 +146,82 @@ Scene: A wooden trough filled with clean water and a pile of dry hay next to it,
 - Pie de la tarjeta y de la web: «Ilustraciones generadas con IA; siga el texto».
 - Si una imagen sugiere algo distinto al paso (p. ej., un corral sin techo en el paso de techar), se descarta.
 - El audio de la tarjeta no usa estas imágenes.
+
+---
+
+# Lote 2 · rediseño y tarjetas nuevas (dom 22/11)
+
+**Cómo entregar:** guarda cada PNG con el nombre exacto en `assets/higgsfield/lote2/` (la carpeta no se sube al repo) y avisa. Claude los revisa, los optimiza (WebP/JPG) y los ubica.
+**Referencia de estilo:** la misma `ilustracion_05_helada_amanecer.jpg` de la serie, para que todo se vea de una sola familia. **2 variantes por prompt**; elige la mejor.
+**Rechazo (igual que el lote 1):** texto o letras en la imagen, personas o manos, animales que no sean llamas, algo que contradiga lo que ilustra.
+**Bloque de estilo:** el mismo de arriba, pegado al inicio de cada prompt.
+
+**Orden:**
+1. Los **2 pasos que faltan** de `sequia-antes_familia-01` (arriba, sección `sequia-antes_familia-01`: `paso2` y `paso3`, ya actualizados).
+2. Portada.
+3. Los 4 pasos del ciclo.
+4. Encabezados de las tarjetas nuevas.
+
+> Las imágenes **por paso** de las tarjetas nuevas se agregan aquí cuando sus pasos estén verificados (~05:00). No las generes antes: si el texto del paso cambia, la imagen no sirve.
+
+## Portada (16:9) → `portada.png`
+```
+[BLOQUE DE ESTILO] Wide 16:9 composition with generous empty sky on the left third for a headline overlay.
+Scene: Dawn over the Bolivian Altiplano near Oruro. A small adobe community with straw roofs and a stone corral sits in the middle distance; a few llamas rest near a round water reservoir (qotaña) that reflects the sky. Thin frost on the golden bunchgrass in the foreground, snow-capped peaks far behind, a calm lavender-to-ochre dawn sky. Quiet, dignified, hopeful mood; nothing dramatic.
+```
+
+## Ciclo en 4 pasos (1:1) — para la portada
+**`ciclo-1-aviso.png`** — Aviso oficial
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A small rural weather station on the Altiplano (white instrument shelter with louvered sides, a thin mast with an anemometer and a wind vane), cold blue early-morning light, faint frost on the ground, a band of thin clouds over distant peaks.
+```
+**`ciclo-2-que-hacer.png`** — Qué hacer (tarjeta verificada)
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A well-prepared stone llama corral with a tall windbreak wall and a straw-covered roof section, a stack of dry forage bales beside it, two llamas sheltered inside; calm late-afternoon light. The feeling: "we are ready".
+```
+**`ciclo-3-reporte.png`** — La comunidad reporta por voz
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A simple mobile phone resting upright on a low stone wall, its screen showing only abstract sound-wave shapes (no letters, no numbers, no app logos); behind it a dry, cracked water channel and a dry spring among rocks.
+```
+**`ciclo-4-entrega.png`** — Ayuda que se puede comprobar
+```
+[BLOQUE DE ESTILO] Square 1:1 composition, subject centered with margin.
+Scene: A water tanker truck (plain, no markings, no logos, no visible driver) parked beside a community water tank made of concrete, water flowing from a hose into the tank; a few llamas nearby; clear sky.
+```
+
+## Encabezados de las tarjetas nuevas (16:9)
+Se guardan como `<id>_header.png`. Si una tarjeta no llega a verificarse, su encabezado simplemente no se usa.
+
+**`nevada-antes-01_header.png`** — Prepararse para la nevada
+```
+[BLOQUE DE ESTILO] Wide 16:9 illustration.
+Scene: Late afternoon before a snowstorm on the Altiplano: heavy grey-violet clouds rolling in over the peaks, a stone corral with a roofed section, dry forage bales stacked under a straw cover next to it, llamas walking toward the corral.
+```
+**`nevada-durante-01_header.png`** — Durante y después de la nevada
+```
+[BLOQUE DE ESTILO] Wide 16:9 illustration.
+Scene: The Altiplano covered in fresh snow under a pale clearing sky, a roofed stone corral with llamas sheltered inside, snow piled on a dirt road that winds toward the community, adobe houses with snow on the roofs.
+```
+**`helada-despues-01_header.png`** — Después de la helada
+```
+[BLOQUE DE ESTILO] Wide 16:9 illustration.
+Scene: Morning sun melting the frost on a small potato and quinoa field next to a stone wall, some leaves darkened by frost and others still green, llamas grazing calmly in the background, warm golden light replacing the cold blue.
+```
+**`sequia-cultivos-01_header.png`** — Cultivos en sequía
+```
+[BLOQUE DE ESTILO] Wide 16:9 illustration.
+Scene: A small quinoa field on dry, cracked soil under a harsh clear sky, a narrow irrigation channel carrying a thin line of water to the base of the plants, a covered water tank at the edge of the field.
+```
+**`agua-segura-01_header.png`** — Agua segura para tomar
+```
+[BLOQUE DE ESTILO] Wide 16:9 illustration.
+Scene: Inside an adobe kitchen: clean water containers with tight lids resting on a raised wooden shelf, a clay pot of water boiling on a simple stove, a small window showing the dry Altiplano outside. No people, no hands.
+```
+**`sequia-durante-animales-01_header.png`** — Animales en sequía
+```
+[BLOQUE DE ESTILO] Wide 16:9 illustration.
+Scene: Dry-season Altiplano with sparse yellow bunchgrass, llamas gathered around a stone water trough fed from a covered reservoir, a small stack of stored forage under a straw cover beside a stone wall.
+```
