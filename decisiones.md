@@ -148,6 +148,11 @@
 - **Contrato (`contratos/tipos.ts`, MENU):** "🌱 Cultivos › Ahora" mostraba `helada-durante-01`, que desde la v0.3 es de animales. Ahora muestra `helada-antes_familia-01`, la única tarjeta de cultivos. Hay un test que impide que Cultivos vuelva a mostrar tarjetas de otro tema.
 - **Voz sintética:** el audio ya **no dice** "Mensaje con voz sintética" (pedido de A). La declaración queda **escrita** junto al audio en los tres canales ("🔊 Audio con voz sintética") y en el texto de la alerta.
 
+## Panel: problemas activos (dom 22/11, 02:30)
+- **Contrato v0.3.1 (`contratos/schema.sql`):** tabla nueva `lesson_sends` (factor, tarjeta, comunidad, personas, quién, cuándo). Migración: `contratos/migraciones/2026-11-22_lesson_sends.sql`.
+- `/panel` agrupa los reportes confirmados por problema y envía la tarjeta "durante" de ese factor (misma regla que el bot) a las comunidades que lo reportan. No se repite a la misma comunidad por el mismo factor en 24 h. Solo tarjetas publicables.
+- **"Mi reporte" en el bot:** ESTADO o el botón tras confirmar. Muestra estado, puesto en la prioridad pública y entrega. Sin IA.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

@@ -7,6 +7,7 @@ import { buscarYProcesar, procesarBoletin } from "@/lib/boletin";
 import { aprobarAlerta, descartarAlerta, enviarAlerta, ErrorAlerta } from "@/lib/alertas";
 import { ErrorEntrega, registrarEntrega } from "@/lib/entregas";
 import { reiniciarDemo } from "@/lib/demo-datos";
+import { enviarTarjetaProblema, ErrorProblema } from "@/lib/problemas";
 
 /*
  * Acciones del panel (Server Actions). Cada una valida el usuario del panel con el header de basic auth
@@ -25,7 +26,7 @@ async function ejecutar(fn: (u: string) => Promise<string>): Promise<Resultado> 
   try {
     return { ok: true, mensaje: await fn(await usuario()) };
   } catch (e) {
-    if (e instanceof ErrorAlerta || e instanceof ErrorEntrega) return { ok: false, mensaje: e.message };
+    if (e instanceof ErrorAlerta || e instanceof ErrorEntrega || e instanceof ErrorProblema) return { ok: false, mensaje: e.message };
     console.error("panel", e);
     return { ok: false, mensaje: e instanceof Error ? e.message : String(e) };
   }
@@ -115,6 +116,17 @@ export async function registrarEntregaPanel(form: FormData): Promise<Resultado> 
       foto: foto instanceof File && foto.size > 0 ? { bytes: new Uint8Array(await foto.arrayBuffer()), mime: foto.type } : null,
     }, u);
     return `Entrega registrada. Se preguntó "¿Llegó?" a ${r.notificados} ${r.notificados === 1 ? "persona" : "personas"}.`;
+  });
+}
+
+/** Envía la tarjeta "durante" de un problema a todas las comunidades que lo reportan (sin repetir en 24 h). */
+export async function enviarProblema(factor: string): Promise<Resultado> {
+  return ejecutar(async (u) => {
+    const r = await enviarTarjetaProblema(factor, u);
+    const personas = `${r.enviados} ${r.enviados === 1 ? "persona" : "personas"}`;
+    return `«${r.tarjeta.titulo}» enviada a ${personas} de ${r.comunidades} ${r.comunidades === 1 ? "comunidad" : "comunidades"}`
+      + `${r.fallidos ? `, ${r.fallidos} fallidos` : ""}${r.omitidosWeb ? `, ${r.omitidosWeb} del simulador web (no reciben envíos)` : ""}.`
+      + `${r.errores[0] ? ` Primer error: ${r.errores[0].slice(0, 120)}` : ""}`;
   });
 }
 

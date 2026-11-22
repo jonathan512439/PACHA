@@ -47,6 +47,8 @@ export type FotosEjemplo = Partial<Record<1 | 2 | 3, Uint8Array>>;
 export async function reiniciarDemo(db: SupabaseClient, fotos: FotosEjemplo = {}) {
   // 1. Borrar lo generado durante el demo, en orden de dependencias.
   for (const t of ["alert_deliveries", "deliveries", "alerts", "reports"]) await borrarTodo(db, t);
+  // Envíos por problema (v0.3.1): si la migración aún no está aplicada, la tabla no existe y se ignora.
+  await db.from("lesson_sends").delete().not("id", "is", null);
   const { data: bols } = await db.from("bulletins").select("pdf_path");
   await borrarTodo(db, "bulletins");
   const rutas = (bols ?? []).map((b) => b.pdf_path as string).filter(Boolean);

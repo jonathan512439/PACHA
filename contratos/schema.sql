@@ -185,6 +185,17 @@ create table deliveries (
   confirmed_at           timestamptz
 );
 
+-- Envíos de tarjetas por problema desde el panel (v0.3.1, migraciones/2026-11-22_lesson_sends.sql)
+create table lesson_sends (
+  id            uuid primary key default gen_random_uuid(),
+  factor        text not null,
+  lesson_id     text not null references lessons(id),
+  community_id  uuid not null references communities(id) on delete cascade,
+  recipients    integer not null default 0 check (recipients >= 0),
+  sent_by       text not null,
+  sent_at       timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Índices
 -- ---------------------------------------------------------------------------
@@ -193,6 +204,7 @@ create index on alerts (status, created_at desc);
 create index on deliveries (community_id, delivered_at desc);
 create index on subscribers (community_id) where activo;
 create index on inbound_messages (received_at) where uses_ai;
+create index on lesson_sends (factor, community_id, sent_at desc);
 
 -- ---------------------------------------------------------------------------
 -- RLS: activado y sin políticas (solo el servidor con la clave secreta accede)
@@ -207,6 +219,7 @@ alter table alerts           enable row level security;
 alter table alert_deliveries enable row level security;
 alter table reports          enable row level security;
 alter table deliveries       enable row level security;
+alter table lesson_sends     enable row level security;
 
 -- ---------------------------------------------------------------------------
 -- Permisos: SOLO service_role (el servidor) lee y escribe. anon/authenticated no reciben permisos de datos.
