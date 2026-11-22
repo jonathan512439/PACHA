@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Aviso, Boton, CLASES_CONTROL, Insignia } from "@/components/ui";
-import { BookOpen, ChevronDown, CloudSnow, ExternalLink, FilePen, Pencil, Plus, Snowflake, Sun, Trash2 } from "lucide-react";
+import { BookOpen, ChevronDown, ExternalLink, FilePen, Pencil, Plus, Trash2 } from "lucide-react";
 import { FormAccion } from "@/components/panel/Acciones";
 import { editorDisponible, listarVersiones, type Version } from "@/lib/editor-tarjetas";
 import { listarTarjetas } from "@/lib/tarjetas";
@@ -21,7 +21,7 @@ export default function PaginaTarjetas() {
   );
 }
 
-const AMENAZA = { helada: { texto: "Helada", Icono: Snowflake }, sequia: { texto: "Sequía", Icono: Sun }, nevada: { texto: "Nevada", Icono: CloudSnow } } as const;
+const AMENAZA = { helada: { texto: "Helada" }, sequia: { texto: "Sequía" }, nevada: { texto: "Nevada" } } as const;
 const FASE: Record<string, string> = { antes_familia: "Antes · familia", antes_animales: "Antes · animales", durante: "Durante", despues: "Después" };
 
 function FilaVersion({ v, devuelta }: { v: Version; devuelta?: boolean }) {
@@ -112,9 +112,6 @@ async function Contenido() {
             return (
               <li key={t.id} className="px-4 py-3">
                 <div className="flex flex-wrap items-start gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-marca-suave text-marca" title={a.texto}>
-                    <a.Icono aria-hidden="true" className="size-5" />
-                  </span>
                   <div className="min-w-0 flex-1 space-y-1">
                     <p className="font-semibold leading-snug">{t.title}</p>
                     <p className="flex flex-wrap items-center gap-1.5 text-xs text-tinta-2">
@@ -131,7 +128,7 @@ async function Contenido() {
                   </div>
                 </div>
                 {disponible && t.status !== "borrador" && (
-                  <details className="group ml-12 mt-2 text-sm">
+                  <details className="group mt-2 text-sm">
                     <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-md px-2 font-semibold text-roja-tinta hover:bg-roja-suave [&::-webkit-details-marker]:hidden">
                       <Trash2 aria-hidden="true" className="size-4" />
                       Retirar (solo admin)

@@ -9,13 +9,13 @@ import { cx } from "@/components/ui/cx";
 
 export const metadata: Metadata = { title: "Reportes" };
 
-type Grupo = { estado: string; titulo: string; corto: string; ayuda: string; borde: string; punto: string };
+type Grupo = { estado: string; titulo: string; corto: string; ayuda: string; punto: string };
 const GRUPOS: Grupo[] = [
-  { estado: "revisar", titulo: "Por revisar", corto: "Por revisar", ayuda: "El bot no entendió bien (confianza baja): escucha el audio y confirma o descarta.", borde: "border-l-ocre", punto: "bg-ocre" },
-  { estado: "confirmado", titulo: "Confirmados · cuentan para la prioridad", corto: "Confirmados", ayuda: "Registra la entrega cuando se atienda: el bot le pregunta a la comunidad si llegó.", borde: "border-l-marca", punto: "bg-marca" },
-  { estado: "por_confirmar", titulo: "Esperando que la persona confirme", corto: "Esperando", ayuda: "El bot preguntó «¿Entendí bien?» y aún no respondieron.", borde: "border-l-borde-fuerte", punto: "bg-gris" },
-  { estado: "atendido", titulo: "Atendidos", corto: "Atendidos", ayuda: "Ya tienen una entrega registrada.", borde: "border-l-verde", punto: "bg-verde" },
-  { estado: "descartado", titulo: "Descartados", corto: "Descartados", ayuda: "", borde: "border-l-borde", punto: "bg-borde-fuerte" },
+  { estado: "revisar", titulo: "Por revisar", corto: "Por revisar", ayuda: "El bot no entendió bien (confianza baja): escucha el audio y confirma o descarta.", punto: "bg-ocre" },
+  { estado: "confirmado", titulo: "Confirmados · cuentan para la prioridad", corto: "Confirmados", ayuda: "Registra la entrega cuando se atienda: el bot le pregunta a la comunidad si llegó.", punto: "bg-marca" },
+  { estado: "por_confirmar", titulo: "Esperando que la persona confirme", corto: "Esperando", ayuda: "El bot preguntó «¿Entendí bien?» y aún no respondieron.", punto: "bg-gris" },
+  { estado: "atendido", titulo: "Atendidos", corto: "Atendidos", ayuda: "Ya tienen una entrega registrada.", punto: "bg-verde" },
+  { estado: "descartado", titulo: "Descartados", corto: "Descartados", ayuda: "", punto: "bg-borde-fuerte" },
 ];
 export default function Reportes() {
   return (
@@ -64,7 +64,7 @@ async function Lista() {
           {lista.length === 0 ? (
             <p className="rounded-lg border border-dashed border-borde-fuerte bg-superficie px-4 py-3 text-sm text-tinta-2">Ninguno por ahora.</p>
           ) : (
-            <ul className="space-y-3">{lista.map((r) => <TarjetaReporte key={r.id} r={r} borde={g.borde} />)}</ul>
+            <ul className="space-y-3">{lista.map((r) => <TarjetaReporte key={r.id} r={r} />)}</ul>
           )}
         </section>
       ))}

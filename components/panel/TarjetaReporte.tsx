@@ -6,7 +6,6 @@ import { etiquetaFactor } from "@/lib/problemas-agrupar";
 import { BotonAccion, FormAccion, FormEntrega } from "@/components/panel/Acciones";
 import { Insignia } from "@/components/ui/Insignia";
 import { CLASES_CONTROL } from "@/components/ui/Campo";
-import { cx } from "@/components/ui/cx";
 import { corregirReporte, decidirReporte, registrarEntregaPanel } from "@/app/panel/acciones";
 
 const TIPO: Record<string, { texto: string; Icono: LucideIcon }> = {
@@ -27,13 +26,13 @@ function Dato({ etiqueta, valor }: { etiqueta: string; valor: number | null | un
 }
 
 /** Un reporte en el panel: datos, transcripción, audio y acciones según su estado. */
-export function TarjetaReporte({ r, borde }: { r: ReportePanel; borde: string }) {
+export function TarjetaReporte({ r }: { r: ReportePanel }) {
   const p = r.payload as Record<string, number | null>;
   const tipo = TIPO[r.type] ?? { texto: r.type, Icono: HelpCircle };
   const abierto = ["revisar", "por_confirmar", "confirmado"].includes(r.status);
   const confianzaBaja = r.confidence !== null && r.confidence < 0.6;
   return (
-    <li className={cx("space-y-3 rounded-xl border border-borde border-l-4 bg-superficie p-4 shadow-suave", borde)}>
+    <li className="space-y-3 rounded-xl border border-borde bg-superficie p-4">
       <div className="flex flex-wrap items-start gap-x-3 gap-y-2">
         <div className="min-w-0 flex-1 space-y-1">
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -66,7 +65,7 @@ export function TarjetaReporte({ r, borde }: { r: ReportePanel; borde: string })
       </div>
 
       {(r.transcript || r.audioUrl) && (
-        <div className="space-y-2 rounded-lg border-l-2 border-borde-fuerte bg-fondo px-3 py-2">
+        <div className="space-y-2 rounded-lg bg-fondo px-3 py-2">
           {r.transcript && (
             <p className="flex gap-2 text-sm text-tinta">
               <Mic aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-tinta-2" />
