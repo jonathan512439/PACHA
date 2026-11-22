@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { rangoFechas } from "@/contratos/tipos";
-import { Aviso, type NivelAviso } from "@/components/ui/Aviso";
+import { Aviso } from "@/components/ui/Aviso";
 import { hoyBolivia } from "@/components/ui/formato";
 import type { AlertaPublica } from "@/lib/datos-publicos";
 
@@ -11,7 +11,7 @@ const AMENAZA: Record<string, string> = { helada: "helada", sequia: "sequía", n
  * alto → roja, medio → naranja. Sin riesgo o bajo → aviso informativo.
  * TODO(H3): usar nivelAlerta(aviso) de contratos/tipos.ts cuando SERVIDOR lo suba.
  */
-export function nivelBanda(risk_level: string | null): NivelAviso {
+export function nivelBanda(risk_level: string | null): "roja" | "naranja" | "info" {
   return risk_level === "alto" ? "roja" : risk_level === "medio" ? "naranja" : "info";
 }
 

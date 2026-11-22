@@ -17,7 +17,15 @@
   - Ilustraciones del lote 2 revisadas (sin texto, personas ni manos) en `public/ilustraciones/`, con el pie "generada con IA".
   - `lib/datos-publicos.ts`: `alertaActiva()` trae además `fuente_url`; nueva `resumenCiclo()`.
 
-**En curso:** bloque 3, el mapa (CARTO Positron, lista sincronizada, filtros, ficha, pantalla completa).
+- **Bloque 3 · Mapa** (en `main`): `components/mapa/MapaInteractivo.tsx`.
+  - Lista sincronizada (tocar una comunidad vuela el mapa y abre su ficha; tocar un marcador marca la fila). Es la alternativa accesible al mapa.
+  - Filtros: nivel, problema (Agua · Forraje · Daños) y "Solo sin entrega todavía".
+  - Ficha: familias, días sin agua o forraje, problema, última entrega y si llegó, desglose de la prioridad y enlace a `/comunidad/[id]`.
+  - Banda del aviso vigente sobre el mapa, pantalla completa (Esc para salir), leyenda fija, "Actualizado hace X s" y pulso en los marcadores rojos (se apaga con reduce-motion).
+  - **Cambio respecto al plan:** CARTO Positron ahora exige clave (devuelve "API KEY REQUIRED"). Uso los mosaicos de OpenStreetMap con un filtro gris suave, con su atribución.
+  - Cálculos de «Sin agua, a la vista» en `lib/visibilidad-calculo.ts` (puro, `tests/visibilidad.test.ts`) y consultas en `lib/visibilidad.ts`. El contador sigue subiendo hasta que la comunidad confirma que llegó la ayuda.
+
+**En curso:** bloque 5, la ficha pública `/comunidad/[id]` (el mapa ya enlaza ahí). Luego las tarjetas (bloque 4), cuando llegue H2.
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.

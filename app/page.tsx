@@ -2,20 +2,23 @@ import { cache, Suspense } from "react";
 import Image from "next/image";
 import { connection } from "next/server";
 import { rangoFechas } from "@/contratos/tipos";
-import { alertaActiva, comunidadesConPrioridad, resumenCiclo } from "@/lib/datos-publicos";
-import MapaComunidades from "@/components/mapa/MapaComunidades";
+import { alertaActiva, resumenCiclo } from "@/lib/datos-publicos";
+import { comunidadesVisibles } from "@/lib/visibilidad";
+import { etiquetaFactor } from "@/lib/problemas-agrupar";
+import MapaInteractivo from "@/components/mapa/MapaInteractivo";
+import type { AvisoMapa, PuntoMapaVivo } from "@/components/mapa/tipos";
+import { urgenciaDe } from "@/components/mapa/colores";
 import RefrescoAuto from "@/components/RefrescoAuto";
-import { BandaAviso } from "@/components/portada/BandaAviso";
+import { BandaAviso, nivelBanda } from "@/components/portada/BandaAviso";
 import { Ciclo } from "@/components/portada/Ciclo";
 import { ComoSeCalcula } from "@/components/portada/ComoSeCalcula";
-import { Leyenda, Ranking } from "@/components/portada/Ranking";
 import { Boton } from "@/components/ui/Boton";
 import { hoyBolivia } from "@/components/ui/formato";
 import { Horizonte } from "@/components/ui/Horizonte";
 
 // Una sola consulta por petición aunque la pidan la banda, el ciclo y el mapa.
 const alerta = cache(alertaActiva);
-const comunidades = cache(comunidadesConPrioridad);
+const comunidades = cache(() => comunidadesVisibles());
 
 export default function Inicio() {
   return (
@@ -100,22 +103,30 @@ async function CicloVivo() {
   );
 }
 
+const AMENAZA: Record<string, string> = { helada: "Helada", sequia: "Sequía", nevada: "Nevada" };
+
 async function MapaYRanking() {
   await connection();
-  const cs = await comunidades();
+  const [cs, a] = await Promise.all([comunidades(), alerta()]);
+  const puntos: PuntoMapaVivo[] = cs.map((c) => {
+    const activa = c.prioridad.estado === "activa" ? c.prioridad.resultado : null;
+    const e = c.vis.ultimaEntrega;
+    return {
+      id: c.id, name: c.name, lat: c.lat, lon: c.lon, families: c.families, is_example: c.is_example, is_test: c.is_test,
+      nivel: urgenciaDe(c.prioridad), score: activa?.score ?? null, desglose: activa?.desglose ?? [],
+      problemas: c.vis.problemas, factor: c.vis.factor ? etiquetaFactor(c.vis.factor) : null,
+      sinAgua: c.vis.sinAgua, sinForraje: c.vis.sinForraje, sinEntrega: c.vis.sinEntrega,
+      ultimaEntrega: e && { kind: e.kind, quantity: e.quantity, unit: e.unit, delivered_at: e.delivered_at, confirmed_by_community: e.confirmed_by_community },
+    };
+  });
+  const aviso: AvisoMapa =
+    a && a.valid_to >= hoyBolivia()
+      ? { nivel: nivelBanda(a.risk_level), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: rangoFechas(a.valid_from, a.valid_to) }
+      : null;
   return (
     <>
       <RefrescoAuto segundos={15} />
-      <Leyenda />
-      <div className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-        <MapaComunidades
-          puntos={cs.map(({ id, name, lat, lon, families, is_example, is_test, prioridad }) => ({ id, name, lat, lon, families, is_example, is_test, prioridad }))}
-        />
-        <section aria-labelledby="ranking-titulo" className="overflow-hidden rounded-xl border border-borde bg-superficie shadow-suave lg:max-h-[480px] lg:overflow-y-auto">
-          <h3 id="ranking-titulo" className="border-b border-borde px-4 py-3 text-lg font-semibold">Ranking</h3>
-          <Ranking comunidades={cs} />
-        </section>
-      </div>
+      <MapaInteractivo puntos={puntos} aviso={aviso} actualizado={new Date().toISOString()} />
     </>
   );
 }

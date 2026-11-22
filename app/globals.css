@@ -95,6 +95,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Mapa base en gris suave: los colores de nivel resaltan y el texto del mapa sigue legible */
+.mapa-base {
+  filter: grayscale(1) contrast(0.92) brightness(1.06);
+}
+
+/* Marcadores rojos del mapa: halo suave que late (se apaga con reduce-motion, abajo) */
+.marcador-pulso {
+  animation: pulso-mapa 2.4s ease-in-out infinite;
+}
+@keyframes pulso-mapa {
+  0%, 100% { stroke-width: 2px; stroke-opacity: 1; }
+  50% { stroke-width: 9px; stroke-opacity: 0.3; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
