@@ -221,6 +221,13 @@
 - Causa: la WABA no tenía suscrita la app Pacha. Solución: `POST /{WABA_ID}/subscribed_apps` con el token permanente. Sin cambios de código ni de variables.
 - Límite para la demo: ventana de 24 h. Los teléfonos del equipo escriben al bot antes de la demo para poder recibir la alerta.
 
+## WhatsApp por Twilio para la demo (dom 22/11, 15:10)
+- La cuenta de Meta quedó bloqueada (131031) y la apelación pide documentos de la empresa. Para la demo, WhatsApp va por el **sandbox de Twilio** (`lib/canales/twilio.ts`, webhook `/api/webhooks/twilio`).
+- Mismo canal `whatsapp` para el bot y el mismo id (número sin «+»). **Sin cambios en `/contratos`.**
+- Con `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` y `TWILIO_WHATSAPP_FROM`, todos los envíos por WhatsApp salen por Twilio; sin ellas, por Meta.
+- Sin botones en el sandbox: opciones numeradas; las del último mensaje se guardan en `subscribers.contexto.opcionesWA`.
+- Firma `X-Twilio-Signature` verificada. Guía: `docs/instructivo-twilio.md`.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

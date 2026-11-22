@@ -146,7 +146,7 @@ async function traducir(m: MensajeWA): Promise<{ entrada?: EntradaBot; respuesta
 }
 
 // ---- SalidaBot -> Graph API -------------------------------------------------
-function textoTarjeta(t: Extract<SalidaBot, { tipo: "tarjeta" }>): string {
+export function textoTarjeta(t: Extract<SalidaBot, { tipo: "tarjeta" }>): string {
   return [
     `*${t.titulo}*`,
     ...t.pasos.map((p, i) => `${i + 1}) ${p}`),
