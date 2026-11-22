@@ -1,6 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~04:15_
+_Última actualización: dom 22/11, ~
 
 ## Hecho
 ### H2 · Tarjeta v0.4 y fuentes (en `main`)
@@ -61,6 +61,18 @@ _Última actualización: dom 22/11, ~04:15_
 
 ### CI de GitHub en verde
 - Fallaba desde el sáb 21/11 porque typecheck corría sin `next typegen`. Ya pasa en `main`.
+
+### Prueba de punta a punta EN PRODUCCIÓN (bot web, 09:49) · ✅ todo OK
+Recorrido en https://pacha-lilac.vercel.app/api/bot/web con la Comunidad de prueba. Usó **2 llamadas de IA** (pregunta libre y reporte). No se borró nada.
+- Registro (aceptación → lista de comunidades → «Comunidad de prueba») ✔
+- Menú de **3 botones** (Agua, Animales, Cultivos) ✔. Nevada no aparece, porque su tarjeta sigue en borrador ✔
+- Las 6 combinaciones Antes/Ahora devuelven solo las 6 tarjetas verificadas. Cada una trae fuente con página, «Verificada contra fuente», audio, `urlCompleta` a `/tarjetas/<id>` de producción y 3 pasos. **Ninguna en borrador** ✔
+- Pregunta libre «¿Cómo protejo mis papas de la helada?» → `helada-antes_familia-01` ✔
+- Reporte por texto (5 días sin agua, 12 familias) → «¿Es correcto?» → Sí → registrado, con la tarjeta `sequia-durante-01` ✔
+- ESTADO y botón «📋 Ver mi reporte» → «Confirmado · ya está en el mapa público» ✔
+- Quedaron de la prueba un suscriptor web y un reporte confirmado en la Comunidad de prueba. **Reiniciar demo** los limpia antes del ensayo.
+
+**TERMINADO salvo verificaciones: 09:49**
 
 ## En curso
 - Cuando confirmen cada tarjeta: pasarla a verificada, seed, imágenes, audio y PNG.
