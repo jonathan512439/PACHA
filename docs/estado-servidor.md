@@ -1,6 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~04:05_
+_Última actualización: dom 22/11, ~04:15_
 
 ## Hecho
 ### H2 · Tarjeta v0.4 y fuentes (en `main`)
@@ -55,8 +55,14 @@ _Última actualización: dom 22/11, ~04:05_
 - **Para INTERFAZ:** ya hay tarjetas con 4 y 5 pasos y con `por_que`, `evitar` y `pedir_ayuda`. Para verlas en `/tarjetas/<id>` en local, usa `DEMO_PERMITIR_BORRADOR=1`. `fuentesDeTarjeta(t)` ya las cubre.
 - **Menú del bot:** opción ❄️ Nevada, que aparece sola cuando su tarjeta esté verificada (hoy siguen los 3 botones).
 
+### Audio de la alerta del demo (hecho, 04:10)
+- Regenerado con `guionAudioAlerta` (alerta naranja, 25,9 s, voz Kore) y subido a `audios/alertas/altiplano-2026-11-2.mp3|.ogg`. Usé 1 TTS del cupo de hoy. El anterior quedó guardado fuera del repo.
+- Si el navegador o WhatsApp todavía reproducen el anterior, es caché del CDN (hasta 1 h).
+
+### CI de GitHub en verde
+- Fallaba desde el sáb 21/11 porque typecheck corría sin `next typegen`. Ya pasa en `main`.
+
 ## En curso
-- Después de las 04:30: regenerar y subir el audio de la alerta del demo con el guion nuevo (1 TTS).
 - Cuando confirmen cada tarjeta: pasarla a verificada, seed, imágenes, audio y PNG.
 
 ## Necesito de Jhonatan
