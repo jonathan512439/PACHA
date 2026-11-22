@@ -12,7 +12,7 @@ const NAV = [
 /** Cabecera pública: marca, navegación y acceso al panel. Índigo con la línea del horizonte. */
 export function Cabecera() {
   return (
-    <header className="bg-marca text-white [&_a:focus-visible]:outline-white">
+    <header className="bg-marca text-white print:hidden [&_a:focus-visible]:outline-white">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[2000] focus:rounded focus:bg-superficie focus:px-3 focus:py-2 focus:text-marca">
         Saltar al contenido
       </a>

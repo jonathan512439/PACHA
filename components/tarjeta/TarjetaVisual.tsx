@@ -35,6 +35,7 @@ export function TarjetaVisual({
       className={`tj-tarjeta ${variante === "imagen" ? "tj-imagen" : "tj-web"} ${t.hazard === "sequia" ? "tj-sequia" : "tj-helada"}`}
       data-tarjeta={t.id}
       data-estado={t.status}
+      data-pasos={t.steps.length}
     >
       <div className="tj-encabezado">
         <ImagenConRespaldo

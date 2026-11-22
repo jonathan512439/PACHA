@@ -3,7 +3,7 @@ import Link from "next/link";
 /** Pie público: qué es de EJEMPLO, de dónde salen los datos, voz sintética e imágenes con IA. */
 export function Pie() {
   return (
-    <footer className="mt-12 border-t border-borde bg-superficie text-sm text-tinta-2">
+    <footer className="mt-12 border-t print:hidden border-borde bg-superficie text-sm text-tinta-2">
       <div className="mx-auto grid max-w-6xl gap-4 px-4 py-6 sm:grid-cols-2">
         <div className="space-y-1.5">
           <p>
@@ -17,6 +17,8 @@ export function Pie() {
             <Link href="/tarjetas" className="text-marca underline">Tarjetas</Link>
             {" · "}
             <Link href="/entregas" className="text-marca underline">Entregas</Link>
+            {" · "}
+            <Link href="/fuentes" className="text-marca underline">Fuentes</Link>
             {" · "}
             <Link href="/#como-se-calcula" className="text-marca underline">¿Cómo se calcula la prioridad?</Link>
           </p>

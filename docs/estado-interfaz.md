@@ -27,7 +27,14 @@
 
 - **Bloque 5 (parte 1) · Ficha pública `/comunidad/[id]`** (en `main`): contador de días sin agua o forraje, línea de tiempo (reportó → confirmó → entrega → la comunidad respondió), prioridad con su puesto y desglose, tiempo de respuesta y "Compartir por WhatsApp" (`wa.me`) con un texto que solo dice hechos confirmados y lleva [EJEMPLO] si corresponde. Sin nombres ni teléfonos.
 
-**En curso:** bloque 4, tarjetas v0.4 (`/tarjetas` en cuadrícula, `/tarjetas/[id]` con por qué, evita, pide ayuda y fuentes) y `/fuentes`. Después: `/resumen` y el contador en la portada.
+- **Bloque 4 · Tarjetas v0.4** (en `main`).
+  - `/tarjetas`: cuadrícula por amenaza (Helada · Sequía · Nevada, solo las que existen) y fase (Antes · Durante · Después). Las que no se pueden publicar salen grises con "en verificación" y sin enlace.
+  - `/tarjetas/[id]`: la tarjeta de siempre (`TarjetaVisual`, la misma del PNG) y al lado `components/tarjeta/SeccionesV04.tsx`: Por qué importa, Evita, Pide ayuda si… (`textoPedirAyuda`), audio con voz sintética si está vigente, Fuentes con enlace al original (`fuentesDeTarjeta`; sin `url`, "Enlace por confirmar" + nota) y estado. Al imprimir sale solo la tarjeta.
+  - La tarjeta web se achica según su propio ancho (container query). En el PNG, con 4 o 5 pasos, el texto baja a 27 o 24 px (`data-pasos`) para que no se corte.
+  - `/fuentes`: lista de `lib/fuentes.ts` con institución, año, enlace al original, fecha de consulta y tarjetas que la usan.
+  - Se borró `app/tarjetas/tarjetas.css` (ya no se usa). Página 404 en español (`app/not-found.tsx`).
+
+**En curso:** bloque 5, parte 2: `/resumen` imprimible y el contador de días sin agua en la portada. Después: `/entregas`, `/probar` y `/suscribirse`.
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.

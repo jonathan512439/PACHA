@@ -95,8 +95,9 @@
 }
 
 /* ---------- Variante web: ancho fluido, mismo orden ---------- */
-.tj-web { width: 100%; max-width: 1080px; margin: 0 auto; border: 1px solid var(--linea); border-radius: 16px; }
-@media (max-width: 720px) {
+/* Se achica según el ancho de la TARJETA (container query), no de la pantalla: en /tarjetas/[id] va en media columna. */
+.tj-web { width: 100%; max-width: 1080px; margin: 0 auto; border: 1px solid var(--linea); border-radius: 16px; container-type: inline-size; }
+@container (max-width: 720px) {
   .tj-web .tj-cuerpo { padding: 16px 16px 14px; gap: 12px; }
   .tj-web .tj-titulo h1 { font-size: 28px; }
   .tj-web .tj-insignia { font-size: 15px; }
@@ -112,6 +113,11 @@
 
 /* ---------- Variante imagen: tamaño fijo 1080×1350 para exportar PNG ---------- */
 .tj-imagen { width: 1080px; height: 1350px; }
+/* v0.4: 4 o 5 pasos en el mismo alto: texto e imagen algo más chicos para que nada se corte */
+.tj-imagen[data-pasos="4"] .tj-textoPaso { font-size: 27px; }
+.tj-imagen[data-pasos="5"] .tj-textoPaso { font-size: 24px; }
+.tj-imagen[data-pasos="5"] .tj-numero { font-size: 52px; }
+.tj-imagen[data-pasos="5"] .tj-imagenPaso { max-height: 104px; }
 
 /* ---------- Impresión A4 (una hoja) ---------- */
 @media print {
