@@ -144,6 +144,10 @@
 - **Probado en producción** por el canal web: registro → reporte → confirmación → la "Comunidad de prueba" pasó de gris a 49,4 en el mapa. Después se reinició el demo.
 - **Pasos restantes por persona** y los dos caminos para WhatsApp (número de prueba o número propio): `docs/pasos-restantes.md`.
 
+## Menú y voz sintética (dom 22/11)
+- **Contrato (`contratos/tipos.ts`, MENU):** "🌱 Cultivos › Ahora" mostraba `helada-durante-01`, que desde la v0.3 es de animales. Ahora muestra `helada-antes_familia-01`, la única tarjeta de cultivos. Hay un test que impide que Cultivos vuelva a mostrar tarjetas de otro tema.
+- **Voz sintética:** el audio ya **no dice** "Mensaje con voz sintética" (pedido de A). La declaración queda **escrita** junto al audio en los tres canales ("🔊 Audio con voz sintética") y en el texto de la alerta.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

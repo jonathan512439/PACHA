@@ -127,6 +127,7 @@ function textoTarjeta(t: Extract<SalidaBot, { tipo: "tarjeta" }>): string {
     "",
     `_Fuente: ${t.fuente}_`, // `fuente` ya trae la página de cada paso
     `_${t.etiquetaEstado}_`,
+    ...(t.audioOggUrl || t.audioMp3Url ? ["_🔊 Audio con voz sintética_"] : []),
     ...(t.fuenteUrl ? [t.fuenteUrl] : []),
   ].join("\n");
 }

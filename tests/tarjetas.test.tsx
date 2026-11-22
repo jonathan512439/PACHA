@@ -205,7 +205,13 @@ describe("mapeo del menú", () => {
     expect(MENU.animales.antes).toEqual(["sequia-antes_animales-01", "helada-antes_animales-01"]);
     expect(MENU.animales.ahora).toEqual(["sequia-durante-01", "helada-durante-01"]);
     expect(MENU.cultivos.antes).toEqual(["helada-antes_familia-01"]);
-    expect(MENU.cultivos.ahora).toEqual(["helada-durante-01"]);
+    // Solo hay una tarjeta de cultivos: helada-durante-01 trata de animales desde la v0.3 (corregido sáb 21/11).
+    expect(MENU.cultivos.ahora).toEqual(["helada-antes_familia-01"]);
+  });
+
+  it("'Cultivos' solo muestra tarjetas de cultivos (no de animales)", () => {
+    const deCultivos = (id: string) => tarjetas.find((t) => t.id === id)?.factor_tags.some((f) => f.startsWith("cultivos")) ?? false;
+    for (const id of [...MENU.cultivos.antes, ...MENU.cultivos.ahora]) expect(deCultivos(id), id).toBe(true);
   });
 
   it("resuelve a los 6 ids de las tarjetas que carga el seed", () => {

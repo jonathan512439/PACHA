@@ -137,7 +137,7 @@ function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: strin
             <ol className="list-decimal ml-5 space-y-1">{s.pasos.map((p, i) => <li key={i}>{p}</li>)}</ol>
             <p className="text-xs text-stone-600">Fuente: {s.fuente}</p>
             <p className={`text-xs font-semibold ${s.etiquetaEstado.startsWith("BORRADOR") ? "text-red-700" : "text-emerald-800"}`}>{s.etiquetaEstado}</p>
-            {(s.audioMp3Url ?? s.audioOggUrl) && <audio controls src={s.audioMp3Url ?? s.audioOggUrl} className="w-full" />}
+            {(s.audioMp3Url ?? s.audioOggUrl) && <><audio controls src={s.audioMp3Url ?? s.audioOggUrl} className="w-full" /><p className="text-xs text-stone-500">🔊 Audio con voz sintética</p></>}
           </div>
         </article>
       );

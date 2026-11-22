@@ -31,7 +31,7 @@ Canales: web `/probar` (primero), Telegram (segundo) y **WhatsApp (escenario, al
 |---|---|---|
 | 💧 Agua | `sequia-antes_familia-01` | `sequia-durante-01` |
 | 🦙 Animales | `sequia-antes_animales-01` + `helada-antes_animales-01` | `sequia-durante-01` + `helada-durante-01` |
-| 🌱 Cultivos | `helada-antes_familia-01` | `helada-durante-01` |
+| 🌱 Cultivos | `helada-antes_familia-01` | `helada-antes_familia-01` (es la única de cultivos; `helada-durante-01` trata de animales) |
 
 **Listo cuando:** en `/probar` y en Telegram se hace registro → menú → pregunta → reporte confirmado. WhatsApp hace lo mismo antes del corte del domingo a las 11:45.
 

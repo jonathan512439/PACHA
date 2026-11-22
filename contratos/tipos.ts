@@ -203,7 +203,8 @@ export function etiquetaEstadoTarjeta(t: Pick<Tarjeta, "status" | "reviewed_by">
 export const MENU = {
   agua:      { titulo: "💧 Agua",      antes: ["sequia-antes_familia-01"],                             ahora: ["sequia-durante-01"] },
   animales:  { titulo: "🦙 Animales",  antes: ["sequia-antes_animales-01", "helada-antes_animales-01"], ahora: ["sequia-durante-01", "helada-durante-01"] },
-  cultivos:  { titulo: "🌱 Cultivos",  antes: ["helada-antes_familia-01"],                             ahora: ["helada-durante-01"] },
+  // Solo hay una tarjeta de cultivos (helada-antes_familia-01); helada-durante-01 trata de animales desde la v0.3.
+  cultivos:  { titulo: "🌱 Cultivos",  antes: ["helada-antes_familia-01"],                             ahora: ["helada-antes_familia-01"] },
 } as const;
 export type OpcionMenu = keyof typeof MENU;
 

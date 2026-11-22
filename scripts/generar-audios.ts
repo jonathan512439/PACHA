@@ -91,7 +91,8 @@ async function main() {
     }
     const aviso = AvisoGemini.parse(JSON.parse(readFileSync(FIXTURE_ALERTA, "utf8")).aviso);
     // Mismo texto que arma lib/boletin.ts (detección automática: boletinEsEjemplo = false).
-    const texto = construirMensajeAlerta({ aviso, tarjeta: t, boletinEsEjemplo: false });
+    // El mensaje ESCRITO conserva "Mensaje con voz sintética" (la declaración); el audio no la lee (pedido de A, sáb 21/11).
+    const texto = construirMensajeAlerta({ aviso, tarjeta: t, boletinEsEjemplo: false }).replace(/Mensaje con voz sintética\.\s*/, "");
     console.log(`Alerta ${CLAVE_ALERTA}:\n---\n${texto}\n---`);
     const base = path.join(CARPETA, "alertas", CLAVE_ALERTA);
     if (existsSync(`${base}.ogg`) && !tiene("--rehacer")) return console.log("  · ya existe (usa --rehacer para pisarlo)");
