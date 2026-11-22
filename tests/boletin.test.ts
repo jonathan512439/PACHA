@@ -67,9 +67,9 @@ describe("mensaje de alerta sin tarjeta publicable", () => {
       cita_riesgo: "Riesgo MEDIO por helada tardía", riesgo_helada: "medio", nivel_senamhi: null, confianza: 0.95,
     });
     const m = construirMensajeAlerta({ aviso, tarjeta: null, boletinEsEjemplo: false });
-    expect(m).toContain('El boletín dice: "Helada puntual');
+    expect(m).toContain('El Senamhi dice: "Helada puntual');
     expect(m).toContain("14 al 23 de noviembre de 2026");
-    expect(m).not.toContain("Qué hacer");
-    expect(m).toContain("voz sintética");
+    expect(m).not.toContain("QUÉ HACER");
+    expect(m).not.toContain("voz sintética"); // sin audio no se declara voz
   });
 });

@@ -266,33 +266,116 @@ export const fechaLarga = (iso: string) => {
 export const rangoFechas = (ini: string, fin: string) =>
   ini.slice(0, 7) === fin.slice(0, 7) ? `${Number(ini.slice(8))} al ${fechaLarga(fin)}` : `${fechaLarga(ini)} al ${fechaLarga(fin)}`;
 
+/* ----------------------------------------------------------------------
+ * v0.4 (H3): nivel de la alerta. LA GRAVEDAD LA PONE EL SENAMHI, NUNCA NOSOTROS.
+ *   nivel del Senamhi "rojo"    o riesgo de helada "alto"  → roja    ("Actúa hoy")
+ *   nivel del Senamhi "naranja" o riesgo de helada "medio" → naranja ("Prepárate desde hoy")
+ *   amarillo, riesgo bajo o sin dato → null (sin color: no se sube la gravedad por nuestra cuenta)
+ * Se toma el MÁS ALTO de los dos datos. El riesgo es el que guarda `alerts.risk_level`
+ * (sale de la cita literal, ver riesgoDesdeCita/decidirAlerta).
+ * ------------------------------------------------------------------- */
+export const NIVELES_ALERTA = ["roja", "naranja"] as const;
+export type NivelAlerta = (typeof NIVELES_ALERTA)[number];
+export type NivelSenamhi = "amarillo" | "naranja" | "rojo";
+
+/** Nivel visual de una alerta a partir de lo que guarda la fila `alerts` (risk_level, senamhi_level). */
+export function nivelAlerta(a: { risk_level?: Riesgo | null; senamhi_level?: NivelSenamhi | null }): NivelAlerta | null {
+  if (a.senamhi_level === "rojo" || a.risk_level === "alto") return "roja";
+  if (a.senamhi_level === "naranja" || a.risk_level === "medio") return "naranja";
+  return null;
+}
+
+/** El mismo nivel calculado desde la extracción del boletín (riesgo desde la cita, como decidirAlerta). */
+export const nivelAlertaDeAviso = (a: AvisoGemini): NivelAlerta | null =>
+  nivelAlerta({ risk_level: decidirAlerta(a).riesgo, senamhi_level: a.nivel_senamhi });
+
+const NOMBRE_FENOMENO: Record<AvisoGemini["fenomeno"], { normal: string; fuerte: string }> = {
+  helada: { normal: "HELADA", fuerte: "HELADA FUERTE" },
+  nevada: { normal: "NEVADA", fuerte: "NEVADA FUERTE" },
+  sequia: { normal: "SEQUÍA", fuerte: "SEQUÍA" },
+  ninguno: { normal: "AVISO", fuerte: "AVISO" },
+};
+
+/** "🔴 ALERTA ROJA · HELADA FUERTE" · "🟠 ALERTA NARANJA · HELADA" · sin nivel: "⚠️ AVISO · HELADA". */
+export function encabezadoAlerta(nivel: NivelAlerta | null, fenomeno: AvisoGemini["fenomeno"]): string {
+  const n = NOMBRE_FENOMENO[fenomeno];
+  if (nivel === "roja") return `🔴 ALERTA ROJA · ${n.fuerte}`;
+  if (nivel === "naranja") return `🟠 ALERTA NARANJA · ${n.normal}`;
+  return `⚠️ AVISO · ${n.normal}`;
+}
+
+/** Tono según el nivel: roja "Actúa hoy.", naranja "Prepárate desde hoy.", sin nivel "Prepárate.". */
+export const tonoAlerta = (nivel: NivelAlerta | null) =>
+  nivel === "roja" ? "Actúa hoy." : nivel === "naranja" ? "Prepárate desde hoy." : "Prepárate.";
+
+type TarjetaDeAlerta = Pick<Tarjeta, "steps" | "source_doc" | "source_page" | "status" | "reviewed_by">;
+
+/**
+ * Mensaje de la alerta v2 (WhatsApp, Telegram y web), lo arma el CÓDIGO con plantilla, nunca la IA.
+ * - Encabezado por nivel (nivelAlertaDeAviso). Zona y período del boletín.
+ * - Cifras: SOLO dentro de las citas LITERALES del boletín (cita_evento, cita_riesgo). Nada se calcula ni se resume.
+ * - "QUÉ HACER HOY" con los pasos de la tarjeta de la regla y su fuente.
+ * - Fuente oficial y enlace al PDF ORIGINAL del Senamhi (bulletins.source_url), si se descargó de su sitio.
+ * - La voz sintética se declara por escrito si va un audio.
+ */
 export function construirMensajeAlerta(p: {
   aviso: AvisoGemini;                       // debe haber pasado decidirAlerta
   // null = la tarjeta de la regla aún no es publicable: el mensaje sale sin "Qué hacer" y la alerta NO se puede aprobar
-  tarjeta: Pick<Tarjeta, "steps" | "source_doc" | "source_page" | "status" | "reviewed_by"> | null;
+  tarjeta: TarjetaDeAlerta | null;
   boletinEsEjemplo: boolean;
+  boletinUrl?: string | null;               // bulletins.source_url; null si el PDF se subió a mano
+  conAudio?: boolean;                       // true si la alerta lleva audio (se declara la voz sintética)
 }): string {
   const { aviso, tarjeta, boletinEsEjemplo } = p;
   if (!aviso.cita_evento) throw new Error("Sin cita_evento no se arma la alerta");
-  const titulo = { helada: "Aviso de helada", nevada: "Aviso de nevada", sequia: "Aviso de sequía", ninguno: "Aviso" }[aviso.fenomeno];
-  const periodo = aviso.periodo_inicio && aviso.periodo_fin
-    ? rangoFechas(aviso.periodo_inicio, aviso.periodo_fin)
-    : "fecha no indicada";
+  const nivel = nivelAlertaDeAviso(aviso);
+  const periodo = aviso.periodo_inicio && aviso.periodo_fin ? rangoFechas(aviso.periodo_inicio, aviso.periodo_fin) : null;
+  const lugarYFecha = [aviso.zona, periodo].filter(Boolean).join(" · ");
   const queHacer = tarjeta
     ? [
-        `Qué hacer: ${tarjeta.steps.map((paso, i) => `${i + 1}) ${paso}`).join(" ")}`,
+        "",
+        nivel === "roja" ? "QUÉ HACER HOY" : "QUÉ HACER",
+        ...tarjeta.steps.map((paso, i) => `${i + 1}) ${paso}`),
         // Sin toLowerCase: la etiqueta de borrador debe salir tal cual ("BORRADOR · sin verificar").
         `(Tarjeta: ${etiquetaEstadoTarjeta(tarjeta)}. ${tarjeta.source_doc}, ${tarjeta.source_page})`, // source_page ya trae "p."
       ]
     : [];
   return [
-    `${titulo}${boletinEsEjemplo ? " (EJEMPLO con boletín histórico)" : ""} · Senamhi, boletín agrometeorológico decenal del Altiplano, ${periodo}.`,
-    aviso.zona ? `Zona: ${aviso.zona}.` : null,
-    `El boletín dice: "${aviso.cita_evento}"`,
-    aviso.cita_riesgo ? `Riesgo según el Senamhi: "${aviso.cita_riesgo}"` : null,
+    `${encabezadoAlerta(nivel, aviso.fenomeno)}${boletinEsEjemplo ? " (EJEMPLO con boletín histórico)" : ""}`,
+    lugarYFecha || null,
+    tonoAlerta(nivel),
+    `El Senamhi dice: "${aviso.cita_evento}"`,
+    aviso.cita_riesgo ? `"${aviso.cita_riesgo}"` : null,
     ...queHacer,
-    `Mensaje con voz sintética. Si hay daños, responde con un audio.`,
-  ].filter(Boolean).join("\n");
+    "",
+    "Fuente oficial: Senamhi, boletín agrometeorológico decenal del Altiplano.",
+    p.boletinUrl ? `Ver el boletín original: ${p.boletinUrl}` : null,
+    `${p.conAudio ? "🔊 Audio con voz sintética. " : ""}Si hay daños, responde con un audio.`,
+  ].filter((l) => l !== null).join("\n");
+}
+
+/** Quita la lista entre paréntesis de la zona para leerla en voz alta: "Altiplano Central (Oruro, …)" → "Altiplano Central". */
+const zonaHablada = (zona: string | null) => zona?.replace(/\s*\([^)]*\)/g, "").trim() || null;
+
+/**
+ * Guion del audio de la alerta (~20 s). Sin enlace ni la línea de voz sintética (la declaración va escrita).
+ * El encabezado se repite al inicio para captar la atención. Sin cifras propias: solo fechas del boletín y los pasos.
+ */
+export function guionAudioAlerta(aviso: AvisoGemini, tarjeta: Pick<Tarjeta, "steps"> | null): string {
+  const nivel = nivelAlertaDeAviso(aviso);
+  const fenomeno = { helada: "helada", nevada: "nevada", sequia: "sequía", ninguno: "evento" }[aviso.fenomeno];
+  const que = nivel === "roja"
+    ? `Alerta roja por ${fenomeno}${aviso.fenomeno === "sequia" ? "" : " fuerte"}`
+    : nivel === "naranja" ? `Alerta naranja por ${fenomeno}` : `Aviso de ${fenomeno}`;
+  const zona = zonaHablada(aviso.zona);
+  const periodo = aviso.periodo_inicio && aviso.periodo_fin ? rangoFechas(aviso.periodo_inicio, aviso.periodo_fin) : null;
+  const pasos = tarjeta ? tarjeta.steps.map((s) => s.trim().replace(/[.;:]+$/, "") + ".").join(" ") : "";
+  return [
+    `Atención. ${nivel === "roja" ? "Alerta roja." : nivel === "naranja" ? "Alerta naranja." : "Aviso."}`,
+    `${que}${zona ? ` en el ${zona.replace(/^el\s+/i, "")}` : ""}${periodo ? `, del ${periodo}` : ""}. Lo anuncia el Senamhi.`,
+    pasos ? `${nivel === "roja" ? "Hoy mismo" : "Desde hoy"}: ${pasos}` : null,
+    "El enlace al boletín está en el mensaje.",
+  ].filter(Boolean).join(" ");
 }
 
 /* ======================================================================

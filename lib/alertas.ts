@@ -1,5 +1,6 @@
 import "server-only";
-import { AvisoGemini, type Canal, type SalidaBot } from "@/contratos/tipos";
+import { AvisoGemini, construirMensajeAlerta, guionAudioAlerta, type Canal, type SalidaBot } from "@/contratos/tipos";
+import { sintetizarVoz } from "@/lib/gemini";
 import { db } from "@/lib/supabase";
 import { mensajeDeAlerta } from "@/lib/boletin";
 import { CanalSinEnvio, enviarPorCanal } from "@/lib/canales/enviar";
@@ -27,22 +28,50 @@ async function leerAlerta(id: string): Promise<Alerta> {
 }
 
 /**
+ * Audio de la alerta: 1 llamada de TTS con guionAudioAlerta, subido como MP3 a audios/alertas/<id>.mp3.
+ * Si falla (sin cupo, sin clave, lento), devuelve null y la alerta sale solo con texto: nunca bloquea.
+ */
+async function generarAudioAlerta(id: string, guion: string): Promise<string | null> {
+  try {
+    const mp3 = await sintetizarVoz(guion);
+    const ruta = `alertas/${id}.mp3`;
+    const { error } = await db().storage.from("audios").upload(ruta, mp3, { contentType: "audio/mpeg", upsert: true });
+    if (error) throw new Error(`Storage: ${error.message}`);
+    return ruta;
+  } catch (e) {
+    console.error(`alerta ${id}: sin audio (${e instanceof Error ? e.message : String(e)}); sale solo con texto`);
+    return null;
+  }
+}
+
+/**
  * Aprobar: vuelve a armar el mensaje con la tarjeta ACTUAL (puede haberse verificado después de crear la alerta)
- * y exige que esa tarjeta sea publicable. Registra quién aprobó.
+ * y exige que esa tarjeta sea publicable. Si la alerta no trae audio, lo genera AHORA (1 llamada de TTS);
+ * si falla, sale solo con texto. Registra quién aprobó.
  */
 export async function aprobarAlerta(id: string, usuario: string) {
   const a = await leerAlerta(id);
   if (a.status !== "borrador") throw new ErrorAlerta(`Solo se aprueba una alerta en borrador (está en "${a.status}")`);
-  const { data: b, error } = await db().from("bulletins").select("extracted, is_example").eq("id", a.bulletin_id).single();
+  const { data: b, error } = await db().from("bulletins").select("extracted, is_example, source_url").eq("id", a.bulletin_id).single();
   if (error) throw new Error(error.message);
-  const m = await mensajeDeAlerta(AvisoGemini.parse(b.extracted), b.is_example as boolean);
+  const aviso = AvisoGemini.parse(b.extracted);
+  const esEjemplo = b.is_example as boolean;
+  const boletinUrl = (b.source_url as string | null) ?? null;
+  const m = await mensajeDeAlerta(aviso, esEjemplo, { boletinUrl });
   if (!m.publicable) throw new ErrorAlerta(`Falta la tarjeta ${m.lessonEsperada} verificada: no se puede aprobar todavía`);
+
+  const yaTieneAudio = !!(a.audio_ogg_path || a.audio_mp3_path);
+  const mp3Nuevo = yaTieneAudio ? null : await generarAudioAlerta(id, guionAudioAlerta(aviso, m.tarjeta));
+  const conAudio = yaTieneAudio || !!mp3Nuevo;
+  const texto = construirMensajeAlerta({ aviso, tarjeta: m.tarjeta, boletinEsEjemplo: esEjemplo, boletinUrl, conAudio });
+
   const upd = await db().from("alerts").update({
-    status: "aprobada", approved_by: usuario, approved_at: new Date().toISOString(), message_text: m.texto, lesson_id: m.lessonId,
+    status: "aprobada", approved_by: usuario, approved_at: new Date().toISOString(), message_text: texto, lesson_id: m.lessonId,
+    ...(mp3Nuevo ? { audio_mp3_path: mp3Nuevo } : {}),
   }).eq("id", id).eq("status", "borrador").select("id");
   if (upd.error) throw new Error(upd.error.message);
   if (!upd.data?.length) throw new ErrorAlerta("La alerta cambió de estado mientras se aprobaba");
-  return { id, status: "aprobada", approved_by: usuario, message_text: m.texto };
+  return { id, status: "aprobada", approved_by: usuario, message_text: texto, audio: conAudio };
 }
 
 export async function descartarAlerta(id: string) {
@@ -71,7 +100,12 @@ export async function enviarAlerta(id: string) {
   const yaEnviados = new Set((previos ?? []).map((p) => p.subscriber_id as string));
 
   const salidas: SalidaBot[] = [{ tipo: "texto", texto: a.message_text }];
-  if (a.audio_ogg_path) salidas.push({ tipo: "audio", oggUrl: urlAudio(a.audio_ogg_path), ...(a.audio_mp3_path ? { mp3Url: urlAudio(a.audio_mp3_path) } : {}) });
+  // Para mensajería, OGG/Opus si existe (audio pregenerado del demo); si no, el MP3 generado al aprobar:
+  // WhatsApp (audio/mpeg) y Telegram (sendVoice) también aceptan MP3.
+  const audioMensajeria = a.audio_ogg_path ?? a.audio_mp3_path;
+  if (audioMensajeria) {
+    salidas.push({ tipo: "audio", oggUrl: urlAudio(audioMensajeria), ...(a.audio_mp3_path ? { mp3Url: urlAudio(a.audio_mp3_path) } : {}) });
+  }
 
   const r = { enviados: 0, fallidos: 0, omitidosWeb: 0, yaEnviados: yaEnviados.size, errores: [] as string[] };
   for (const s of (subs ?? []) as { id: string; channel: Canal; channel_user_id: string }[]) {

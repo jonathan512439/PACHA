@@ -102,6 +102,8 @@ Migración: `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` (no borra filas
 28. `verified_hash` = `huellaVerificacion`: incluye las secciones v0.4 solo si existen (las tarjetas v0.3 conservan su huella).
 29. Fuentes oficiales: `data/fuentes.json` y `lib/fuentes.ts` (`listarFuentes`, `fuentesDeTarjeta`, `fuentesDeDoc`). Una fuente con `url: null` no se enlaza.
 
+30. Alerta (H3): `nivelAlerta`, `nivelAlertaDeAviso`, `encabezadoAlerta`, `tonoAlerta` y `guionAudioAlerta`. `construirMensajeAlerta` v2 acepta `boletinUrl` y `conAudio` (opcionales). Las cifras salen solo de las citas literales.
+
 ## Pendiente de decidir
 - Pesos de `prioridad.ts` (son de demo).
 - Voz definitiva (Gemini TTS recomendado).

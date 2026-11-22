@@ -89,14 +89,19 @@ async function audiosPregenerados(clave: string): Promise<{ ogg: string | null; 
   return { ogg: nombres.has(`${clave}.ogg`) ? `alertas/${clave}.ogg` : null, mp3: nombres.has(`${clave}.mp3`) ? `alertas/${clave}.mp3` : null };
 }
 
-/** Mensaje de la alerta con la tarjeta de la regla, si ya es publicable. */
-export async function mensajeDeAlerta(aviso: AvisoGemini, esEjemplo: boolean) {
+/** Mensaje de la alerta (v2, por nivel) con la tarjeta de la regla, si ya es publicable. */
+export async function mensajeDeAlerta(
+  aviso: AvisoGemini,
+  esEjemplo: boolean,
+  opciones: { boletinUrl?: string | null; conAudio?: boolean } = {},
+) {
   if (aviso.fenomeno === "ninguno") throw new Error("Sin fenómeno no hay alerta");
   const lessonId = tarjetaParaAlerta(aviso.fenomeno);
   const tarjeta = await obtenerTarjeta(lessonId);
   const publicable = !!tarjeta && puedePublicarse(tarjeta, permitirBorrador());
   return {
-    texto: construirMensajeAlerta({ aviso, tarjeta: publicable ? tarjeta : null, boletinEsEjemplo: esEjemplo }),
+    texto: construirMensajeAlerta({ aviso, tarjeta: publicable ? tarjeta : null, boletinEsEjemplo: esEjemplo, ...opciones }),
+    tarjeta: publicable ? tarjeta : null,
     lessonId: tarjeta ? lessonId : null, // la FK exige que exista
     publicable,
     lessonEsperada: lessonId,
@@ -140,8 +145,8 @@ export async function procesarBoletin(p: { pdf: Uint8Array; sourceUrl: string | 
   const decision = decidirAlerta(aviso);
   if (!decision.alertar || aviso.fenomeno === "ninguno") return { estado: "sin_alerta", boletinId, decision, origen };
 
-  const m = await mensajeDeAlerta(aviso, p.esEjemplo);
   const audios = await audiosPregenerados(p.clave);
+  const m = await mensajeDeAlerta(aviso, p.esEjemplo, { boletinUrl: p.sourceUrl, conAudio: !!(audios.ogg || audios.mp3) });
   const alerta = await db().from("alerts").insert({
     bulletin_id: boletinId,
     station_id: estacionDe(),

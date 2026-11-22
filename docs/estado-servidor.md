@@ -1,6 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~03:45_
+_Última actualización: dom 22/11, ~03:30_
 
 ## Hecho
 ### H2 · Tarjeta v0.4 y fuentes (en `main`)
@@ -31,8 +31,16 @@ _Última actualización: dom 22/11, ~03:45_
 - **Para INTERFAZ (opcional):** para ocultar esos botones a un técnico, en un Server Component **detrás de `<Suspense>`** usa `accesoActual()` de `lib/acceso-panel.ts` → `{ usuario, rol } | null`.
 - Sin `SESSION_SECRET` todo sigue como antes (basic auth). En Vercel **no cambia nada** hasta que Jhonatan ponga las dos variables.
 
+### H3 · Nivel de la alerta (en `main`)
+- **Para la banda de la portada (INTERFAZ):** `import { nivelAlerta, encabezadoAlerta } from "@/contratos/tipos"`.
+  - `nivelAlerta({ risk_level, senamhi_level })` con las columnas de la fila `alerts` → `"roja" | "naranja" | null`.
+  - `null` = sin color (amarillo, riesgo bajo o sin dato): muestra un aviso neutro. **No** lo pintes de naranja.
+  - `encabezadoAlerta(nivel, hazard)` → "🔴 ALERTA ROJA · HELADA FUERTE", "🟠 ALERTA NARANJA · HELADA" o "⚠️ AVISO · HELADA". Si usas `<Aviso nivel>`, la palabra ya la pone el componente: usa solo la parte después del "·".
+  - El boletín real del 14–23 nov tiene "Riesgo MEDIO por helada" → **naranja**.
+- El mensaje de WhatsApp y Telegram cambió de formato (v2) y el audio se genera al aprobar. En `/panel/alertas` se ve el texto nuevo en cuanto se aprueba.
+
 ## En curso
-- Bloque 3: H3 (`nivelAlerta`), mensaje de alerta v2 y guion de audio (H3 hasta las 04:30).
+- Bloque 4: tarjetas nuevas (ids válidos, ver tabla abajo cuando esté) y por qué / evita / pide ayuda de las 6. Después de las 04:30: regenerar el audio de la alerta del demo.
 
 ## Necesito de Jhonatan
 **H7 listo para aplicar: v0.4**

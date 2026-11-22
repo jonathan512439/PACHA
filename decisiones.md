@@ -174,6 +174,12 @@
 - **Script:** `npm run panel:usuario -- <usuario> <tecnico|admin>` pide la contraseña sin mostrarla (mín. 10 caracteres) e imprime la línea.
 - **Prueba de punta a punta** (Playwright, usuarios de prueba solo en el entorno del proceso): redirección, contraseña incorrecta, cookie de 8 h, usuario y Salir, 403 de técnico en una acción de admin, 401 sin sesión, Salir y bloqueo tras 5 fallos.
 
+## Alerta por nivel, mensaje v2 y audio al aprobar (dom 22/11 · Agente SERVIDOR, H3)
+- **Contrato (`contratos/tipos.ts`):** `nivelAlerta({ risk_level, senamhi_level })` → `"roja" | "naranja" | null`. **La gravedad la pone el Senamhi:** nivel rojo o riesgo de helada alto → roja; nivel naranja o riesgo medio → naranja. Si hay dos datos, se usa el más alto. Amarillo, riesgo bajo o sin dato → sin color: no subimos la gravedad por nuestra cuenta.
+- **`construirMensajeAlerta` v2:** encabezado (🔴 ALERTA ROJA · HELADA FUERTE / 🟠 ALERTA NARANJA · HELADA / ⚠️ AVISO), zona y período, tono ("Actúa hoy." / "Prepárate desde hoy."), citas LITERALES del boletín, QUÉ HACER con la tarjeta y su fuente, "Fuente oficial: Senamhi…" y **enlace al PDF original** (`bulletins.source_url`; sin enlace si el PDF se subió a mano). **Ninguna cifra propia**: una prueba exige que cada número salga de las citas, del período o de la tarjeta. La voz sintética se declara por escrito solo si va audio.
+- **`guionAudioAlerta(aviso, tarjeta)`:** unos 20 s (máx. 80 palabras, prueba), repite el encabezado al inicio, sin enlace ni la línea de voz sintética.
+- **Audio al aprobar:** si la alerta no trae audio, `aprobarAlerta` hace **1 llamada de TTS** (Kore) y sube el MP3 a `audios/alertas/<id>.mp3`. WhatsApp y Telegram aceptan MP3, así que en Vercel no hace falta ffmpeg. Si falla, la alerta sale solo con texto. El audio pregenerado del demo se conserva y se regenera con `generar-audios --alerta`, que ahora usa el mismo guion.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

@@ -195,3 +195,36 @@ export async function interpretarMensaje(
     throw new GeminiNoDisponible(`No se pudo interpretar el mensaje: ${String(e)}`);
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Voz (TTS) para el audio de una alerta al aprobarla (1 llamada). Gemini TTS entrega MP3, que WhatsApp
+ * (audio/mpeg) y Telegram (sendVoice acepta MP3) reproducen: en Vercel no hace falta ffmpeg.
+ * Datos de la API (probados por A, ver scripts/generar-audios.ts): v1beta, API `interactions`, lee TODO lo que recibe.
+ * Si falla o tarda, quien llama sigue sin audio: nunca bloquea la alerta.
+ * ------------------------------------------------------------------------- */
+const TTS_TIMEOUT_MS = 30_000;
+let clienteVoz: GoogleGenAI | null = null;
+
+export async function sintetizarVoz(texto: string, voz = "Kore"): Promise<Buffer> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new GeminiNoDisponible("Falta GEMINI_API_KEY en el entorno");
+  clienteVoz ??= new GoogleGenAI({ apiKey, apiVersion: "v1beta" });
+  const llamada = clienteVoz.interactions.create({
+    model: process.env.GEMINI_TTS_MODEL ?? "gemini-3.8-flash-tts",
+    input: texto,
+    response_format: { type: "audio", mime_type: "audio/mp3" },
+    generation_config: { speech_config: [{ voice: voz, language: "es" }] },
+  });
+  let reloj: ReturnType<typeof setTimeout> | undefined;
+  const tope = new Promise<never>((_, rechazar) => {
+    reloj = setTimeout(() => rechazar(new Error(`TTS sin respuesta en ${TTS_TIMEOUT_MS / 1000} s`)), TTS_TIMEOUT_MS);
+  });
+  try {
+    const r = await Promise.race([llamada, tope]);
+    const datos = r.output_audio?.data;
+    if (!datos) throw new Error("Gemini no devolvió audio");
+    return Buffer.from(datos, "base64");
+  } finally {
+    clearTimeout(reloj);
+  }
+}

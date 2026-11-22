@@ -12,7 +12,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { GoogleGenAI } from "@google/genai";
-import { AvisoGemini, Tarjeta, construirMensajeAlerta, tarjetaParaAlerta } from "@/contratos/tipos";
+import { AvisoGemini, Tarjeta, guionAudioAlerta, tarjetaParaAlerta } from "@/contratos/tipos";
 import { huellaContenido } from "@/lib/tarjeta-publica";
 import { RAIZ, clienteSupabase, falla } from "./_comun";
 
@@ -90,9 +90,9 @@ async function main() {
       falla(`La tarjeta de la alerta (${id}) debe estar verificada antes de grabar el audio de la alerta.`);
     }
     const aviso = AvisoGemini.parse(JSON.parse(readFileSync(FIXTURE_ALERTA, "utf8")).aviso);
-    // Mismo texto que arma lib/boletin.ts (detección automática: boletinEsEjemplo = false).
-    // El mensaje ESCRITO conserva "Mensaje con voz sintética" (la declaración); el audio no la lee (pedido de A, sáb 21/11).
-    const texto = construirMensajeAlerta({ aviso, tarjeta: t, boletinEsEjemplo: false }).replace(/Mensaje con voz sintética\.\s*/, "");
+    // v0.4: el mismo guion que usa la aprobación en el panel (guionAudioAlerta, ~20 s, sin enlace ni la línea
+    // de voz sintética: la declaración va ESCRITA en el mensaje).
+    const texto = guionAudioAlerta(aviso, t);
     console.log(`Alerta ${CLAVE_ALERTA}:\n---\n${texto}\n---`);
     const base = path.join(CARPETA, "alertas", CLAVE_ALERTA);
     if (existsSync(`${base}.ogg`) && !tiene("--rehacer")) return console.log("  · ya existe (usa --rehacer para pisarlo)");
