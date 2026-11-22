@@ -12,7 +12,7 @@ export default function PaginaIngresar({ searchParams }: PageProps<"/ingresar">)
       <div className="space-y-2">
         <h1 className="font-serif text-3xl font-bold text-tinta">Panel técnico</h1>
         <p className="text-tinta-2">
-          Solo para el personal del municipio. El mapa, las tarjetas y las entregas son públicos y no necesitan cuenta.
+          Acceso para el personal del municipio.
         </p>
       </div>
       <Suspense fallback={<p className="text-tinta-2">Cargando…</p>}>
@@ -36,7 +36,7 @@ async function Contenido({ searchParams }: Pick<PageProps<"/ingresar">, "searchP
     <div className="space-y-4">
       {sp.salio === "1" && <Aviso nivel="exito">Cerraste la sesión.</Aviso>}
       <FormIngresar siguiente={rutaSiguiente(sp.siguiente)} />
-      <p className="text-sm text-tinta-2">La sesión dura 8 horas. Tras 5 intentos fallidos hay que esperar 10 minutos.</p>
+      <p className="text-sm text-tinta-2">La sesión se cierra después de 8 horas.</p>
     </div>
   );
 }

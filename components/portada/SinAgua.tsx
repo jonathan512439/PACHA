@@ -1,63 +1,74 @@
 import Link from "next/link";
-import { Droplets, Wheat } from "lucide-react";
-import { Insignia } from "@/components/ui/Insignia";
-import { textoContador } from "@/lib/visibilidad-calculo";
+import { textoContador, textoEntrega, textoRespuesta } from "@/lib/visibilidad-calculo";
 import type { ComunidadVisible } from "@/lib/visibilidad";
+import { fechaHora } from "@/components/ui/formato";
 
-/** «Sin agua, a la vista»: comunidades con días sin agua o forraje, de más a menos días. Cada una enlaza a su ficha. */
-export function SinAgua({ comunidades }: { comunidades: ComunidadVisible[] }) {
-  const filas = comunidades
-    .flatMap((c) => [c.vis.sinAgua, c.vis.sinForraje].filter((k) => k !== null).map((k) => ({ c, k })))
-    .sort((a, b) => b.k.dias - a.k.dias);
+/** Resumen de la portada: cifras generales y la tabla de comunidades sin agua o forraje, de más a menos días. */
+export function ResumenComunidades({ comunidades }: { comunidades: ComunidadVisible[] }) {
+  const afectadas = comunidades
+    .filter((c) => c.vis.sinAgua || c.vis.sinForraje)
+    .sort((a, b) => Math.max(b.vis.sinAgua?.dias ?? 0, b.vis.sinForraje?.dias ?? 0) - Math.max(a.vis.sinAgua?.dias ?? 0, a.vis.sinForraje?.dias ?? 0));
+  const conReporte = comunidades.filter((c) => c.prioridad.estado === "activa").length;
+  const familias = afectadas.reduce((s, c) => s + (c.vis.sinAgua?.familias ?? c.vis.sinForraje?.familias ?? c.families), 0);
+  const sinEntrega = afectadas.filter((c) => c.vis.sinEntrega).length;
+
+  const cifras = [
+    { valor: conReporte, texto: "con reportes pendientes" },
+    { valor: afectadas.length, texto: "sin agua o forraje" },
+    { valor: familias, texto: "familias afectadas" },
+    { valor: sinEntrega, texto: "sin entrega" },
+  ];
 
   return (
-    <section aria-labelledby="sin-agua-titulo" className="space-y-3">
+    <section aria-labelledby="resumen-titulo" className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h2 id="sin-agua-titulo" className="text-2xl font-semibold sm:text-3xl">Sin agua, a la vista</h2>
-          <p className="max-w-prose text-tinta-2">
-            Días que cada comunidad lleva sin agua o forraje, según lo que ella misma reportó y confirmó. El número sube cada día hasta que
-            confirma que llegó la ayuda.
-          </p>
-        </div>
-        <Link href="/resumen" className="inline-flex min-h-10 items-center text-sm font-semibold text-marca underline">Resumen para autoridades y prensa</Link>
+        <h2 id="resumen-titulo" className="text-2xl font-semibold">Resumen</h2>
+        <Link href="/resumen" className="text-sm text-marca underline">Versión para imprimir</Link>
       </div>
-      {filas.length === 0 ? (
-        <p className="rounded-xl border border-borde bg-superficie p-4 text-tinta">Ninguna comunidad tiene falta de agua o forraje sin resolver.</p>
+
+      <dl className="grid grid-cols-2 divide-borde overflow-hidden rounded-xl border border-borde bg-superficie sm:grid-cols-4 sm:divide-x">
+        {cifras.map((c) => (
+          <div key={c.texto} className="flex flex-col-reverse px-4 py-3">
+            <dt className="text-sm text-tinta-2">{c.texto}</dt>
+            <dd className="cifras text-2xl font-semibold text-tinta">{c.valor}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {afectadas.length === 0 ? (
+        <p className="text-tinta-2">Ninguna comunidad tiene falta de agua o forraje pendiente.</p>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filas.map(({ c, k }) => {
-            const Icono = k.recurso === "agua" ? Droplets : Wheat;
-            return (
-              <li key={`${c.id}-${k.recurso}`}>
-                <Link
-                  href={`/comunidad/${c.id}`}
-                  className="flex h-full gap-3 rounded-xl border border-borde border-l-[6px] border-l-roja bg-superficie p-4 text-tinta no-underline shadow-suave hover:border-marca"
-                >
-                  <span className="cifras font-titulo text-4xl font-semibold leading-none text-roja">{k.dias}</span>
-                  <span className="min-w-0 flex-1 space-y-1">
-                    <span className="block font-semibold leading-snug">{c.name}</span>
-                    <span className="flex items-center gap-1.5 text-sm">
-                      <Icono aria-hidden="true" className="size-4 shrink-0 text-tinta-2" />
-                      {textoContador(k)}
-                      {k.familias != null && ` · ${k.familias} familias`}
-                    </span>
-                    <span className="flex flex-wrap gap-1.5">
-                      {c.vis.sinEntrega ? (
-                        <Insignia tipo="no-llego">Sin entrega todavía</Insignia>
-                      ) : c.vis.ultimaEntrega?.confirmed_by_community === false ? (
-                        <Insignia tipo="no-llego">La entrega no llegó</Insignia>
-                      ) : (
-                        <Insignia tipo="sin-respuesta">Entrega sin confirmar</Insignia>
-                      )}
-                      {c.is_example && <Insignia tipo="ejemplo" />}
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="overflow-x-auto rounded-xl border border-borde bg-superficie">
+          <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+            <thead className="border-b border-borde bg-superficie-2 text-tinta">
+              <tr>
+                <th scope="col" className="px-4 py-2 font-semibold">Comunidad</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Situación</th>
+                <th scope="col" className="px-4 py-2 text-right font-semibold">Familias</th>
+                <th scope="col" className="px-4 py-2 font-semibold">Última entrega</th>
+              </tr>
+            </thead>
+            <tbody className="cifras divide-y divide-borde">
+              {afectadas.map((c) => {
+                const e = c.vis.ultimaEntrega;
+                return (
+                  <tr key={c.id} className="align-top">
+                    <td className="px-4 py-2">
+                      <Link href={`/comunidad/${c.id}`} className="font-medium text-marca underline">{c.name}</Link>
+                    </td>
+                    <td className="px-4 py-2">
+                      {[c.vis.sinAgua, c.vis.sinForraje].filter((k) => k !== null).map((k) => textoContador(k)).join(" · ")}
+                    </td>
+                    <td className="px-4 py-2 text-right">{c.vis.sinAgua?.familias ?? c.vis.sinForraje?.familias ?? c.families}</td>
+                    <td className="px-4 py-2 text-tinta-2">
+                      {e ? `${textoEntrega(e)}, ${fechaHora(e.delivered_at)} · ${textoRespuesta(e.confirmed_by_community)}` : "Ninguna"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );

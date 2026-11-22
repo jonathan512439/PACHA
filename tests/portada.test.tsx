@@ -33,7 +33,7 @@ describe("banda del aviso en la portada", () => {
     expect(html).toContain("Se prevén heladas en el altiplano");
     expect(html).toContain('href="/tarjetas/helada-antes_familia-01"');
     expect(html).toContain('href="https://senamhi.gob.bo/boletin.pdf"');
-    expect(html).toContain("Fuente oficial: Senamhi");
+    expect(html).toContain("Fuente: Senamhi");
   });
 
   it("riesgo medio: ALERTA NARANJA · HELADA (sin «FUERTE»)", () => {
@@ -49,6 +49,6 @@ describe("banda del aviso en la portada", () => {
   });
 
   it("sin aviso: lo dice claro", () => {
-    expect(renderToStaticMarkup(<BandaAviso alerta={null} />)).toContain("No hay un aviso del Senamhi vigente");
+    expect(renderToStaticMarkup(<BandaAviso alerta={null} />)).toContain("No hay avisos vigentes del Senamhi");
   });
 });

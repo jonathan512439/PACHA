@@ -10,8 +10,8 @@ import { Insignia } from "@/components/ui/Insignia";
 import { Vacio } from "@/components/ui/Vacio";
 
 export const metadata: Metadata = {
-  title: "Qué hacer: tarjetas",
-  description: "Tarjetas cortas de qué hacer ante la helada, la sequía y la nevada, cada paso con su fuente oficial y página.",
+  title: "Qué hacer",
+  description: "Recomendaciones para antes, durante y después de una helada, una sequía o una nevada.",
 };
 
 const AMENAZAS = [
@@ -32,13 +32,13 @@ export default function PaginaTarjetas() {
       <header className="max-w-prose space-y-2">
         <h1 className="text-4xl font-semibold">Qué hacer</h1>
         <p className="text-lg text-tinta-2">
-          Tarjetas cortas para antes, durante y después de cada amenaza. Cada paso sale de una guía oficial y cita su página.
+          Recomendaciones para antes, durante y después de una helada, una sequía o una nevada.
         </p>
         <p className="text-sm">
-          <Link href="/fuentes" className="font-semibold text-marca underline">Ver todas las fuentes oficiales</Link>
+          <Link href="/fuentes" className="font-semibold text-marca underline">Fuentes</Link>
         </p>
       </header>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando las tarjetas" />}>
+      <Suspense fallback={<div className="h-96 rounded-xl bg-superficie-2" aria-label="Cargando las tarjetas" />}>
         <Cuadricula />
       </Suspense>
     </main>
@@ -108,7 +108,7 @@ async function Cuadricula() {
                         return (
                           <li key={t.id}>
                             {visible ? (
-                              <Link href={`/tarjetas/${t.id}`} className="block overflow-hidden rounded-xl border border-borde bg-superficie no-underline shadow-suave transition-shadow hover:border-marca hover:shadow-md">
+                              <Link href={`/tarjetas/${t.id}`} className="block overflow-hidden rounded-xl border border-borde bg-superficie no-underline shadow-suave hover:border-marca">
                                 {contenido}
                               </Link>
                             ) : (
@@ -127,7 +127,7 @@ async function Cuadricula() {
           </div>
         </section>
       ))}
-      <p className="text-xs text-tinta-2">Ilustraciones generadas con IA: siga siempre el texto.</p>
+      <p className="text-xs text-tinta-2">Ilustraciones generadas con IA.</p>
     </div>
   );
 }

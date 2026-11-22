@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Cifra } from "@/components/ui/Cifra";
-import { Insignia } from "@/components/ui/Insignia";
 import { fechaHora } from "@/components/ui/formato";
 
 export type DatosCiclo = {
@@ -30,7 +29,7 @@ export function Ciclo({ datos: d }: { datos: DatosCiclo }) {
   const pasos: Paso[] = [
     {
       n: 1,
-      titulo: "Aviso oficial",
+      titulo: "Aviso del Senamhi",
       quien: "Senamhi",
       imagen: "/ilustraciones/ciclo-1-aviso.webp",
       cifra: (
@@ -41,22 +40,22 @@ export function Ciclo({ datos: d }: { datos: DatosCiclo }) {
           tono={d.aviso?.vigente ? "naranja" : "tinta"}
         />
       ),
-      texto: "Leemos el boletín del Senamhi y una persona aprueba cada alerta. No pronosticamos.",
-      enlace: { href: "#aviso", texto: "Ver el aviso" },
+      texto: "Cada día se revisa el boletín del Senamhi. Si hay riesgo para la zona, se prepara una alerta y una persona del municipio la revisa antes de enviarla.",
+      enlace: { href: "/#aviso", texto: "Ver el aviso" },
     },
     {
       n: 2,
-      titulo: "Qué hacer",
-      quien: "Tarjeta verificada",
+      titulo: "Recomendaciones",
+      quien: "Qué hacer",
       imagen: "/ilustraciones/ciclo-2-que-hacer.webp",
-      cifra: <Cifra valor={d.tarjetasVerificadas} etiqueta="tarjetas verificadas" detalle="cada paso con su fuente y página" />,
-      texto: "Con la alerta llega una tarjeta corta, con audio, sacada de guías oficiales.",
-      enlace: { href: "/tarjetas", texto: "Ver las tarjetas" },
+      cifra: <Cifra valor={d.tarjetasVerificadas} etiqueta="tarjetas verificadas" detalle="con su fuente" />,
+      texto: "La alerta llega con pasos concretos, en texto y audio, tomados de documentos de FAO, Senamhi y otras instituciones.",
+      enlace: { href: "/tarjetas", texto: "Ver recomendaciones" },
     },
     {
       n: 3,
-      titulo: "La comunidad reporta",
-      quien: "Por voz",
+      titulo: "Reportes",
+      quien: "Por audio",
       imagen: "/ilustraciones/ciclo-3-reporte.webp",
       cifra: (
         <Cifra
@@ -66,34 +65,34 @@ export function Ciclo({ datos: d }: { datos: DatosCiclo }) {
           tono={d.reportesActivos ? "roja" : "tinta"}
         />
       ),
-      texto: "Un audio por WhatsApp o Telegram: qué falta, desde cuándo y cuántas familias.",
-      enlace: { href: "#mapa", texto: "Ver el mapa" },
+      texto: "Las familias envían un audio por WhatsApp o Telegram contando qué falta, desde cuándo y cuántas familias son. El bot confirma lo que entendió.",
+      enlace: { href: "/#mapa", texto: "Ver el mapa" },
     },
     {
       n: 4,
-      titulo: "Ayuda que se puede comprobar",
-      quien: "La comunidad confirma",
+      titulo: "Entregas",
+      quien: "Municipio y comunidad",
       imagen: "/ilustraciones/ciclo-4-entrega.webp",
       cifra: (
         <Cifra
           valor={d.entregasConfirmadas}
           unidad={`de ${d.entregas}`}
           etiqueta="entregas confirmadas por la comunidad"
-          detalle="con foto, cantidad y respuesta"
+          detalle="registradas en el sistema"
           tono={d.entregasConfirmadas ? "verde" : "tinta"}
         />
       ),
-      texto: "Cada entrega se registra con foto, y la comunidad responde si llegó o no.",
-      enlace: { href: "/entregas", texto: "Ver las entregas" },
+      texto: "El municipio registra cada entrega de agua o forraje, y la comunidad confirma si la recibió.",
+      enlace: { href: "/entregas", texto: "Ver entregas" },
     },
   ];
 
   return (
     <section aria-labelledby="ciclo-titulo" className="space-y-4">
       <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-        <h2 id="ciclo-titulo" className="text-2xl font-semibold sm:text-3xl">El ciclo completo, con datos de hoy</h2>
+        <h2 id="ciclo-titulo" className="text-2xl font-semibold">Paso a paso</h2>
         <p className="text-sm text-tinta-2">
-          Actualizado el {fechaHora(d.ahora)} (hora de Bolivia) · <Insignia tipo="ejemplo">Comunidades y reportes de EJEMPLO</Insignia>
+          Cifras al {fechaHora(d.ahora)} (hora de Bolivia)
         </p>
       </div>
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -109,7 +108,7 @@ export function Ciclo({ datos: d }: { datos: DatosCiclo }) {
             />
             <div className="flex min-w-0 flex-1 flex-col gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-acento">
+                <p className="text-sm text-tinta-2">
                   Paso {p.n} · {p.quien}
                 </p>
                 <h3 className="mt-0.5 text-lg font-semibold leading-snug">{p.titulo}</h3>

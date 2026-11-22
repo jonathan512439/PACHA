@@ -27,7 +27,7 @@ export default function PaginaComunidad({ params }: PageProps<"/comunidad/[id]">
       <nav>
         <Link href="/#mapa" className="inline-flex min-h-10 items-center text-marca underline hover:no-underline">← Volver al mapa</Link>
       </nav>
-      <Suspense fallback={<div className="h-72 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando la ficha" />}>
+      <Suspense fallback={<div className="h-72 rounded-xl bg-superficie-2" aria-label="Cargando la ficha" />}>
         {params.then(({ id }) => <Ficha id={id} />)}
       </Suspense>
     </main>
@@ -54,7 +54,6 @@ async function Ficha({ id }: { id: string }) {
       <header className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <Insignia tipo={`nivel-${urgenciaDe(c.prioridad)}`} />
-          {c.is_example && <Insignia tipo="ejemplo" />}
         </div>
         <h1 className="text-4xl font-semibold leading-tight">{c.name}</h1>
         <p className="text-tinta-2">
@@ -79,15 +78,15 @@ async function Ficha({ id }: { id: string }) {
               {c.vis.sinEntrega
                 ? "Sin entrega todavía."
                 : c.vis.ultimaEntrega?.confirmed_by_community === false
-                  ? "La comunidad dice que la última entrega no llegó."
-                  : "Hay una entrega registrada: falta que la comunidad confirme que llegó."}
+                  ? "La comunidad informó que la última entrega no llegó."
+                  : "Hay una entrega registrada, todavía sin confirmar."}
             </p>
           </div>
         ) : (
-          <p className="text-lg font-semibold">La comunidad no tiene falta de agua o forraje sin resolver.</p>
+          <p className="text-lg font-semibold">Sin falta de agua o forraje pendiente.</p>
         )}
         <p className="mt-3 text-sm text-tinta-2">
-          El número sube cada día hasta que la comunidad confirma que llegó la ayuda.
+          Los días se cuentan desde el reporte hasta que la comunidad confirma una entrega.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Boton
@@ -131,7 +130,7 @@ async function Ficha({ id }: { id: string }) {
         </Tarjeta>
 
         <div className="space-y-6">
-          <Tarjeta titulo="Prioridad pública">
+          <Tarjeta titulo="Prioridad">
             {activa ? (
               <div className="space-y-3 text-sm">
                 <Cifra valor={String(activa.score).replace(".", ",")} unidad="de 100" etiqueta={`Puesto ${puesto} de ${total} comunidades`} />
@@ -143,10 +142,10 @@ async function Ficha({ id }: { id: string }) {
                     </li>
                   ))}
                 </ul>
-                <Link href="/#como-se-calcula" className="font-semibold text-marca underline">¿Cómo se calcula?</Link>
+                <Link href="/como-funciona#como-se-calcula" className="font-semibold text-marca underline">Cómo se calcula</Link>
               </div>
             ) : (
-              <p className="text-sm text-tinta-2">Sin reportes confirmados pendientes de atender.</p>
+              <p className="text-sm text-tinta-2">Sin reportes pendientes.</p>
             )}
           </Tarjeta>
 
@@ -171,10 +170,9 @@ async function Ficha({ id }: { id: string }) {
 
       <section aria-label="Fuentes de los datos" className="space-y-1 text-sm text-tinta-2">
         <p>
-          <strong className="text-tinta">Fuentes:</strong> reportes que la comunidad hizo por voz y confirmó en el bot de PACHA; entregas registradas por la
-          técnica del municipio, con foto, y la respuesta de la comunidad. Sin nombres ni teléfonos.
+          Datos de los reportes confirmados por la comunidad y de las entregas registradas por el municipio.
         </p>
-        <p>Datos al {fechaHora(ahora)} (hora de Bolivia).{c.is_example && " Comunidad, reportes y entregas de EJEMPLO."}</p>
+        <p>Datos al {fechaHora(ahora)} (hora de Bolivia).</p>
       </section>
     </>
   );

@@ -1,8 +1,8 @@
 import { cache, Suspense } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { connection } from "next/server";
 import { rangoFechas } from "@/contratos/tipos";
-import { alertaActiva, resumenCiclo } from "@/lib/datos-publicos";
+import { alertaActiva } from "@/lib/datos-publicos";
 import { comunidadesVisibles } from "@/lib/visibilidad";
 import { etiquetaFactor } from "@/lib/problemas-agrupar";
 import MapaInteractivo from "@/components/mapa/MapaInteractivo";
@@ -10,79 +10,48 @@ import type { AvisoMapa, PuntoMapaVivo } from "@/components/mapa/tipos";
 import { urgenciaDe } from "@/components/mapa/colores";
 import RefrescoAuto from "@/components/RefrescoAuto";
 import { BandaAviso, nivelBanda } from "@/components/portada/BandaAviso";
-import { Ciclo } from "@/components/portada/Ciclo";
-import { ComoSeCalcula } from "@/components/portada/ComoSeCalcula";
-import { SinAgua } from "@/components/portada/SinAgua";
-import { Boton } from "@/components/ui/Boton";
+import { ResumenComunidades } from "@/components/portada/SinAgua";
 import { hoyBolivia } from "@/components/ui/formato";
-import { Horizonte } from "@/components/ui/Horizonte";
 
-// Una sola consulta por petición aunque la pidan la banda, el ciclo y el mapa.
+// Una sola consulta por petición aunque la pidan la banda, el mapa y el resumen.
 const alerta = cache(alertaActiva);
 const comunidades = cache(() => comunidadesVisibles());
 
+const Cargando = ({ alto, texto }: { alto: string; texto: string }) => (
+  <div className={`${alto} rounded-xl border border-borde bg-superficie-2`} role="status" aria-label={texto} />
+);
+
 export default function Inicio() {
   return (
-    <main className="mx-auto max-w-6xl space-y-10 px-4 py-6 sm:py-8">
+    <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:py-8">
+      <section aria-labelledby="titulo-portada" className="max-w-3xl space-y-2">
+        <h1 id="titulo-portada" className="text-3xl font-semibold sm:text-4xl">Comunidades del Altiplano de Oruro</h1>
+        <p className="text-lg text-tinta-2">
+          PACHA envía los avisos del Senamhi a las comunidades y recibe sus reportes cuando falta agua o forraje. Este mapa muestra qué
+          comunidades necesitan atención y qué entregas se hicieron.{" "}
+          <Link href="/como-funciona" className="text-marca underline">Cómo funciona</Link>
+        </p>
+      </section>
+
       <div id="aviso" className="scroll-mt-4">
-        <Suspense fallback={<div className="h-28 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando el aviso vigente" />}>
+        <Suspense fallback={<Cargando alto="h-24" texto="Cargando el aviso" />}>
           <Aviso />
         </Suspense>
       </div>
 
-      <section className="grid items-center gap-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10" aria-labelledby="titulo-portada">
-        <div className="space-y-4">
-          <p className="text-sm font-bold uppercase tracking-wider text-acento">Piloto · Altiplano de Oruro</p>
-          <h1 id="titulo-portada" className="text-4xl font-semibold leading-tight sm:text-5xl">
-            Del aviso oficial a la ayuda que se puede comprobar
-          </h1>
-          <p className="max-w-prose text-lg text-tinta-2">
-            PACHA lleva el aviso del Senamhi a cada familia con qué hacer, recibe sus reportes por voz y muestra en público a quién atender
-            primero y si la ayuda llegó.
-          </p>
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Boton href="/probar" tamano="lg">Probar el bot</Boton>
-            <Boton href="#mapa" variante="secundario" tamano="lg">Ver el mapa</Boton>
-          </div>
+      <section id="mapa" aria-labelledby="mapa-titulo" className="scroll-mt-4 space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 id="mapa-titulo" className="text-2xl font-semibold">Prioridad de atención</h2>
+          <Link href="/como-funciona#como-se-calcula" className="text-sm text-marca underline">Cómo se calcula</Link>
         </div>
-        <figure className="space-y-1.5">
-          <Image
-            src="/ilustraciones/portada.webp"
-            alt=""
-            width={1344}
-            height={752}
-            priority
-            sizes="(min-width: 1024px) 540px, 100vw"
-            className="w-full rounded-2xl border border-borde object-cover shadow-suave"
-          />
-          <figcaption className="text-xs text-tinta-2">Ilustración generada con IA.</figcaption>
-        </figure>
-      </section>
-
-      <Horizonte className="text-acento" />
-
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando el ciclo" />}>
-        <CicloVivo />
-      </Suspense>
-
-      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando las comunidades sin agua" />}>
-        <SinAguaVivo />
-      </Suspense>
-
-      <section id="mapa" aria-labelledby="mapa-titulo" className="scroll-mt-4 space-y-4">
-        <div className="space-y-1">
-          <h2 id="mapa-titulo" className="text-2xl font-semibold sm:text-3xl">Prioridad de atención por comunidad</h2>
-          <p className="max-w-prose text-tinta-2">
-            Cada reporte confirmado por la comunidad suma a una fórmula pública. El color indica a quién llevar primero cisternas o
-            forraje. Se actualiza solo.
-          </p>
-        </div>
-        <Suspense fallback={<div className="h-[480px] animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando el mapa" />}>
+        <Suspense fallback={<Cargando alto="h-[480px]" texto="Cargando el mapa" />}>
           <MapaYRanking />
         </Suspense>
       </section>
 
-      <ComoSeCalcula />
+      <Suspense fallback={<Cargando alto="h-40" texto="Cargando el resumen" />}>
+        <Resumen />
+      </Suspense>
     </main>
   );
 }
@@ -92,25 +61,9 @@ async function Aviso() {
   return <BandaAviso alerta={await alerta()} hoy={hoyBolivia()} />;
 }
 
-async function CicloVivo() {
+async function Resumen() {
   await connection();
-  const [a, cs, r] = await Promise.all([alerta(), comunidades(), resumenCiclo()]);
-  const vigente = !!a && a.valid_to >= hoyBolivia();
-  return (
-    <Ciclo
-      datos={{
-        aviso: a ? { vigente, detalle: `${a.hazard === "sequia" ? "Sequía" : a.hazard === "nevada" ? "Nevada" : "Helada"} · ${rangoFechas(a.valid_from, a.valid_to)}` } : null,
-        ...r,
-        comunidadesConReporte: cs.filter((c) => c.prioridad.estado === "activa").length,
-        ahora: new Date(),
-      }}
-    />
-  );
-}
-
-async function SinAguaVivo() {
-  await connection();
-  return <SinAgua comunidades={await comunidades()} />;
+  return <ResumenComunidades comunidades={await comunidades()} />;
 }
 
 const AMENAZA: Record<string, string> = { helada: "Helada", sequia: "Sequía", nevada: "Nevada" };

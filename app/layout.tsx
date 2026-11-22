@@ -9,9 +9,9 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "sw
 const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "PACHA · Del aviso oficial a la ayuda comprobada", template: "%s · PACHA" },
+  title: { default: "PACHA · Altiplano de Oruro", template: "%s · PACHA" },
   description:
-    "Avisos oficiales del Senamhi con qué hacer, reportes por voz, prioridad pública y entregas que la comunidad confirma, para el Altiplano de Oruro.",
+    "Avisos del Senamhi, reportes de las comunidades y registro de entregas de agua y forraje en el Altiplano de Oruro.",
 };
 
 // Un solo tema claro: "only light" evita además el oscurecido forzado de Chrome en Android.

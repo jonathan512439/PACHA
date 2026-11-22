@@ -4,8 +4,8 @@ import { ExternalLink } from "lucide-react";
 import { listarFuentes } from "@/lib/fuentes";
 
 export const metadata: Metadata = {
-  title: "Fuentes oficiales",
-  description: "Documentos oficiales de los que salen los pasos de las tarjetas, con enlace al original y fecha de consulta.",
+  title: "Fuentes",
+  description: "Documentos usados para escribir las recomendaciones, con enlace y fecha de consulta.",
 };
 
 const fecha = (iso: string) =>
@@ -17,9 +17,9 @@ export default function PaginaFuentes() {
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:py-8">
       <header className="max-w-prose space-y-2">
-        <h1 className="text-4xl font-semibold">Fuentes oficiales</h1>
+        <h1 className="text-4xl font-semibold">Fuentes</h1>
         <p className="text-lg text-tinta-2">
-          De estos documentos salen los pasos de las tarjetas. Ninguna fuente entra si no se pudo abrir y leer.
+          Documentos usados para escribir las recomendaciones.
         </p>
       </header>
       <ol className="space-y-4">
@@ -33,7 +33,7 @@ export default function PaginaFuentes() {
               {f.url ? (
                 <p>
                   <a href={f.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center font-semibold text-marca underline">
-                    Abrir el documento original
+                    Abrir documento
                     <ExternalLink aria-hidden="true" className="ml-1 inline size-3.5 align-[-2px]" />
                     <span className="sr-only"> (abre en otra pestaña)</span>
                   </a>

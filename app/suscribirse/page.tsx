@@ -4,7 +4,7 @@ import { BellRing, ClipboardList, Mic, Truck } from "lucide-react";
 import { urlApp } from "@/lib/url";
 import { COLORES } from "@/components/ui/tokens";
 
-export const metadata: Metadata = { title: "Suscribirse", description: "Recibe los avisos del Senamhi con qué hacer, en Telegram o en la web." };
+export const metadata: Metadata = { title: "Suscribirse", description: "Recibe los avisos del Senamhi y qué hacer, por Telegram." };
 
 const BOT = process.env.TELEGRAM_BOT_USERNAME || "pacha_oruro_bot";
 
@@ -28,10 +28,10 @@ const PASOS = [
 ];
 
 const RECIBES = [
-  { Icono: BellRing, texto: "El aviso oficial del Senamhi cuando hay helada, nevada o sequía en tu zona, aprobado por una persona." },
-  { Icono: ClipboardList, texto: "Qué hacer: una tarjeta corta con audio, sacada de guías oficiales." },
-  { Icono: Mic, texto: "Puedes reportar por audio si te falta agua o forraje. Tu reporte entra al mapa público." },
-  { Icono: Truck, texto: "Cuando llega una entrega, te preguntamos si llegó." },
+  { Icono: BellRing, texto: "Los avisos del Senamhi cuando hay helada, nevada o sequía en tu zona." },
+  { Icono: ClipboardList, texto: "Recomendaciones de qué hacer, en texto y audio." },
+  { Icono: Mic, texto: "Puedes avisar por audio si en tu comunidad falta agua o forraje." },
+  { Icono: Truck, texto: "Si se registra una entrega para tu comunidad, te preguntamos si llegó." },
 ];
 
 export default async function Suscribirse() {
@@ -53,7 +53,7 @@ export default async function Suscribirse() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Qr url={`https://t.me/${BOT}`} titulo="Telegram" texto="Abre el chat y toca Iniciar." />
-        <Qr url={`${urlApp()}/probar`} titulo="Probar en la web" texto="Sin instalar nada: el mismo bot en el navegador." />
+        <Qr url={`${urlApp()}/probar`} titulo="Probar en la web" texto="Desde el navegador, sin instalar nada." />
       </div>
 
       <section aria-labelledby="que-recibes" className="space-y-3">
@@ -69,8 +69,7 @@ export default async function Suscribirse() {
       </section>
 
       <p className="text-sm text-tinta-2">
-        WhatsApp: en el piloto se usa un número de prueba que solo admite al equipo. Por eso el código público es de Telegram. Los audios usan voz
-        sintética.
+        Por ahora la suscripción es por Telegram. WhatsApp está disponible solo para números registrados. Los audios usan voz sintética.
       </p>
     </main>
   );

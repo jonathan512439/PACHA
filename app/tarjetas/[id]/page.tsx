@@ -13,7 +13,7 @@ export default function PaginaTarjeta({ params }: PageProps<"/tarjetas/[id]">) {
       <nav className="print:hidden">
         <Link href="/tarjetas" className="inline-flex min-h-10 items-center text-marca underline hover:no-underline">← Todas las tarjetas</Link>
       </nav>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando la tarjeta" />}>
+      <Suspense fallback={<div className="h-96 rounded-xl bg-superficie-2" aria-label="Cargando la tarjeta" />}>
         {params.then(({ id }) => <Contenido id={id} />)}
       </Suspense>
     </main>
@@ -23,7 +23,7 @@ export default function PaginaTarjeta({ params }: PageProps<"/tarjetas/[id]">) {
 async function Contenido({ id }: { id: string }) {
   const r = await cargarTarjetaVisible(id);
   if (r.estado === "no_existe") notFound();
-  if (r.estado === "en_verificacion") return <Vacio titulo={MENSAJE_EN_VERIFICACION}>Se publica cuando una persona del equipo compare cada paso con su fuente.</Vacio>;
+  if (r.estado === "en_verificacion") return <Vacio titulo={MENSAJE_EN_VERIFICACION}>Todavía no está disponible.</Vacio>;
   const t = r.tarjeta;
   const audioUrl = audioVigente(t, "mp3") ? urlPublica(baseStorage(process.env.SUPABASE_URL), BUCKET_AUDIOS, t.audio_mp3_path) : null;
   return (
@@ -31,7 +31,7 @@ async function Contenido({ id }: { id: string }) {
       <div className="space-y-2">
         <TarjetaVisual tarjeta={t} imagenes={r.imagenes} variante="web" />
         <p className="text-sm text-tinta-2 print:hidden">
-          <a href={`/tarjetas/${id}/imagen`} className="text-marca underline">Ver como imagen (1080×1350)</a> · Para imprimir en A4, usa Imprimir del navegador.
+          <a href={`/tarjetas/${id}/imagen`} className="text-marca underline">Ver como imagen</a> · Para imprimir, usa la opción Imprimir del navegador.
         </p>
       </div>
       <div className="print:hidden">

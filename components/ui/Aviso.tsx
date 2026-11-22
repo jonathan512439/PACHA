@@ -48,7 +48,7 @@ export function Aviso({
     >
       <Icono
         aria-hidden="true"
-        className={cx("mt-0.5 shrink-0", fuerte ? "size-7" : "size-5", nivel === "roja" && "animate-pulso")}
+        className={cx("mt-0.5 shrink-0", fuerte ? "size-7" : "size-5", false)}
         strokeWidth={2.25}
       />
       <div className="min-w-0 flex-1 space-y-1">

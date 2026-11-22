@@ -62,7 +62,7 @@ export function SeccionesV04({ tarjeta: t, audioUrl }: { tarjeta: Tarjeta; audio
           <audio controls preload="none" src={audioUrl} className="w-full">
             Tu navegador no puede reproducir el audio.
           </audio>
-          <p className="text-xs text-tinta-2">Audio con voz sintética. Dice el título y los pasos de esta tarjeta.</p>
+          <p className="text-xs text-tinta-2">Audio con voz sintética.</p>
         </Seccion>
       )}
 
@@ -76,7 +76,7 @@ export function SeccionesV04({ tarjeta: t, audioUrl }: { tarjeta: Tarjeta; audio
               </p>
               {f.url ? (
                 <a href={f.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center text-sm font-semibold text-marca underline">
-                  Abrir el documento original
+                  Abrir documento
                   <ExternalLink aria-hidden="true" className="ml-1 inline size-3.5 align-[-2px]" />
                   <span className="sr-only"> (abre en otra pestaña)</span>
                 </a>
@@ -87,13 +87,13 @@ export function SeccionesV04({ tarjeta: t, audioUrl }: { tarjeta: Tarjeta; audio
           ))}
         </ul>
         <p className="border-t border-borde pt-2 text-sm">
-          <Link href="/fuentes" className="font-semibold text-marca underline">Todas las fuentes oficiales</Link>
+          <Link href="/fuentes" className="font-semibold text-marca underline">Todas las fuentes</Link>
         </p>
       </Seccion>
 
       <p className="flex flex-wrap items-center gap-2 text-sm text-tinta-2">
         <Insignia tipo={t.status === "borrador" ? "borrador" : t.status === "revisada" ? "revisada" : "verificada"}>{etiquetaEstadoTarjeta(t)}</Insignia>
-        Cada paso se comparó con la página citada. Ilustraciones generadas con IA: siga el texto.
+        Ilustraciones generadas con IA.
       </p>
     </div>
   );

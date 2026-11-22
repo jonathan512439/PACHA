@@ -18,8 +18,8 @@ export function nivelBanda(a: { risk_level: string | null; senamhi_level?: strin
 export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPublica & { fuente_url: string | null }) | null; hoy?: string }) {
   if (!alerta) {
     return (
-      <Aviso nivel="info" titulo="No hay un aviso del Senamhi vigente en este momento.">
-        PACHA revisa cada día el boletín agrometeorológico del Senamhi para el Altiplano.
+      <Aviso nivel="info" titulo="No hay avisos vigentes del Senamhi.">
+        El boletín del Senamhi se revisa cada día.
       </Aviso>
     );
   }
@@ -40,10 +40,10 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
       role="region"
       accion={
         <span className="flex flex-wrap gap-x-5 gap-y-1">
-          {alerta.lesson_id && <Link href={`/tarjetas/${alerta.lesson_id}`}>{vigente ? "Qué hacer hoy" : "Qué hacer"}</Link>}
+          {alerta.lesson_id && <Link href={`/tarjetas/${alerta.lesson_id}`}>Qué hacer</Link>}
           {alerta.fuente_url && (
             <a href={alerta.fuente_url} target="_blank" rel="noopener noreferrer">
-              Ver el boletín original del Senamhi<span className="sr-only"> (PDF, abre en otra pestaña)</span>
+              Boletín del Senamhi (PDF)<span className="sr-only">, abre en otra pestaña</span>
             </a>
           )}
         </span>
@@ -55,7 +55,7 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
       </p>
       <p>El boletín dice: “{alerta.cita_evento}”</p>
       {alerta.cita_riesgo && <p>Riesgo: “{alerta.cita_riesgo}”</p>}
-      <p className="text-xs opacity-95">Fuente oficial: Senamhi, boletín agrometeorológico decenal.</p>
+      <p className="text-xs opacity-95">Fuente: Senamhi, boletín agrometeorológico decenal.</p>
     </Aviso>
   );
 }

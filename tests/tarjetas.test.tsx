@@ -204,7 +204,7 @@ describe("imágenes con respaldo", () => {
 
   it("el pie lleva las fuentes con página y la nota de IA", () => {
     const html = renderToStaticMarkup(<TarjetaVisual tarjeta={t} imagenes={resolverImagenes(t, BASE, null)} variante="web" />);
-    expect(html).toContain("Ilustraciones generadas con IA; siga el texto.");
+    expect(html).toContain("Ilustraciones generadas con IA.");
     for (const linea of resumirFuentes(t.step_sources)) expect(html).toContain(linea.split(":")[0]);
     expect(resumirFuentes(porId("helada-durante-01").step_sources)).toEqual([
       "Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026: p. 8 (pasos 1, 2 y 3)",

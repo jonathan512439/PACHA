@@ -80,7 +80,7 @@ export function TarjetaVisual({
               <span key={i} className="tj-lineaFuente">{linea}</span>
             ))}
           </p>
-          <p className="tj-notaIA">Ilustraciones generadas con IA; siga el texto.</p>
+          <p className="tj-notaIA">Ilustraciones generadas con IA.</p>
           {!borrador && <p className="tj-estado">✔ {etiquetaEstadoTarjeta(t)}</p>}
         </footer>
 

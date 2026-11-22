@@ -40,12 +40,12 @@ function resumen(p: PuntoMapaVivo): string {
 }
 
 function popup(p: PuntoMapaVivo): string {
-  const ej = p.is_example ? ` <span style="font-size:11px;font-weight:600;background:${COLORES["ocre-suave"]};color:${COLORES["ocre-tinta"]};padding:1px 5px;border-radius:4px">EJEMPLO</span>` : "";
+  const ej = "";
   const prioridad = p.score !== null ? `Prioridad <b>${String(p.score).replace(".", ",")}</b> · ${textoNivel(p.nivel)}` : "Sin reportes activos";
   return (
     `<div style="font:14px/1.4 var(--font-inter),system-ui,sans-serif;color:${COLORES.tinta}">` +
     `<strong style="font-size:15px">${esc(p.name)}</strong>${ej}<br>${prioridad}<br>${esc(resumen(p))}<br>` +
-    `<a href="/comunidad/${p.id}" style="color:${COLORES.marca};font-weight:600">Ver ficha pública</a></div>`
+    `<a href="/comunidad/${p.id}" style="color:${COLORES.marca};font-weight:600">Ver ficha</a></div>`
   );
 }
 
@@ -120,7 +120,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
           weight: rojo ? 2 : 1.5,
           fillColor: COLOR_NIVEL[p.nivel],
           fillOpacity: 0.88,
-          className: rojo ? "marcador-pulso" : undefined,
+          className: undefined,
         })
           .bindPopup(popup(p))
           .bindTooltip(p.name, { direction: "top" })
@@ -241,7 +241,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
                   aviso.nivel === "roja" ? "bg-roja text-white" : aviso.nivel === "naranja" ? "bg-naranja text-white" : "bg-marca-suave text-tinta",
                 )}
               >
-                <IconoAviso aria-hidden="true" className={cx("size-4 shrink-0", aviso.nivel === "roja" && "animate-pulso")} />
+                <IconoAviso aria-hidden="true" className={cx("size-4 shrink-0", false)} />
                 <span className="truncate">
                   {aviso.nivel === "roja" ? "ALERTA ROJA · " : aviso.nivel === "naranja" ? "ALERTA NARANJA · " : "Aviso · "}
                   {aviso.amenaza} · {aviso.zona} · {aviso.fechas}
@@ -304,7 +304,7 @@ export default function MapaInteractivo({ puntos, aviso, actualizado }: { puntos
                         <span className="block font-medium leading-snug">{p.name}</span>
                         <span className="mt-1 flex flex-wrap items-center gap-1.5">
                           <Insignia tipo={`nivel-${p.nivel}`} />
-                          {p.is_example && <Insignia tipo="ejemplo" />}
+                          
                         </span>
                         <span className="mt-1 block text-sm text-tinta-2">{resumen(p)}</span>
                       </span>
@@ -388,7 +388,7 @@ function Ficha({ p }: { p: PuntoMapaVivo }) {
         </div>
       )}
       <Link href={`/comunidad/${p.id}`} className="inline-block font-semibold text-marca underline hover:no-underline">
-        Ver ficha pública de {p.name}
+        Ver ficha de {p.name}
       </Link>
     </div>
   );
