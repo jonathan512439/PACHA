@@ -178,7 +178,7 @@
 - **Envío de alertas en secuencia** dentro de una función: alcanza para cientos de personas, no para decenas de miles.
 - **Bloqueo de intentos del login en memoria:** no es global entre servidores.
 - **Solo en español.**
-- **Tarjetas:** 6 verificadas, más las nuevas que se verifiquen hoy.
+- **Tarjetas:** 6 verificadas y publicadas. Hay 5 nuevas en verificación (nevada, después de la helada, cultivos, agua segura y animales en sequía) que no se publican hasta que una persona compruebe cada paso. La de nevada «durante» no se hizo: no encontramos una fuente oficial que pudiéramos leer, y no se rellena.
 
 ### 8.2 Tecnologías contempladas (futuro previsible)
 | Cuándo | Qué | Por qué |
@@ -241,10 +241,10 @@
 | | |
 |---|---|
 | Código | ~6.000 líneas de TypeScript (app, lib, componentes, contratos, scripts) |
-| Pruebas | 186 automáticas (Vitest); el login también se probó en el navegador con Playwright |
+| Pruebas | 189 automáticas (Vitest), CI de GitHub en verde; el login también se probó en el navegador con Playwright y el bot de punta a punta en producción |
 | Base de datos | 11 tablas, RLS en todas, reglas críticas también como restricciones SQL |
 | Canales | 3 (WhatsApp, Telegram, web) sobre **un** bot |
 | Usos de IA | 2 en tiempo real (leer boletín, entender mensajes) + voz para audios |
 | Decisiones registradas | `decisiones.md`: cada cambio de contrato con su motivo |
 
-> Las cifras se actualizan en la revisión final, cuando terminen los dos agentes.
+> Cifras de la revisión final (dom 22/11, 10:10).
