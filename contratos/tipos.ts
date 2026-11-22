@@ -269,8 +269,14 @@ export const MAX_BOTONES = 3;
  * Tarjeta que acompaña a una alerta: regla fija (amenaza + fase antes_familia).
  * Si esa tarjeta no está en estado enviable, la alerta NO se puede aprobar hasta verificarla.
  */
+// Tarjeta "qué hacer" de cada amenaza. Nevada usa la de animales: es la única tarjeta de nevada (dom 22/11).
+const TARJETA_DE_ALERTA: Record<Amenaza, string> = {
+  helada: "helada-antes_familia-01",
+  sequia: "sequia-antes_familia-01",
+  nevada: "nevada-antes_animales-01",
+};
 export function tarjetaParaAlerta(hazard: Amenaza): string {
-  return `${hazard}-antes_familia-01`;
+  return TARJETA_DE_ALERTA[hazard];
 }
 
 /* ======================================================================
@@ -342,6 +348,8 @@ export function construirMensajeAlerta(p: {
   // null = la tarjeta de la regla aún no es publicable: el mensaje sale sin "Qué hacer" y la alerta NO se puede aprobar
   tarjeta: TarjetaDeAlerta | null;
   boletinEsEjemplo: boolean;
+  simulacro?: boolean;                      // comunicado manual de práctica: el encabezado dice SIMULACRO
+  comunicado?: boolean;                     // comunicado de última hora cargado a mano (no el boletín decenal)
   boletinUrl?: string | null;               // bulletins.source_url; null si el PDF se subió a mano
   conAudio?: boolean;                       // true si la alerta lleva audio (se declara la voz sintética)
 }): string {
@@ -360,15 +368,15 @@ export function construirMensajeAlerta(p: {
       ]
     : [];
   return [
-    `${encabezadoAlerta(nivel, aviso.fenomeno)}${boletinEsEjemplo ? " (EJEMPLO con boletín histórico)" : ""}`,
+    `${p.simulacro ? "SIMULACRO · " : ""}${encabezadoAlerta(nivel, aviso.fenomeno)}${boletinEsEjemplo && !p.simulacro ? " (EJEMPLO con boletín histórico)" : ""}`,
     lugarYFecha || null,
     tonoAlerta(nivel),
     `El Senamhi dice: "${aviso.cita_evento}"`,
     aviso.cita_riesgo ? `"${aviso.cita_riesgo}"` : null,
     ...queHacer,
     "",
-    "Fuente oficial: Senamhi, boletín agrometeorológico decenal del Altiplano.",
-    p.boletinUrl ? `Ver el boletín original: ${p.boletinUrl}` : null,
+    p.comunicado ? "Fuente oficial: comunicado del Senamhi." : "Fuente oficial: Senamhi, boletín agrometeorológico decenal del Altiplano.",
+    p.boletinUrl ? `${p.comunicado ? "Ver el comunicado original" : "Ver el boletín original"}: ${p.boletinUrl}` : null,
     `${p.conAudio ? "🔊 Audio con voz sintética. " : ""}Si hay daños, responde con un audio.`,
   ].filter((l) => l !== null).join("\n");
 }

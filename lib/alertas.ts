@@ -2,7 +2,7 @@ import "server-only";
 import { AvisoGemini, construirMensajeAlerta, guionAudioAlerta, type Canal, type SalidaBot } from "@/contratos/tipos";
 import { sintetizarVoz } from "@/lib/gemini";
 import { db } from "@/lib/supabase";
-import { mensajeDeAlerta } from "@/lib/boletin";
+import { esComunicadoManual, mensajeDeAlerta } from "@/lib/boletin";
 import { CanalSinEnvio, enviarPorCanal } from "@/lib/canales/enviar";
 
 /*
@@ -52,18 +52,22 @@ async function generarAudioAlerta(id: string, guion: string): Promise<string | n
 export async function aprobarAlerta(id: string, usuario: string) {
   const a = await leerAlerta(id);
   if (a.status !== "borrador") throw new ErrorAlerta(`Solo se aprueba una alerta en borrador (está en "${a.status}")`);
-  const { data: b, error } = await db().from("bulletins").select("extracted, is_example, source_url").eq("id", a.bulletin_id).single();
+  const { data: b, error } = await db().from("bulletins").select("extracted, is_example, source_url, pdf_path").eq("id", a.bulletin_id).single();
   if (error) throw new Error(error.message);
   const aviso = AvisoGemini.parse(b.extracted);
   const esEjemplo = b.is_example as boolean;
   const boletinUrl = (b.source_url as string | null) ?? null;
-  const m = await mensajeDeAlerta(aviso, esEjemplo, { boletinUrl });
+  // Comunicado manual de práctica: el texto y el audio dicen SIMULACRO (nadie debe confundirlo con una emergencia real).
+  const comunicado = esComunicadoManual(b.pdf_path as string | null);
+  const simulacro = esEjemplo && comunicado;
+  const m = await mensajeDeAlerta(aviso, esEjemplo, { boletinUrl, comunicado, simulacro });
   if (!m.publicable) throw new ErrorAlerta(`Falta la tarjeta ${m.lessonEsperada} verificada: no se puede aprobar todavía`);
 
   const yaTieneAudio = !!(a.audio_ogg_path || a.audio_mp3_path);
-  const mp3Nuevo = yaTieneAudio ? null : await generarAudioAlerta(id, guionAudioAlerta(aviso, m.tarjeta));
+  const guion = (simulacro ? "Esto es un simulacro. " : "") + guionAudioAlerta(aviso, m.tarjeta) + (simulacro ? " Repito: es un simulacro." : "");
+  const mp3Nuevo = yaTieneAudio ? null : await generarAudioAlerta(id, guion);
   const conAudio = yaTieneAudio || !!mp3Nuevo;
-  const texto = construirMensajeAlerta({ aviso, tarjeta: m.tarjeta, boletinEsEjemplo: esEjemplo, boletinUrl, conAudio });
+  const texto = construirMensajeAlerta({ aviso, tarjeta: m.tarjeta, boletinEsEjemplo: esEjemplo, boletinUrl, conAudio, simulacro, comunicado });
 
   const upd = await db().from("alerts").update({
     status: "aprobada", approved_by: usuario, approved_at: new Date().toISOString(), message_text: texto, lesson_id: m.lessonId,

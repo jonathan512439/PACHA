@@ -4,7 +4,8 @@ import { connection } from "next/server";
 import { rangoFechas } from "@/contratos/tipos";
 import { alertasPanel } from "@/lib/datos-publicos";
 import { BotonAccion, FormAccion } from "@/components/panel/Acciones";
-import { aprobar, buscarBoletinAhora, descartar, enviar, subirBoletin } from "../acciones";
+import { aprobar, buscarBoletinAhora, crearComunicado, descartar, enviar, subirBoletin } from "../acciones";
+import { hoyBolivia } from "@/components/ui/formato";
 
 export const metadata: Metadata = { title: "Alertas" };
 
@@ -20,7 +21,7 @@ export default function Alertas() {
         <p className="text-sm text-tinta-2">
           Busca el boletín agrometeorológico decenal más reciente del Altiplano. La IA solo extrae los datos y las citas;
           el código decide si corresponde alertar y la alerta queda en <b>borrador</b> hasta que una persona la aprueba.
-          (También corre solo todos los días a las 07:00.)
+          (También se revisa solo cada 15 minutos.)
         </p>
         <BotonAccion accion={buscarBoletinAhora}>Buscar boletín ahora</BotonAccion>
         <details className="text-sm">
@@ -31,10 +32,60 @@ export default function Alertas() {
           </FormAccion>
         </details>
       </section>
+      <Suspense fallback={<p className="text-tinta-2">Cargando…</p>}>
+        <Comunicado />
+      </Suspense>
       <Suspense fallback={<p className="text-tinta-2">Cargando alertas…</p>}>
         <Lista />
       </Suspense>
     </div>
+  );
+}
+
+const CAMPO = "block w-full rounded-md border border-borde-fuerte bg-superficie px-3 py-2 text-sm text-tinta";
+
+/** Comunicado de última hora: 3 pasos (cargar → aprobar → enviar). Sin IA: el texto se copia del comunicado oficial. */
+async function Comunicado() {
+  await connection();
+  const hoy = hoyBolivia();
+  return (
+    <section className="rounded-lg bg-superficie border border-borde p-4 space-y-3" aria-labelledby="comunicado-titulo">
+      <h2 id="comunicado-titulo" className="text-xl font-semibold">Comunicado de última hora</h2>
+      <p className="text-sm text-tinta-2">
+        Si el Senamhi u otra institución emite un aviso urgente, cárgalo aquí. Se crea una alerta en borrador; luego pulsa
+        <b> Aprobar</b> y <b>Enviar</b>. El texto debe ser el del comunicado, sin cambios.
+      </p>
+      <FormAccion accion={crearComunicado} boton="Crear alerta en borrador" className="grid gap-3 sm:grid-cols-2">
+        <label className="text-sm font-semibold">Fenómeno
+          <select name="fenomeno" required className={CAMPO} defaultValue="helada">
+            <option value="helada">Helada</option><option value="nevada">Nevada</option><option value="sequia">Sequía</option>
+          </select>
+        </label>
+        <label className="text-sm font-semibold">Nivel del comunicado
+          <select name="nivel" required className={CAMPO} defaultValue="naranja">
+            <option value="amarillo">Amarillo</option><option value="naranja">Naranja</option><option value="rojo">Rojo</option>
+          </select>
+        </label>
+        <label className="text-sm font-semibold sm:col-span-2">Zona
+          <input name="zona" defaultValue="Altiplano de Oruro" maxLength={120} className={CAMPO} />
+        </label>
+        <label className="text-sm font-semibold">Desde
+          <input type="date" name="desde" required defaultValue={hoy} className={CAMPO} />
+        </label>
+        <label className="text-sm font-semibold">Hasta
+          <input type="date" name="hasta" required defaultValue={hoy} className={CAMPO} />
+        </label>
+        <label className="text-sm font-semibold sm:col-span-2">Texto del comunicado (copiado tal cual, máx. 200 caracteres)
+          <textarea name="texto" required minLength={10} maxLength={200} rows={3} className={CAMPO} />
+        </label>
+        <label className="text-sm font-semibold sm:col-span-2">Enlace al comunicado oficial del Senamhi
+          <input type="url" name="enlace" required placeholder="https://senamhi.gob.bo/…" className={CAMPO} />
+        </label>
+        <label className="flex items-center gap-2 text-sm sm:col-span-2">
+          <input type="checkbox" name="simulacro" value="1" /> Es un simulacro (el mensaje y el audio dirán SIMULACRO)
+        </label>
+      </FormAccion>
+    </section>
   );
 }
 
@@ -57,7 +108,8 @@ async function Lista() {
             <div className="flex flex-wrap items-center gap-2">
               <span className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${ESTADO[a.status] ?? ""}`}>{a.status}</span>
               <h2 className="font-semibold">Aviso de {a.hazard} · {rangoFechas(a.valid_from, a.valid_to)}</h2>
-              {a.boletin?.pdfUrl && <a href={a.boletin.pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-verde-tinta underline">Ver PDF del boletín</a>}
+              {a.boletin?.source_url && <a href={a.boletin.source_url} target="_blank" rel="noreferrer" className="text-sm text-marca underline">Fuente original</a>}
+              {a.boletin?.pdfUrl && <a href={a.boletin.pdfUrl} target="_blank" rel="noreferrer" className="text-sm text-verde-tinta underline">Copia guardada (PDF)</a>}
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">

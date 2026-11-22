@@ -1,5 +1,6 @@
 import "server-only";
 import {
+  AvisoGemini as AvisoGeminiEsquema,
   construirMensajeAlerta,
   decidirAlerta,
   rangoFechas,
@@ -21,7 +22,14 @@ export { urlApp };
  *   2. procesarBoletin(): guarda el PDF, Gemini extrae (AvisoGemini), el CÓDIGO decide (decidirAlerta)
  *      y, si corresponde, crea la alerta con la plantilla y avisa a la técnica.
  * Las alertas de color del Senamhi viven en una app interna sin API documentada: NO se leen aquí.
+ *   3. crearAlertaManual(): comunicado de última hora cargado por la técnica en el panel (texto literal + enlace
+ *      oficial). No usa IA: el aviso se arma con los datos del formulario y sigue el mismo camino (borrador →
+ *      aprobación → envío). Con "simulacro", el texto y el audio lo dicen.
  */
+
+/** Los comunicados cargados a mano no tienen PDF: su pdf_path empieza con este prefijo (no existe en Storage). */
+export const PREFIJO_MANUAL = "manual-texto/";
+export const esComunicadoManual = (pdfPath: string | null | undefined) => !!pdfPath?.startsWith(PREFIJO_MANUAL);
 
 const PAGINA_DECENALES = "https://senamhi.gob.bo/meteorologia/agromet-decenal";
 const MESES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
@@ -93,7 +101,7 @@ async function audiosPregenerados(clave: string): Promise<{ ogg: string | null; 
 export async function mensajeDeAlerta(
   aviso: AvisoGemini,
   esEjemplo: boolean,
-  opciones: { boletinUrl?: string | null; conAudio?: boolean } = {},
+  opciones: { boletinUrl?: string | null; conAudio?: boolean; simulacro?: boolean; comunicado?: boolean } = {},
 ) {
   if (aviso.fenomeno === "ninguno") throw new Error("Sin fenómeno no hay alerta");
   const lessonId = tarjetaParaAlerta(aviso.fenomeno);
@@ -144,9 +152,21 @@ export async function procesarBoletin(p: { pdf: Uint8Array; sourceUrl: string | 
 
   const decision = decidirAlerta(aviso);
   if (!decision.alertar || aviso.fenomeno === "ninguno") return { estado: "sin_alerta", boletinId, decision, origen };
+  return crearAlertaDesdeAviso({ boletinId, aviso, decision, origen, esEjemplo: p.esEjemplo, sourceUrl: p.sourceUrl, clave: p.clave, avisarTecnica: true });
+}
 
+/** Crea la alerta en BORRADOR para un aviso ya decidido (boletín o comunicado manual) y, si se pide, avisa a la técnica. */
+async function crearAlertaDesdeAviso(p: {
+  boletinId: string; aviso: AvisoGemini; decision: DecisionAlerta; origen: string;
+  esEjemplo: boolean; sourceUrl: string | null; clave: string; avisarTecnica: boolean;
+  comunicado?: boolean; simulacro?: boolean;
+}): Promise<ResultadoBoletin> {
+  const { boletinId, aviso, decision, origen } = p;
+  if (aviso.fenomeno === "ninguno") return { estado: "sin_alerta", boletinId, decision, origen };
   const audios = await audiosPregenerados(p.clave);
-  const m = await mensajeDeAlerta(aviso, p.esEjemplo, { boletinUrl: p.sourceUrl, conAudio: !!(audios.ogg || audios.mp3) });
+  const m = await mensajeDeAlerta(aviso, p.esEjemplo, {
+    boletinUrl: p.sourceUrl, conAudio: !!(audios.ogg || audios.mp3), comunicado: p.comunicado, simulacro: p.simulacro,
+  });
   const alerta = await db().from("alerts").insert({
     bulletin_id: boletinId,
     station_id: estacionDe(),
@@ -170,7 +190,7 @@ export async function procesarBoletin(p: { pdf: Uint8Array; sourceUrl: string | 
 
   // Aviso a la técnica (si falla, la alerta igual queda en el panel).
   let tecnicaNotificada = false;
-  const tecnica = contactoTecnica();
+  const tecnica = p.avisarTecnica ? contactoTecnica() : null;
   if (tecnica) {
     const periodo = aviso.periodo_inicio && aviso.periodo_fin ? rangoFechas(aviso.periodo_inicio, aviso.periodo_fin) : "sin fecha";
     try {
@@ -180,6 +200,39 @@ export async function procesarBoletin(p: { pdf: Uint8Array; sourceUrl: string | 
     } catch (e) { console.error("aviso a la técnica", e); }
   }
   return { estado: "alerta_creada", boletinId, alertaId: alerta.data.id as string, decision, origen, tecnicaNotificada, tarjetaLista: m.publicable };
+}
+
+export type ComunicadoManual = {
+  fenomeno: "helada" | "nevada" | "sequia";
+  nivel: "amarillo" | "naranja" | "rojo";
+  zona: string;
+  desde: string;           // AAAA-MM-DD
+  hasta: string;
+  texto: string;           // copiado tal cual del comunicado oficial (máx. 200)
+  enlace: string;          // comunicado oficial (Senamhi u otra institución)
+  simulacro: boolean;
+};
+
+/** Comunicado de última hora cargado por la técnica: crea la alerta en borrador (sin IA, sin PDF). */
+export async function crearAlertaManual(c: ComunicadoManual, usuario: string): Promise<ResultadoBoletin> {
+  const aviso = AvisoGeminiEsquema.parse({
+    encontrado: true, zona: c.zona, estacion: null, periodo_inicio: c.desde, periodo_fin: c.hasta, fenomeno: c.fenomeno,
+    temp_minima_c: null, cita_evento: c.texto, cita_riesgo: null, riesgo_helada: null, nivel_senamhi: c.nivel, confianza: 1,
+  });
+  const decision = decidirAlerta(aviso);
+  if (!decision.alertar) return { estado: "error", boletinId: null, error: decision.motivo };
+  const clave = `${PREFIJO_MANUAL}${Date.now()}`;
+  const ins = await db().from("bulletins").insert({
+    region: "altiplano", source_url: c.enlace, pdf_path: clave, status: "procesado", is_example: c.simulacro,
+    extracted: aviso, processed_at: new Date().toISOString(), period_start: c.desde, period_end: c.hasta,
+  }).select("id").single();
+  if (ins.error?.code === "23505") return { estado: "error", boletinId: null, error: "Ese enlace ya se usó en otra alerta. Revisa la lista de abajo." };
+  if (ins.error) return { estado: "error", boletinId: null, error: ins.error.message };
+  return crearAlertaDesdeAviso({
+    boletinId: ins.data.id as string, aviso, origen: "manual", esEjemplo: c.simulacro, sourceUrl: c.enlace, clave, avisarTecnica: false,
+    comunicado: true, simulacro: c.simulacro,
+    decision: { ...decision, motivo: `Comunicado cargado a mano por ${usuario}${c.simulacro ? " (SIMULACRO)" : ""}. ${decision.motivo}` },
+  });
 }
 
 /** Lo que hacen el cron y el botón "Buscar boletín ahora". */

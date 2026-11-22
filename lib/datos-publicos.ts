@@ -160,7 +160,7 @@ export async function alertasPanel(): Promise<AlertaPanel[]> {
     return {
       ...(a as unknown as AlertaPanel),
       boletin: b ? { source_url: b.source_url, extracted: b.extracted,
-        pdfUrl: b.pdf_path ? db().storage.from("boletines").getPublicUrl(b.pdf_path).data.publicUrl : null } : null,
+        pdfUrl: b.pdf_path && !b.pdf_path.startsWith("manual-texto/") ? db().storage.from("boletines").getPublicUrl(b.pdf_path).data.publicUrl : null } : null,
       envios,
       tarjeta: tarjetas.get(a.hazard as string)!,
     };

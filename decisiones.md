@@ -189,6 +189,13 @@
 - **Las 6 tarjetas verificadas no se tocaron:** agregarles "por qué", "evita" o "pide ayuda" cambia su huella y exige verificarlas de nuevo. Se proponen aparte para cuando haya tiempo de verificarlas.
 - **H4:** prompts por paso en `docs/prompts-imagenes.md`. **H5:** `node scripts/armar-verificacion.mjs` arma la hoja (local, `scratch/verificacion/`) con pasos, por qué, evita y pide ayuda.
 
+## Comunicado de última hora y revisión periódica (dom 22/11, 11:30)
+- **Contrato (`contratos/tipos.ts`):**
+  - `tarjetaParaAlerta` usa un mapa por amenaza: nevada → `nevada-antes_animales-01`, porque no existe `nevada-antes_familia-01`. Antes, una alerta de nevada no se podía aprobar.
+  - `construirMensajeAlerta` acepta `simulacro` (encabezado "SIMULACRO ·") y `comunicado` (fuente "comunicado del Senamhi" y enlace al original).
+- **Comunicado manual (`/panel/alertas`):** la técnica copia el texto literal y el enlace del comunicado oficial. Se crea la alerta en borrador, sin IA, con el mismo camino: aprobar → audio → enviar. Con "simulacro", el texto y el audio lo dicen al inicio, y el audio lo repite al final.
+- **Revisión periódica:** GitHub Actions (`.github/workflows/revisar-senamhi.yml`) llama a `/api/boletin/buscar` cada 15 min con `CRON_SECRET`, porque el plan gratuito de Vercel solo permite un cron diario. Solo revisa el boletín decenal: las alertas de color del Senamhi están en una app sin API pública.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".

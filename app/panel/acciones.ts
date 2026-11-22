@@ -3,7 +3,7 @@ import { prioridad, urgencia } from "@/contratos/prioridad";
 import { ErrorAcceso, exigirAcceso } from "@/lib/acceso-panel";
 import type { Rol } from "@/lib/sesion";
 import { db } from "@/lib/supabase";
-import { buscarYProcesar, procesarBoletin } from "@/lib/boletin";
+import { buscarYProcesar, crearAlertaManual, procesarBoletin, type ComunicadoManual } from "@/lib/boletin";
 import { aprobarAlerta, descartarAlerta, enviarAlerta, ErrorAlerta } from "@/lib/alertas";
 import { ErrorEntrega, registrarEntrega } from "@/lib/entregas";
 import { reiniciarDemo } from "@/lib/demo-datos";
@@ -53,6 +53,33 @@ export async function subirBoletin(form: FormData): Promise<Resultado> {
     if (String.fromCharCode(...pdf.slice(0, 5)) !== "%PDF-") throw new Error("El archivo no es un PDF");
     return describir(await procesarBoletin({ pdf, sourceUrl: null, clave: `manual-${Date.now()}`, esEjemplo: form.get("ejemplo") === "1" }));
   }, "admin");
+}
+
+/** Comunicado de última hora: la técnica copia el texto y el enlace oficiales; queda una alerta en borrador. */
+export async function crearComunicado(form: FormData): Promise<Resultado> {
+  return ejecutar(async (u) => {
+    const txt = (k: string) => String(form.get(k) ?? "").trim();
+    const fenomeno = txt("fenomeno"), nivel = txt("nivel");
+    if (!["helada", "nevada", "sequia"].includes(fenomeno)) throw new Error("Elige el fenómeno");
+    if (!["amarillo", "naranja", "rojo"].includes(nivel)) throw new Error("Elige el nivel del comunicado");
+    const texto = txt("texto");
+    if (texto.length < 10) throw new Error("Copia el texto del comunicado (al menos una frase)");
+    if (texto.length > 200) throw new Error("El texto no puede pasar de 200 caracteres: copia la frase principal");
+    let enlace: URL;
+    try { enlace = new URL(txt("enlace")); } catch { throw new Error("Pega el enlace del comunicado oficial (https://…)"); }
+    if (enlace.protocol !== "https:") throw new Error("El enlace debe empezar con https://");
+    const fecha = (k: string) => { const v = txt(k); if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) throw new Error("Revisa las fechas"); return v; };
+    const desde = fecha("desde"), hasta = fecha("hasta");
+    if (hasta < desde) throw new Error("La fecha final es anterior a la inicial");
+    const c: ComunicadoManual = {
+      fenomeno: fenomeno as ComunicadoManual["fenomeno"], nivel: nivel as ComunicadoManual["nivel"],
+      zona: txt("zona") || "Altiplano de Oruro", desde, hasta, texto, enlace: enlace.toString(), simulacro: form.get("simulacro") === "1",
+    };
+    const r = await crearAlertaManual(c, u);
+    if (r.estado === "error") throw new Error(r.error);
+    if (r.estado !== "alerta_creada") throw new Error("No se pudo crear la alerta");
+    return `Alerta en borrador creada${c.simulacro ? " (SIMULACRO)" : ""}. Revísala abajo y pulsa Aprobar y luego Enviar.${r.tarjetaLista ? "" : " Falta verificar su tarjeta para poder aprobarla."}`;
+  });
 }
 
 export async function aprobar(id: string): Promise<Resultado> {
