@@ -89,16 +89,16 @@ Flat editorial illustration with a soft painterly-vector look and subtle paper g
 Scene: A round earthen rainwater reservoir (qotaña) full of calm water reflecting the sky, dug into dry golden land, a few low stone edges around it, dry hills behind.
 ```
 
-**sequia-antes_familia-01_paso2.png** — texto del paso: «Cuida las vertientes con acuerdos de la comunidad.»
+**sequia-antes_familia-01_paso2.png** — texto del paso: «Antes de hacer una qotaña, revisa el tipo de suelo.» *(actualizado dom 22/11)*
 ```
 Flat editorial illustration with a soft painterly-vector look and subtle paper grain, same style as the attached reference image. Muted natural palette: sand ochre, terracotta, dusty blue, lavender dawn, off-white wool. Setting: Bolivian Altiplano near Oruro (high plateau, golden bunchgrass, low stone walls, distant snow-capped peaks). STRICT: no text, no letters, no numbers, no logos, no people, no hands, no tools held by anyone. Only llamas as animals. One clear central subject, simple composition, strong contrast so it reads at small size. Square 1:1 composition, subject centered with margin.
-Scene: A natural spring (vertiente) emerging between rocks with clear water trickling out, a small low stone-and-wire enclosure protecting it, a small green patch of vegetation around it in an otherwise dry landscape.
+Scene: A small square test pit freshly dug into the dry ground, its cut wall clearly showing soil layers (sandy ochre on top, dense reddish clay below), a shallow puddle held at the bottom by the clay; next to it a round outline marked on the ground with small stones showing where the future reservoir will go; a spade stuck upright in the soil pile, nobody holding it.
 ```
 
-**sequia-antes_familia-01_paso3.png** — texto del paso: «Si riegas, usa goteo o aspersión: gastas menos agua.»
+**sequia-antes_familia-01_paso3.png** — texto del paso: «Junta agua en la época de lluvias para tus animales en los meses secos.» *(actualizado dom 22/11)*
 ```
 Flat editorial illustration with a soft painterly-vector look and subtle paper grain, same style as the attached reference image. Muted natural palette: sand ochre, terracotta, dusty blue, lavender dawn, off-white wool. Setting: Bolivian Altiplano near Oruro (high plateau, golden bunchgrass, low stone walls, distant snow-capped peaks). STRICT: no text, no letters, no numbers, no logos, no people, no hands, no tools held by anyone. Only llamas as animals. One clear central subject, simple composition, strong contrast so it reads at small size. Square 1:1 composition, subject centered with margin.
-Scene: A drip irrigation hose running along a row of small green crop plants, water drops falling right at the base of each plant, dry brown soil between rows, clear sky.
+Scene: Two or three llamas drinking from a long stone water trough fed by a full earthen reservoir (qotaña) beside it; the surrounding bunchgrass is dry and golden under a clear dry-season sky, the stored water is the only blue in the scene.
 ```
 
 ### sequia-antes_animales-01 — Prepara el forraje antes de la sequía
