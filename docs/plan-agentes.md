@@ -59,6 +59,18 @@ git push origin HEAD:main
 
 Mientras espera una entrega, cada agente sigue con otro bloque suyo: ninguno se queda parado.
 
+**Ya listo antes de empezar (03:10):**
+- migración `lesson_sends` aplicada;
+- `SESSION_SECRET` en el `.env` de las 3 carpetas;
+- **lote 2 de imágenes generado y revisado** en `D:\Jonathan\Desktop\SOFTWARE\Hackathon\assets\higgsfield\lote2\`, con sus carpetas:
+  - `portada/`, `ciclo/`: de INTERFAZ;
+  - `headers/` (encabezados de las 6 tarjetas nuevas), `tarjetas/sequia-antes_familia-01/paso2.webp` y `paso3.webp` (aprobadas): de SERVIDOR.
+
+**Coordinación:** la sesión principal de Claude, en la carpeta `Hackathon`, orquesta.
+- Revisa cada subida a `main` y los archivos de estado.
+- Puede escribirte por mensaje: sigue sus indicaciones salvo que rompan una regla; en ese caso, dilo en tu estado.
+- Si te bloqueas, escríbelo en tu archivo de estado con **BLOQUEADO:** al inicio de la línea.
+
 ---
 
 ## Prompt del Agente INTERFAZ (copiar y pegar en la sesión abierta en `Hackathon-interfaz`)
