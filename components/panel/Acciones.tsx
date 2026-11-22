@@ -1,22 +1,39 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type ReactNode } from "react";
+import { CircleCheck, CircleX, LoaderCircle, Truck } from "lucide-react";
 import type { Resultado } from "@/app/panel/acciones";
+import { clasesBoton } from "@/components/ui/Boton";
+import { CLASES_CONTROL } from "@/components/ui/Campo";
+import { CampoArchivo } from "@/components/ui/CampoArchivo";
 
 const estilos = {
-  primario: "bg-marca text-white hover:bg-marca-oscura",
-  peligro: "bg-roja text-white hover:bg-roja-tinta",
-  secundario: "bg-superficie border border-borde-fuerte hover:bg-superficie-2",
+  primario: clasesBoton("primario", "md"),
+  peligro: clasesBoton("peligro", "md"),
+  secundario: clasesBoton("secundario", "md"),
 } as const;
 
 function Aviso({ r }: { r: Resultado | null }) {
   if (!r) return null;
-  return <p role="status" className={`text-sm ${r.ok ? "text-verde-tinta" : "text-roja"}`}>{r.mensaje}</p>;
+  const Icono = r.ok ? CircleCheck : CircleX;
+  return (
+    <p role="status" className={`flex items-start gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium ${r.ok ? "bg-verde-suave text-verde-tinta" : "bg-roja-suave text-roja-tinta"}`}>
+      <Icono aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+      {r.mensaje}
+    </p>
+  );
 }
 
+const Cargando = ({ texto }: { texto: string }) => (
+  <>
+    <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+    {texto}
+  </>
+);
+
 /** Botón que ejecuta una Server Action sin argumentos (ya enlazada con .bind) y refresca la página. */
-export function BotonAccion({ accion, children, confirmar, variante = "primario", deshabilitado }: {
-  accion: () => Promise<Resultado>; children: ReactNode; confirmar?: string; variante?: keyof typeof estilos; deshabilitado?: boolean;
+export function BotonAccion({ accion, children, confirmar, variante = "primario", deshabilitado, icono }: {
+  accion: () => Promise<Resultado>; children: ReactNode; confirmar?: string; variante?: keyof typeof estilos; deshabilitado?: boolean; icono?: ReactNode;
 }) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
@@ -25,8 +42,8 @@ export function BotonAccion({ accion, children, confirmar, variante = "primario"
     <div className="space-y-1">
       <button type="button" disabled={pendiente || deshabilitado}
         onClick={() => { if (confirmar && !confirm(confirmar)) return; iniciar(async () => { setR(await accion()); router.refresh(); }); }}
-        className={`inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos[variante]}`}>
-        {pendiente ? "Procesando…" : children}
+        className={`${estilos[variante]} text-sm`}>
+        {pendiente ? <Cargando texto="Procesando…" /> : <>{icono}{children}</>}
       </button>
       <Aviso r={r} />
     </div>
@@ -34,8 +51,8 @@ export function BotonAccion({ accion, children, confirmar, variante = "primario"
 }
 
 /** Formulario que envía su FormData a una Server Action (subir PDF, corregir datos). */
-export function FormAccion({ accion, children, boton, className = "" }: {
-  accion: (f: FormData) => Promise<Resultado>; children: ReactNode; boton: string; className?: string;
+export function FormAccion({ accion, children, boton, className = "", icono, variante = "primario" }: {
+  accion: (f: FormData) => Promise<Resultado>; children: ReactNode; boton: string; className?: string; icono?: ReactNode; variante?: keyof typeof estilos;
 }) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
@@ -47,9 +64,11 @@ export function FormAccion({ accion, children, boton, className = "" }: {
       iniciar(async () => { setR(await accion(f)); router.refresh(); });
     }}>
       {children}
-      <button type="submit" disabled={pendiente} className={`inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos.primario}`}>
-        {pendiente ? "Procesando…" : boton}
-      </button>
+      <div className="sm:col-span-full">
+        <button type="submit" disabled={pendiente} className={`${estilos[variante]} text-sm`}>
+          {pendiente ? <Cargando texto="Procesando…" /> : <>{icono}{boton}</>}
+        </button>
+      </div>
       <Aviso r={r} />
     </form>
   );
@@ -78,7 +97,7 @@ export function FormEntrega({ accion, communityId, reportId, sugerido }: {
   const [r, setR] = useState<Resultado | null>(null);
   const [tipo, setTipo] = useState<"cisterna" | "forraje">(sugerido);
   return (
-    <form className="grid gap-2 sm:grid-cols-[auto_auto_1fr_auto] items-end rounded-lg bg-superficie-2 p-3" onSubmit={(e) => {
+    <form className="space-y-3 rounded-lg border border-borde bg-superficie-2 p-3" onSubmit={(e) => {
       e.preventDefault();
       const f = new FormData(e.currentTarget);
       iniciar(async () => {
@@ -91,22 +110,25 @@ export function FormEntrega({ accion, communityId, reportId, sugerido }: {
     }}>
       <input type="hidden" name="communityId" value={communityId} />
       <input type="hidden" name="reportId" value={reportId} />
-      <label className="text-sm">Tipo
-        <select name="kind" value={tipo} onChange={(e) => setTipo(e.target.value as "cisterna" | "forraje")} className="block rounded border border-borde-fuerte px-2 py-1">
-          <option value="cisterna">Cisterna de agua</option>
-          <option value="forraje">Forraje (kg)</option>
-        </select>
-      </label>
-      <label className="text-sm">{tipo === "cisterna" ? "Cisternas" : "Kilos"}
-        <input name="quantity" type="number" min="1" step="1" required defaultValue={tipo === "cisterna" ? 1 : 200} className="block w-24 rounded border border-borde-fuerte px-2 py-1" />
-      </label>
-      <label className="text-sm">Foto (sin personas)
-        <input name="foto" type="file" accept="image/*" capture="environment" className="block text-xs" />
-      </label>
-      <button type="submit" disabled={pendiente} className={`inline-flex min-h-10 items-center rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 ${estilos.primario}`}>
-        {pendiente ? "Registrando…" : "Registrar entrega"}
+      <p className="flex items-center gap-2 text-sm font-semibold text-tinta"><Truck aria-hidden="true" className="size-4 text-marca" />Registrar la entrega</p>
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,14rem)_8rem_minmax(0,1fr)] sm:items-end">
+        <label className="block space-y-1.5 text-sm font-semibold text-tinta">
+          <span>Tipo</span>
+          <select name="kind" value={tipo} onChange={(e) => setTipo(e.target.value as "cisterna" | "forraje")} className={CLASES_CONTROL}>
+            <option value="cisterna">Cisterna de agua</option>
+            <option value="forraje">Forraje (kg)</option>
+          </select>
+        </label>
+        <label className="block space-y-1.5 text-sm font-semibold text-tinta">
+          <span>{tipo === "cisterna" ? "Cisternas" : "Kilos"}</span>
+          <input name="quantity" type="number" min="1" step="1" required defaultValue={tipo === "cisterna" ? 1 : 200} className={CLASES_CONTROL} />
+        </label>
+        <CampoArchivo name="foto" etiqueta="Foto (sin personas)" tipo="foto" accept="image/*" capture="environment" ayuda="Se borra la ubicación antes de subirla." />
+      </div>
+      <button type="submit" disabled={pendiente} className={`${estilos.primario} text-sm`}>
+        {pendiente ? <Cargando texto="Registrando…" /> : <><Truck aria-hidden="true" className="size-4" />Registrar entrega</>}
       </button>
-      <div className="sm:col-span-4"><Aviso r={r} /></div>
+      <Aviso r={r} />
     </form>
   );
 }

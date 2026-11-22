@@ -6,6 +6,8 @@ import { alertasPanel } from "@/lib/datos-publicos";
 import { BotonAccion, FormAccion } from "@/components/panel/Acciones";
 import { aprobar, buscarBoletinAhora, crearComunicado, descartar, enviar, subirBoletin } from "../acciones";
 import { hoyBolivia } from "@/components/ui/formato";
+import { CampoArchivo } from "@/components/ui/CampoArchivo";
+import { ChevronDown, FileUp } from "lucide-react";
 
 export const metadata: Metadata = { title: "Alertas" };
 
@@ -24,11 +26,15 @@ export default function Alertas() {
           (También se revisa solo cada 30 minutos.)
         </p>
         <BotonAccion accion={buscarBoletinAhora}>Buscar boletín ahora</BotonAccion>
-        <details className="text-sm">
-          <summary className="cursor-pointer text-tinta-2">Respaldo: subir el PDF a mano</summary>
-          <FormAccion accion={subirBoletin} boton="Procesar PDF" className="mt-2">
-            <input type="file" name="pdf" accept="application/pdf" required className="block text-sm" />
-            <label className="flex items-center gap-2"><input type="checkbox" name="ejemplo" value="1" /> Es un boletín histórico (se marca EJEMPLO)</label>
+        <details className="group rounded-lg border border-borde bg-superficie-2 text-sm open:bg-superficie">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 font-semibold text-marca [&::-webkit-details-marker]:hidden">
+            <FileUp aria-hidden="true" className="size-4" />
+            Respaldo: subir el PDF a mano
+            <ChevronDown aria-hidden="true" className="ml-auto size-4 transition-transform group-open:rotate-180" />
+          </summary>
+          <FormAccion accion={subirBoletin} boton="Procesar PDF" className="space-y-3 border-t border-borde p-3">
+            <CampoArchivo name="pdf" etiqueta="PDF del boletín" accept="application/pdf" required ayuda="Boletín agrometeorológico decenal del Senamhi (PDF)." />
+            <label className="flex min-h-10 items-center gap-2"><input type="checkbox" name="ejemplo" value="1" className="size-4 accent-marca" /> Es un boletín histórico (se marca EJEMPLO)</label>
           </FormAccion>
         </details>
       </section>
