@@ -1,6 +1,6 @@
 # Revisión periódica del boletín del Senamhi (cada 30 min).
 # El plan gratuito de Vercel solo permite un cron diario; este workflow llama a la misma ruta protegida.
-# Requiere el secreto del repositorio CRON_SECRET (el mismo valor que en Vercel).
+# Requiere el secreto del repositorio CRON_SECRET (o SECRET_CRON), con el mismo valor que CRON_SECRET en Vercel.
 # Para pausarlo (por ejemplo, durante una demo): gh workflow disable "Revisar boletín del Senamhi"
 name: Revisar boletín del Senamhi
 
@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Buscar boletín nuevo
         env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET || secrets.SECRET_CRON }}
           APP_URL: https://pacha-lilac.vercel.app
         run: |
           if [ -z "$CRON_SECRET" ]; then echo "Falta el secreto CRON_SECRET"; exit 1; fi
