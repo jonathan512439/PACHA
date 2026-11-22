@@ -1,6 +1,6 @@
 # Estado del Agente SERVIDOR
 
-_Última actualización: dom 22/11, ~03:00_
+_Última actualización: dom 22/11, ~03:20_
 
 ## Hecho
 ### H2 · Tarjeta v0.4 y fuentes (en `main`)
@@ -29,7 +29,9 @@ _Última actualización: dom 22/11, ~03:00_
 - Bloque 2: login (`lib/sesion.ts`, `/ingresar`, roles). H3 (`nivelAlerta`) a las 04:30.
 
 ## Necesito de Jhonatan
-- **H7 · Aplicar la migración** `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` en Supabase › SQL Editor. **No es urgente**: la app funciona igual sin ella. Hace falta antes de cargar tarjetas con "por qué", "evita" o "pide ayuda" (bloque 4).
+**H7 listo para aplicar: v0.4**
+
+- **H7 · Aplicar la migración** `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` en Supabase › SQL Editor. Primero quita cualquier regla CHECK vieja sobre `steps`, `step_sources` o `step_image_paths` (sin importar su nombre) y al final lista las columnas nuevas y los CHECK de `lessons`, para comprobar que solo quedan las de 3 a 5 pasos. Se puede ejecutar más de una vez. **No es urgente**: la app funciona igual sin ella. Hace falta antes de cargar tarjetas con "por qué", "evita" o "pide ayuda" (bloque 4).
 - **CIPCA:** su sitio no respondió (error TLS) y no pude confirmar el enlace al boletín "Propuestas de respuesta integral a la sequía…". Si tienes el PDF o el enlace, pásamelo. Mientras tanto, la fuente aparece **sin enlace**.
 
 ## Necesito de INTERFAZ
