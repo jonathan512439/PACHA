@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { accesoActual } from "@/lib/acceso-panel";
 
 const NAV = [
   { href: "/", texto: "Mapa" },
@@ -8,6 +10,19 @@ const NAV = [
   { href: "/suscribirse", texto: "Suscribirse" },
   { href: "/probar", texto: "Probar el bot" },
 ];
+
+const CLASES_ACCESO =
+  "ml-auto inline-flex min-h-10 items-center rounded-md border border-white/60 px-3 text-sm text-white no-underline hover:bg-marca-oscura";
+
+/** Con sesión del panel: "Panel técnico"; sin sesión: "Ingresar". */
+export async function AccesoPanel() {
+  const acceso = await accesoActual();
+  return (
+    <Link href="/panel" className={CLASES_ACCESO}>
+      {acceso ? "Panel técnico" : "Ingresar"}
+    </Link>
+  );
+}
 
 /** Cabecera pública: marca, navegación y acceso al panel. */
 export function Cabecera() {
@@ -31,9 +46,10 @@ export function Cabecera() {
             ))}
           </ul>
         </nav>
-        <Link href="/panel" className="ml-auto inline-flex min-h-10 items-center rounded-md border border-white/60 px-3 text-sm text-white no-underline hover:bg-marca-oscura">
-          Ingresar
-        </Link>
+        {/* La sesión se lee en la petición: va detrás de Suspense para no bloquear la página (Cache Components). */}
+        <Suspense fallback={<span aria-hidden="true" className={`${CLASES_ACCESO} invisible`}>Panel técnico</span>}>
+          <AccesoPanel />
+        </Suspense>
       </div>
     </header>
   );
