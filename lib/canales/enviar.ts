@@ -2,7 +2,7 @@ import "server-only";
 import type { Canal, SalidaBot } from "@/contratos/tipos";
 import { enviarSalidasTelegram } from "@/lib/canales/telegram";
 import { enviarSalidasWhatsApp } from "@/lib/canales/whatsapp";
-import { enviarSalidasTwilio, twilioActivo } from "@/lib/canales/twilio";
+import { enviarSalidasVonage, vonageActivo } from "@/lib/canales/vonage";
 
 export class CanalSinEnvio extends Error {}
 
@@ -12,8 +12,8 @@ export class CanalSinEnvio extends Error {}
  */
 export async function enviarPorCanal(canal: Canal, usuarioId: string, salidas: SalidaBot[]): Promise<void> {
   if (canal === "telegram") return enviarSalidasTelegram(usuarioId, salidas);
-  // Con credenciales de Twilio, WhatsApp sale por Twilio (sandbox de la demo); si no, por la Cloud API de Meta.
-  if (canal === "whatsapp") return twilioActivo() ? enviarSalidasTwilio(usuarioId, salidas) : enviarSalidasWhatsApp(usuarioId, salidas);
+  // Con credenciales de Vonage, WhatsApp sale por su sandbox (demo); si no, por la Cloud API de Meta.
+  if (canal === "whatsapp") return vonageActivo() ? enviarSalidasVonage(usuarioId, salidas) : enviarSalidasWhatsApp(usuarioId, salidas);
   throw new CanalSinEnvio("El canal web no recibe mensajes iniciados por el sistema");
 }
 
