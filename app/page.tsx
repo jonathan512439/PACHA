@@ -12,6 +12,7 @@ import RefrescoAuto from "@/components/RefrescoAuto";
 import { BandaAviso, nivelBanda } from "@/components/portada/BandaAviso";
 import { Ciclo } from "@/components/portada/Ciclo";
 import { ComoSeCalcula } from "@/components/portada/ComoSeCalcula";
+import { SinAgua } from "@/components/portada/SinAgua";
 import { Boton } from "@/components/ui/Boton";
 import { hoyBolivia } from "@/components/ui/formato";
 import { Horizonte } from "@/components/ui/Horizonte";
@@ -64,6 +65,10 @@ export default function Inicio() {
         <CicloVivo />
       </Suspense>
 
+      <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando las comunidades sin agua" />}>
+        <SinAguaVivo />
+      </Suspense>
+
       <section id="mapa" aria-labelledby="mapa-titulo" className="scroll-mt-4 space-y-4">
         <div className="space-y-1">
           <h2 id="mapa-titulo" className="text-2xl font-semibold sm:text-3xl">Prioridad de atención por comunidad</h2>
@@ -103,6 +108,11 @@ async function CicloVivo() {
   );
 }
 
+async function SinAguaVivo() {
+  await connection();
+  return <SinAgua comunidades={await comunidades()} />;
+}
+
 const AMENAZA: Record<string, string> = { helada: "Helada", sequia: "Sequía", nevada: "Nevada" };
 
 async function MapaYRanking() {
@@ -121,7 +131,7 @@ async function MapaYRanking() {
   });
   const aviso: AvisoMapa =
     a && a.valid_to >= hoyBolivia()
-      ? { nivel: nivelBanda(a.risk_level), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: rangoFechas(a.valid_from, a.valid_to) }
+      ? { nivel: nivelBanda(a), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: rangoFechas(a.valid_from, a.valid_to) }
       : null;
   return (
     <>

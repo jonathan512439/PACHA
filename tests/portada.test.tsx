@@ -19,11 +19,12 @@ const alerta = (o: Partial<Parameters<typeof BandaAviso>[0]["alerta"] & object> 
 });
 
 describe("banda del aviso en la portada", () => {
-  it("el nivel sale del riesgo del Senamhi: alto → roja, medio → naranja, lo demás → informativo", () => {
-    expect(nivelBanda("alto")).toBe("roja");
-    expect(nivelBanda("medio")).toBe("naranja");
-    expect(nivelBanda("bajo")).toBe("info");
-    expect(nivelBanda(null)).toBe("info");
+  it("el nivel sale de nivelAlerta (H3): alto o rojo → roja, medio o naranja → naranja, lo demás → informativo", () => {
+    expect(nivelBanda({ risk_level: "alto" })).toBe("roja");
+    expect(nivelBanda({ risk_level: "medio" })).toBe("naranja");
+    expect(nivelBanda({ risk_level: "bajo" })).toBe("info");
+    expect(nivelBanda({ risk_level: null })).toBe("info");
+    expect(nivelBanda({ risk_level: "medio", senamhi_level: "rojo" })).toBe("roja"); // H3: manda el nivel del Senamhi
   });
 
   it("riesgo alto vigente: ALERTA ROJA · HELADA FUERTE, con la cita, qué hacer y el boletín original", () => {

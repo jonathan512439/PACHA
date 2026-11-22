@@ -34,7 +34,12 @@
   - `/fuentes`: lista de `lib/fuentes.ts` con institución, año, enlace al original, fecha de consulta y tarjetas que la usan.
   - Se borró `app/tarjetas/tarjetas.css` (ya no se usa). Página 404 en español (`app/not-found.tsx`).
 
-**En curso:** bloque 5, parte 2: `/resumen` imprimible y el contador de días sin agua en la portada. Después: `/entregas`, `/probar` y `/suscribirse`.
+- **H3 integrado:** la banda de la portada y la del mapa usan `nivelAlerta()` del contrato (`risk_level` y `senamhi_level`).
+- **Bloque 5 (parte 2)** (en `main`):
+  - Portada: sección «Sin agua, a la vista», con una tarjeta por comunidad y recurso ordenada por días, el estado de la entrega y el enlace a su ficha.
+  - `/resumen`: resumen imprimible para autoridades y prensa. Muestra comunidades sin agua o forraje, días acumulados, familias, pendientes, entregas de 7 días (llegó / no llegó / sin respuesta), tiempo de respuesta promedio y una tabla por comunidad, con EJEMPLO y fuentes. Botón "Imprimir o guardar en PDF".
+
+**En curso:** bloque 6: `/entregas`, `/probar` (con `urlCompleta`, "Ver tarjeta completa") y `/suscribirse`.
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.

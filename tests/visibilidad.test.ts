@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   lineaDeTiempo,
+  resumenSemanal,
   textoCompartir,
   textoContador,
   textoHoras,
@@ -104,5 +105,29 @@ describe("ficha pública: línea de tiempo, tiempos y texto para compartir", () 
     expect(textoCompartir({ nombre: "Sora", ejemplo: false, vis: visibilidadComunidad([], [], ahora), url: "u" })).toBe(
       "Sora: ficha pública con sus reportes y entregas. u",
     );
+  });
+});
+
+describe("resumen semanal", () => {
+  it("suma días, familias, pendientes y entregas de la última semana", () => {
+    const vis1 = visibilidadComunidad([rep()], [], ahora); // 6 días sin agua, 40 familias, sin entrega
+    const vis2 = visibilidadComunidad([rep({ id: "r2", community_id: "c2", type: "forraje", familias: null, dias: 1 })], [], ahora);
+    const r = resumenSemanal(
+      [
+        { families: 50, vis: vis1 },
+        { families: 22, vis: vis2 },
+        { families: 10, vis: visibilidadComunidad([], [], ahora) },
+      ],
+      [ent({ confirmed_by_community: true }), ent({ id: "e2", confirmed_by_community: false }), ent({ id: "e3", delivered_at: "2026-11-01T00:00:00Z" })],
+      ahora,
+    );
+    expect(r).toEqual({
+      comunidadesSinAgua: 1,
+      comunidadesSinForraje: 1,
+      diasAcumulados: 6 + 3,
+      familiasAfectadas: 40 + 22,
+      pendientesSinEntrega: 2,
+      entregas: { total: 2, llego: 1, noLlego: 1, sinRespuesta: 0 },
+    });
   });
 });

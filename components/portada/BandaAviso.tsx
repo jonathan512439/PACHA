@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { rangoFechas } from "@/contratos/tipos";
+import { nivelAlerta, rangoFechas, type NivelSenamhi, type Riesgo } from "@/contratos/tipos";
 import { Aviso } from "@/components/ui/Aviso";
 import { hoyBolivia } from "@/components/ui/formato";
 import type { AlertaPublica } from "@/lib/datos-publicos";
@@ -7,12 +7,11 @@ import type { AlertaPublica } from "@/lib/datos-publicos";
 const AMENAZA: Record<string, string> = { helada: "helada", sequia: "sequía", nevada: "nevada" };
 
 /**
- * Nivel de la banda según el riesgo que publica el Senamhi (nunca lo decidimos nosotros):
- * alto → roja, medio → naranja. Sin riesgo o bajo → aviso informativo.
- * TODO(H3): usar nivelAlerta(aviso) de contratos/tipos.ts cuando SERVIDOR lo suba.
+ * Nivel de la banda: el de la alerta según el Senamhi (H3, `nivelAlerta` del contrato), nunca lo decidimos nosotros.
+ * Rojo o riesgo alto → roja; naranja o riesgo medio → naranja; lo demás → aviso informativo.
  */
-export function nivelBanda(risk_level: string | null): "roja" | "naranja" | "info" {
-  return risk_level === "alto" ? "roja" : risk_level === "medio" ? "naranja" : "info";
+export function nivelBanda(a: { risk_level: string | null; senamhi_level?: string | null }): "roja" | "naranja" | "info" {
+  return nivelAlerta({ risk_level: a.risk_level as Riesgo | null, senamhi_level: (a.senamhi_level ?? null) as NivelSenamhi | null }) ?? "info";
 }
 
 /** Banda del aviso oficial vigente, arriba de la portada. */
@@ -26,10 +25,10 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
   }
   const vigente = alerta.valid_to >= hoy;
   const amenaza = AMENAZA[alerta.hazard] ?? alerta.hazard;
-  const nivel = vigente ? nivelBanda(alerta.risk_level) : "info";
+  const nivel = vigente ? nivelBanda(alerta) : "info";
   const fuerte = nivel === "roja" || nivel === "naranja";
   const titulo = fuerte
-    ? `${amenaza.toUpperCase()}${nivel === "roja" && alerta.hazard === "helada" ? " FUERTE" : ""}`
+    ? `${amenaza.toUpperCase()}${nivel === "roja" && alerta.hazard !== "sequia" ? " FUERTE" : ""}`
     : vigente
       ? `Aviso de ${amenaza} del Senamhi`
       : `Último aviso de ${amenaza} del Senamhi (ya terminó)`;

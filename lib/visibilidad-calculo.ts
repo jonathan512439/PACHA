@@ -213,3 +213,46 @@ export function textoCompartir(p: { nombre: string; ejemplo: boolean; vis: Visib
   const entrega = p.vis.sinEntrega ? " Sin entrega todavía." : "";
   return `${pre}${p.nombre} lleva ${textoContador(c)}${familias}.${entrega} Datos confirmados por la comunidad: ${p.url}`;
 }
+
+/* ------------------------------ Resumen semanal ------------------------------ */
+
+export type ResumenSemanal = {
+  comunidadesSinAgua: number;
+  comunidadesSinForraje: number;
+  /** Suma de los días sin agua o forraje de todas las comunidades (el mayor de cada una). */
+  diasAcumulados: number;
+  familiasAfectadas: number;
+  pendientesSinEntrega: number;
+  entregas: { total: number; llego: number; noLlego: number; sinRespuesta: number };
+};
+
+/** Familias afectadas de una comunidad: las que dijo el reporte o, si no lo dijo, las de la comunidad. */
+const familiasAfectadas = (c: { families: number; vis: VisibilidadComunidad }) => {
+  const dichas = [c.vis.sinAgua?.familias, c.vis.sinForraje?.familias].filter((x): x is number => x != null);
+  return dichas.length ? Math.max(...dichas) : c.families;
+};
+
+/** Cifras del resumen para autoridades y prensa. Entregas: las de los últimos `dias` días. */
+export function resumenSemanal(
+  comunidades: { families: number; vis: VisibilidadComunidad }[],
+  entregas: EntregaVis[],
+  ahora = new Date(),
+  dias = 7,
+): ResumenSemanal {
+  const desde = new Date(ahora.getTime() - dias * DIA).toISOString();
+  const recientes = entregas.filter((e) => e.delivered_at >= desde);
+  const afectadas = comunidades.filter((c) => c.vis.sinAgua || c.vis.sinForraje);
+  return {
+    comunidadesSinAgua: comunidades.filter((c) => c.vis.sinAgua).length,
+    comunidadesSinForraje: comunidades.filter((c) => c.vis.sinForraje).length,
+    diasAcumulados: afectadas.reduce((s, c) => s + Math.max(c.vis.sinAgua?.dias ?? 0, c.vis.sinForraje?.dias ?? 0), 0),
+    familiasAfectadas: afectadas.reduce((s, c) => s + familiasAfectadas(c), 0),
+    pendientesSinEntrega: comunidades.filter((c) => c.vis.sinEntrega).length,
+    entregas: {
+      total: recientes.length,
+      llego: recientes.filter((e) => e.confirmed_by_community === true).length,
+      noLlego: recientes.filter((e) => e.confirmed_by_community === false).length,
+      sinRespuesta: recientes.filter((e) => e.confirmed_by_community === null).length,
+    },
+  };
+}

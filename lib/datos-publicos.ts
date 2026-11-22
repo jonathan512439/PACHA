@@ -46,12 +46,13 @@ export const puntaje = (c: ComunidadMapa) => (c.prioridad.estado === "activa" ? 
 export type AlertaPublica = {
   id: string; hazard: string; zona: string | null; risk_level: string | null; cita_evento: string; cita_riesgo: string | null;
   valid_from: string; valid_to: string; sent_at: string | null; message_text: string; lesson_id: string | null;
+  senamhi_level?: string | null;
 };
 
 /** Última alerta ENVIADA (la que se muestra en el mapa), con el enlace al PDF original del Senamhi. */
 export async function alertaActiva(): Promise<(AlertaPublica & { fuente_url: string | null }) | null> {
   const { data, error } = await db().from("alerts")
-    .select("id, hazard, zona, risk_level, cita_evento, cita_riesgo, valid_from, valid_to, sent_at, message_text, lesson_id, bulletins(source_url)")
+    .select("id, hazard, zona, risk_level, senamhi_level, cita_evento, cita_riesgo, valid_from, valid_to, sent_at, message_text, lesson_id, bulletins(source_url)")
     .eq("status", "enviada").order("sent_at", { ascending: false }).limit(1).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
