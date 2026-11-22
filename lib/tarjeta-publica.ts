@@ -104,17 +104,22 @@ export type ImagenesTarjeta = {
   pasos: { url: string | null; icono: TemaIcono }[];
 };
 
+/**
+ * v0.4: devuelve una imagen (o ícono) por paso. Con `steps`, tantas como pasos (3 a 5);
+ * sin `steps`, 3 (compatibilidad con v0.3).
+ */
 export function resolverImagenes(
-  t: Pick<Tarjeta, "id" | "hazard" | "phase" | "header_image_path" | "step_image_paths">,
+  t: Pick<Tarjeta, "id" | "hazard" | "phase" | "header_image_path" | "step_image_paths"> & { steps?: readonly string[] },
   base: string | null,
   rutaEncabezadoRespaldo: string | null,
 ): ImagenesTarjeta {
   const respaldo = urlPublica(base, BUCKET_IMAGENES, rutaEncabezadoRespaldo);
   const propio = urlPublica(base, BUCKET_IMAGENES, t.header_image_path);
+  const cantidad = Math.max(3, t.steps?.length ?? 3);
   return {
     encabezado: propio ?? respaldo,
     encabezadoRespaldo: propio ? respaldo : null,
-    pasos: [0, 1, 2].map((i) => ({
+    pasos: Array.from({ length: cantidad }, (_, i) => i).map((i) => ({
       url: urlPublica(base, BUCKET_IMAGENES, t.step_image_paths?.[i]),
       icono: temaIconoPaso(t, i),
     })),
@@ -135,18 +140,34 @@ function fnv1a(texto: string): string {
   return (h >>> 0).toString(16).padStart(8, "0");
 }
 
+type SeccionesV04 = Partial<Pick<Tarjeta, "por_que" | "evitar" | "pedir_ayuda">>;
+
+/**
+ * v0.4: las secciones nuevas entran en la huella SOLO si la tarjeta las trae.
+ * Así las 6 tarjetas v0.3 conservan su huella (verified_hash, PNG y audio siguen valiendo).
+ */
+const extraV04 = (t: SeccionesV04) =>
+  t.por_que || t.evitar?.length || t.pedir_ayuda ? [[t.por_que ?? null, t.evitar ?? null, t.pedir_ayuda ?? null]] : [];
+
 /** Huella de lo que se ve Y del estado (para el PNG, que dibuja la etiqueta de estado). */
 export function huellaTarjeta(
-  t: Pick<Tarjeta, "title" | "steps" | "step_sources" | "status" | "reviewed_by">,
+  t: Pick<Tarjeta, "title" | "steps" | "step_sources" | "status" | "reviewed_by"> & SeccionesV04,
 ): string {
-  return fnv1a(JSON.stringify([t.title, t.steps, t.step_sources, t.status, t.reviewed_by]));
+  return fnv1a(JSON.stringify([t.title, t.steps, t.step_sources, t.status, t.reviewed_by, ...extraV04(t)]));
 }
 
 /**
- * Huella SOLO del contenido verificable: título, pasos y fuentes con página (sin estado).
- * - Se guarda como `verified_hash` en tarjetas.json al verificar: si después cambia el texto,
- *   el seed rechaza la tarjeta hasta que se verifique de nuevo.
+ * Huella de TODO lo que se verifica: título, pasos y fuentes, más por qué / evita / pide ayuda si existen.
+ * Es la que se guarda como `verified_hash`. Sin secciones v0.4 es igual a huellaContenido.
+ */
+export function huellaVerificacion(t: Pick<Tarjeta, "title" | "steps" | "step_sources"> & SeccionesV04): string {
+  return fnv1a(JSON.stringify([t.title, t.steps, t.step_sources, ...extraV04(t)]));
+}
+
+/**
+ * Huella de lo que dice el AUDIO: título, pasos y fuentes con página (sin estado ni secciones v0.4).
  * - Va en el nombre del audio: el bot solo adjunta el audio que dice el texto actual.
+ * - Para `verified_hash` se usa huellaVerificacion (igual a esta si la tarjeta no trae secciones v0.4).
  */
 export function huellaContenido(t: Pick<Tarjeta, "title" | "steps" | "step_sources">): string {
   return fnv1a(JSON.stringify([t.title, t.steps, t.step_sources]));
@@ -180,7 +201,7 @@ export function pngVigente(t: Parameters<typeof rutaPngTarjeta>[0] & { card_imag
  * ------------------------------------------------------------------------- */
 export function tarjetaASalidaBot(
   t: Tarjeta,
-  opciones: { permitirBorrador: boolean; supabaseUrl: string | undefined },
+  opciones: { permitirBorrador: boolean; supabaseUrl: string | undefined; urlSitio?: string },
 ): Extract<SalidaBot, { tipo: "tarjeta" }> | null {
   if (!puedePublicarse(t, opciones.permitirBorrador)) return null;
   const base = baseStorage(opciones.supabaseUrl);
@@ -189,6 +210,7 @@ export function tarjetaASalidaBot(
   // Un audio grabado con un texto anterior NO se adjunta (diría otra cosa que la tarjeta).
   const ogg = audioVigente(t, "ogg") ? urlPublica(base, BUCKET_AUDIOS, t.audio_ogg_path) : null;
   const mp3 = audioVigente(t, "mp3") ? urlPublica(base, BUCKET_AUDIOS, t.audio_mp3_path) : null;
+  const urlCompleta = urlTarjetaCompleta(opciones.urlSitio, t.id);
   return {
     tipo: "tarjeta",
     id: t.id,
@@ -202,5 +224,16 @@ export function tarjetaASalidaBot(
     ...(ogg ? { audioOggUrl: ogg } : {}),
     ...(mp3 ? { audioMp3Url: mp3 } : {}),
     ...(imagen ? { imagenUrl: imagen } : {}),
+    ...(urlCompleta ? { urlCompleta } : {}),
   };
+}
+
+/** "Ver tarjeta completa": <sitio>/tarjetas/<id>. null si no hay una URL válida del sitio. */
+export function urlTarjetaCompleta(urlSitio: string | undefined, id: string): string | null {
+  if (!urlSitio) return null;
+  try {
+    return new URL(`/tarjetas/${encodeURIComponent(id)}`, urlSitio).toString();
+  } catch {
+    return null;
+  }
 }

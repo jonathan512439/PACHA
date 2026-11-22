@@ -1,0 +1,45 @@
+[
+  {
+    "id": "senamhi-insa-boletin-altiplano-2026-11-2",
+    "institucion": "Senamhi–INSA",
+    "titulo": "Boletín Agrometeorológico Macro Región Altiplano, segunda decena de noviembre (14–23 nov 2026)",
+    "anio": 2026,
+    "url": "https://senamhi.gob.bo/agromet/boletines_agrometeorologia/boletines_decenales/2026/NOVIEMBRE/2%20DECENA/1%20BOLET%C3%ADN%20ALTIPLANO%202026-11-2.pdf",
+    "claves": ["Senamhi–INSA, Boletín Agrometeorológico Macro Región Altiplano, decena 14–23 nov 2026"],
+    "tarjetas": [
+      "helada-antes_familia-01",
+      "helada-antes_animales-01",
+      "helada-durante-01",
+      "sequia-antes_animales-01",
+      "sequia-durante-01"
+    ],
+    "consultado": "2026-11-22",
+    "nota": null
+  },
+  {
+    "id": "fao-tcp-rla-3217-buenas-practicas",
+    "institucion": "FAO",
+    "titulo": "Sistematización de buenas prácticas en el marco de la prevención y mitigación de siniestros climáticos en el sector agropecuario. Caso territorio indígena Jach'a Suyu Pakajaqi en el altiplano central y Yapuchiris en Omasuyos, altiplano norte (TCP/RLA/3112 · TCP/RLA/3217)",
+    "anio": 2010,
+    "url": "https://www.fao.org/4/al930s/al930s.pdf",
+    "claves": ["FAO, Sistematización de buenas prácticas (TCP/RLA/3217)"],
+    "tarjetas": [
+      "helada-antes_animales-01",
+      "sequia-antes_familia-01",
+      "sequia-antes_animales-01"
+    ],
+    "consultado": "2026-11-22",
+    "nota": "Documento completo de 61 páginas. Las páginas citadas son las del visor de PDF."
+  },
+  {
+    "id": "cipca-respuesta-sequia-valles-2024",
+    "institucion": "CIPCA",
+    "titulo": "Propuestas de respuesta integral a la sequía en los valles interandinos",
+    "anio": 2024,
+    "url": null,
+    "claves": ["CIPCA, Propuestas de respuesta integral a la sequía en los valles interandinos"],
+    "tarjetas": ["sequia-durante-01"],
+    "consultado": "2026-11-22",
+    "nota": "Enlace por confirmar: el sitio de CIPCA no respondió el 22/11/2026. Sin enlace verificado no se muestra como enlace."
+  }
+]

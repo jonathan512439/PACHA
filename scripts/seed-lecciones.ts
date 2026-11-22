@@ -18,6 +18,12 @@ const COLUMNAS_CONTENIDO = [
   "source_url", "author", "verified_by", "reviewed_by", "status",
 ] as const;
 
+/**
+ * v0.4: columnas nuevas. Solo se envían si ALGUNA tarjeta las trae, para que el seed siga funcionando
+ * aunque todavía no se haya aplicado contratos/migraciones/2026-11-22_tarjetas_v0.4.sql.
+ */
+const COLUMNAS_V04 = ["por_que", "evitar", "pedir_ayuda"] as const;
+
 function validarArchivo(crudo: unknown): Tarjeta[] {
   if (!Array.isArray(crudo)) falla(`${ARCHIVO} debe ser una lista de tarjetas`);
   const errores: string[] = [];
@@ -50,8 +56,11 @@ async function main() {
   for (const t of tarjetas) console.log(`   ${t.id.padEnd(26)} ${t.status}`);
   if (process.argv.includes("--validar")) return;
 
+  const v04 = COLUMNAS_V04.filter((c) => tarjetas.some((t) => (t as Record<string, unknown>)[c] != null));
+  if (v04.length) console.log(`  (incluye columnas v0.4: ${v04.join(", ")}; requiere la migración 2026-11-22_tarjetas_v0.4.sql)`);
+  const columnas = [...COLUMNAS_CONTENIDO, ...v04];
   const filas = tarjetas.map((t) =>
-    Object.fromEntries(COLUMNAS_CONTENIDO.map((c) => [c, (t as Record<string, unknown>)[c] ?? null])),
+    Object.fromEntries(columnas.map((c) => [c, (t as Record<string, unknown>)[c] ?? null])),
   );
   // Un solo upsert = una sola transacción en PostgREST: entra todo o nada.
   const { error } = await clienteSupabase().from("lessons").upsert(filas, { onConflict: "id" });

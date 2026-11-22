@@ -1,4 +1,4 @@
--- PACHA · esquema v0.3 (Postgres / Supabase) · sáb 21 nov 2026 (v0.3 = tarjetas; migración en contratos/migraciones/)
+-- PACHA · esquema v0.4 (Postgres / Supabase) · dom 22 nov 2026 (v0.4 = tarjetas con por_que, evitar, pedir_ayuda y 3–5 pasos; migraciones en contratos/migraciones/)
 -- Cambios respecto a v0.1: ver contratos/CONTRATOS.md (sección "Cambios v0.2").
 --
 -- Reglas:
@@ -71,9 +71,19 @@ create table lessons (
   hazard         text not null check (hazard in ('helada','sequia','nevada')),
   phase          text not null check (phase in ('antes_familia','antes_animales','durante','despues')),
   title          text not null,
-  steps          jsonb not null check (jsonb_typeof(steps) = 'array' and jsonb_array_length(steps) = 3),
-  -- v0.3: una fuente {doc, page} por paso, en el mismo orden que steps
-  step_sources   jsonb not null check (jsonb_typeof(step_sources) = 'array' and jsonb_array_length(step_sources) = 3),
+  -- v0.4: de 3 a 5 pasos
+  steps          jsonb not null constraint lessons_steps_check
+                 check (jsonb_typeof(steps) = 'array' and jsonb_array_length(steps) between 3 and 5),
+  -- v0.3: una fuente {doc, page} por paso, en el mismo orden (y largo) que steps
+  step_sources   jsonb not null constraint lessons_step_sources_check
+                 check (jsonb_typeof(step_sources) = 'array' and jsonb_array_length(step_sources) between 3 and 5),
+  -- v0.4 (opcionales): "Por qué importa", "Evita" (0 a 2) y "Pide ayuda si…", cada uno con su fuente
+  por_que        jsonb constraint lessons_por_que_check
+                 check (por_que is null or (jsonb_typeof(por_que) = 'object' and por_que ? 'texto' and por_que ? 'fuente')),
+  evitar         jsonb constraint lessons_evitar_check
+                 check (evitar is null or (jsonb_typeof(evitar) = 'array' and jsonb_array_length(evitar) <= 2)),
+  pedir_ayuda    jsonb constraint lessons_pedir_ayuda_check
+                 check (pedir_ayuda is null or (jsonb_typeof(pedir_ayuda) = 'object' and pedir_ayuda ? 'texto')),
   factor_tags    text[] not null default '{}',   -- valores de FACTORES (tipos.ts)
   source_doc     text not null,                  -- institución y documento: la autoría que se muestra
   source_page    text not null,                  -- número del VISOR de PDF (para source_url#page=N)
@@ -83,12 +93,14 @@ create table lessons (
   verified_by    text,                           -- persona del equipo que comprobó cada paso en la página citada
   reviewed_by    text,                           -- técnico que la revisó
   header_image_path text,                        -- bucket 'tarjetas': lessons/<id>/header.jpg|webp
-  step_image_paths  text[] not null default '{}' check (cardinality(step_image_paths) <= 3), -- lessons/<id>/paso1..3.webp
+  step_image_paths  text[] not null default '{}' constraint lessons_step_image_paths_check
+                    check (cardinality(step_image_paths) <= 5), -- lessons/<id>/paso1..5.webp
   card_image_path   text,                        -- PNG 1080×1350 exportado con Playwright (bucket 'tarjetas')
   audio_ogg_path text,                           -- OGG/Opus mono 32k (WhatsApp/Telegram), bucket 'audios'
   audio_mp3_path text,                           -- MP3 64k (web), bucket 'audios'
   created_at     timestamptz not null default now(),
   constraint lessons_verificada_check check (status = 'borrador' or verified_by is not null),
+  constraint lessons_step_sources_largo_check check (jsonb_array_length(step_sources) = jsonb_array_length(steps)),
   check (status <> 'revisada'   or reviewed_by is not null)
 );
 

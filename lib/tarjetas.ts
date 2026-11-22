@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "@/lib/supabase";
+import { urlApp } from "@/lib/url";
 import { Tarjeta, type Factor } from "@/contratos/tipos";
 import {
   ID_ENCABEZADO_RESPALDO,
@@ -25,9 +26,12 @@ export async function tarjetasEnviables(): Promise<TarjetaResumen[]> {
   return (data ?? []) as TarjetaResumen[];
 }
 
-const COLUMNAS =
-  "id, hazard, phase, title, steps, step_sources, factor_tags, source_doc, source_page, source_url, author, " +
-  "verified_by, reviewed_by, status, header_image_path, step_image_paths, card_image_path, audio_ogg_path, audio_mp3_path";
+/**
+ * Todas las columnas. v0.4: con "*" la lectura funciona antes Y después de aplicar la migración
+ * 2026-11-22_tarjetas_v0.4.sql (por_que, evitar, pedir_ayuda). Sin la migración esos campos no llegan (undefined).
+ * Zod descarta las columnas que no son del contrato (created_at).
+ */
+const COLUMNAS = "*";
 
 /** Convierte una fila de `lessons` en Tarjeta validada. Una fila inválida se trata como inexistente (y se registra). */
 function aTarjeta(fila: Record<string, unknown>): Tarjeta | null {
@@ -63,5 +67,5 @@ export async function rutaEncabezadoRespaldo(): Promise<string | null> {
 export async function salidaTarjeta(id: string) {
   const t = await obtenerTarjeta(id);
   if (!t) return null;
-  return tarjetaASalidaBot(t, { permitirBorrador: permitirBorrador(), supabaseUrl: process.env.SUPABASE_URL });
+  return tarjetaASalidaBot(t, { permitirBorrador: permitirBorrador(), supabaseUrl: process.env.SUPABASE_URL, urlSitio: urlApp() });
 }

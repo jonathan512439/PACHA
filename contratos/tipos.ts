@@ -1,4 +1,4 @@
-// Contratos de datos compartidos · v0.3 (sáb 21 nov 2026; v0.3 = tarjetas con step_sources). Requiere Zod v4.
+// Contratos de datos compartidos · v0.4 (dom 22 nov 2026; v0.4 = tarjetas con por_que, evitar, pedir_ayuda y 3–5 pasos). Requiere Zod v4.
 // Todo lo que Gemini devuelve se valida con Zod antes de guardarse o enviarse.
 // Si no valida, el registro queda en 'revisar' (reportes) o el boletín en 'error'.
 import { z } from "zod";
@@ -157,18 +157,48 @@ export const FuentePaso = z.object({
 });
 export type FuentePaso = z.infer<typeof FuentePaso>;
 
+/** v0.4: límites de pasos por tarjeta. Las 6 tarjetas v0.3 tienen 3. */
+export const PASOS_MIN = 3;
+export const PASOS_MAX = 5;
+export const PALABRAS_MAX_PASO = 18;
+
+/**
+ * v0.4: un texto corto con su fuente ("Por qué importa", cada "Evita").
+ * La fuente es obligatoria: si la frase no está en la página citada, no entra.
+ */
+export const TextoConFuente = z.object({
+  texto: z.string().min(3).max(280),
+  fuente: FuentePaso,
+});
+export type TextoConFuente = z.infer<typeof TextoConFuente>;
+
+/** v0.4: "Pide ayuda si…": cuándo avisar al municipio. Fuente opcional (puede ser el texto fijo del equipo). */
+export const PedirAyuda = z.object({
+  texto: z.string().min(3).max(280),
+  fuente: FuentePaso.nullable().default(null),
+});
+export type PedirAyuda = z.infer<typeof PedirAyuda>;
+
+/** Texto fijo de "Pide ayuda si…" cuando la tarjeta no trae uno propio. No es un consejo: dice cómo avisar. */
+export const PEDIR_AYUDA_FIJO =
+  "Si hay daños, animales enfermos o te quedas sin agua, avisa a la unidad de gestión de riesgos de tu municipio. También puedes responder con un audio al bot.";
+
 export const Tarjeta = z.object({
   id: z.string().regex(/^(helada|sequia|nevada)-(antes_familia|antes_animales|durante|despues)-\d{2}$/),
   hazard: Amenaza,
   phase: Fase,
   title: z.string().min(3).max(80),
-  // 3 pasos, imperativo, máx. 18 palabras, sin dosis ni medicinas ni diagnósticos
-  steps: z.tuple([z.string(), z.string(), z.string()]).refine(
-    (s) => s.every((x) => contarPalabras(x) <= 18),
-    "Cada paso debe tener 18 palabras o menos",
+  // v0.4: 3 a 5 pasos, imperativo, máx. 18 palabras, sin dosis ni medicinas ni diagnósticos
+  steps: z.array(z.string().min(1)).min(PASOS_MIN).max(PASOS_MAX).refine(
+    (s) => s.every((x) => contarPalabras(x) <= PALABRAS_MAX_PASO),
+    `Cada paso debe tener ${PALABRAS_MAX_PASO} palabras o menos`,
   ),
-  // una fuente por paso, en el mismo orden que steps
-  step_sources: z.tuple([FuentePaso, FuentePaso, FuentePaso]),
+  // una fuente por paso, en el mismo orden y con el mismo largo que steps (ver refine abajo)
+  step_sources: z.array(FuentePaso).min(PASOS_MIN).max(PASOS_MAX),
+  // v0.4: todos opcionales; las tarjetas v0.3 siguen valiendo sin ellos
+  por_que: TextoConFuente.nullable().optional(),                // "Por qué importa": 1 o 2 frases
+  evitar: z.array(TextoConFuente).max(2).nullable().optional(), // "Evita": 0 a 2 cosas, solo si la fuente lo dice
+  pedir_ayuda: PedirAyuda.nullable().optional(),                // sin él se muestra PEDIR_AYUDA_FIJO (textoPedirAyuda)
   factor_tags: z.array(Factor).default([]),
   source_doc: z.string().min(3),        // resumen para el pie de la tarjeta
   source_page: z.string().min(1),       // número del visor de PDF
@@ -179,15 +209,23 @@ export const Tarjeta = z.object({
   status: z.enum(ESTADOS_TARJETA).default("borrador"),
   // Rutas en Storage (bucket 'tarjetas' / 'audios'). Las rellenan los scripts, no el CSV.
   header_image_path: z.string().nullable().default(null), // lessons/<id>/header.jpg|webp
-  // lessons/<id>/paso1..3.webp por posición; null o ausente = ícono de respaldo para ese paso
-  step_image_paths: z.array(z.string().nullable()).max(3).default([]),
+  // lessons/<id>/paso1..5.webp por posición; null o ausente = ícono de respaldo para ese paso
+  step_image_paths: z.array(z.string().nullable()).max(PASOS_MAX).default([]),
   card_image_path: z.string().nullable().default(null),   // PNG 1080×1350 exportado (ver huellaTarjeta)
   audio_ogg_path: z.string().nullable().default(null),    // WhatsApp/Telegram (Opus mono 32k)
   audio_mp3_path: z.string().nullable().default(null),    // web (64k)
 })
+  .refine((t) => t.step_sources.length === t.steps.length, "Debe haber una fuente por paso (step_sources y steps del mismo largo)")
   .refine((t) => t.status === "borrador" || !!t.verified_by, "verificada/revisada exige verified_by")
   .refine((t) => t.status !== "revisada" || !!t.reviewed_by, "Una tarjeta revisada necesita revisor");
 export type Tarjeta = z.infer<typeof Tarjeta>;
+
+/** v0.4: texto de "Pide ayuda si…" que se muestra (el de la tarjeta o el fijo). */
+export const textoPedirAyuda = (t: Pick<Tarjeta, "pedir_ayuda">) => t.pedir_ayuda?.texto ?? PEDIR_AYUDA_FIJO;
+
+/** v0.4: true si la tarjeta trae alguna sección nueva (por qué, evita o pide ayuda propio). */
+export const tieneSeccionesV04 = (t: Pick<Tarjeta, "por_que" | "evitar" | "pedir_ayuda">) =>
+  !!t.por_que || (t.evitar?.length ?? 0) > 0 || !!t.pedir_ayuda;
 
 /** Etiqueta obligatoria de toda tarjeta en borrador que se muestre (solo con DEMO_PERMITIR_BORRADOR=1). */
 export const ETIQUETA_BORRADOR = "BORRADOR · sin verificar";
@@ -242,7 +280,7 @@ export function construirMensajeAlerta(p: {
     : "fecha no indicada";
   const queHacer = tarjeta
     ? [
-        `Qué hacer: 1) ${tarjeta.steps[0]} 2) ${tarjeta.steps[1]} 3) ${tarjeta.steps[2]}`,
+        `Qué hacer: ${tarjeta.steps.map((paso, i) => `${i + 1}) ${paso}`).join(" ")}`,
         // Sin toLowerCase: la etiqueta de borrador debe salir tal cual ("BORRADOR · sin verificar").
         `(Tarjeta: ${etiquetaEstadoTarjeta(tarjeta)}. ${tarjeta.source_doc}, ${tarjeta.source_page})`, // source_page ya trae "p."
       ]
@@ -286,7 +324,7 @@ export const SalidaBot = z.discriminatedUnion("tipo", [
     tipo: z.literal("tarjeta"),
     id: z.string(),
     titulo: z.string(),
-    pasos: z.tuple([z.string(), z.string(), z.string()]),
+    pasos: z.array(z.string()).min(PASOS_MIN).max(PASOS_MAX), // v0.4: 3 a 5 (antes, tupla de 3)
     fuente: z.string(),
     pagina: z.string(),
     etiquetaEstado: z.string(),
@@ -294,6 +332,8 @@ export const SalidaBot = z.discriminatedUnion("tipo", [
     audioOggUrl: z.string().url().optional(),
     audioMp3Url: z.string().url().optional(),
     imagenUrl: z.string().url().optional(),
+    // v0.4 (opcional): el bot sigue enviando el resumen; lo completo está en la web.
+    urlCompleta: z.string().url().optional(), // "Ver tarjeta completa": <APP_URL>/tarjetas/<id>
   }),
 ]);
 export type SalidaBot = z.infer<typeof SalidaBot>;

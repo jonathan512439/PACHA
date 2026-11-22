@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Tarjeta } from "@/contratos/tipos";
 import { problemasDeVerificacion } from "@/lib/tarjeta-contenido";
-import { huellaContenido } from "@/lib/tarjeta-publica";
+import { huellaVerificacion } from "@/lib/tarjeta-publica";
 import { RAIZ, falla } from "./_comun";
 
 const JSON_TARJETAS = path.join(RAIZ, "data", "tarjetas", "tarjetas.json");
@@ -80,7 +80,7 @@ function main() {
   const i = filas.findIndex((f) => f.id === id);
   if (i < 0) falla(`No existe la tarjeta "${id}". Ids: ${filas.map((f) => f.id).join(", ")}`);
   const actual = Tarjeta.parse(filas[i]);
-  const huella = huellaContenido(actual);
+  const huella = huellaVerificacion(actual);
   let nueva: Fila;
 
   if (process.argv.includes("--borrador")) {

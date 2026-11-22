@@ -1,4 +1,4 @@
-# Contratos v0.3 — PACHA (sáb 21 nov 2026; v0.3 = tarjetas, ver "Cambios v0.3")
+# Contratos v0.4 — PACHA (dom 22 nov 2026; v0.4 = tarjetas completas, ver "Cambios v0.4")
 
 Archivos: `schema.sql` (tablas), `storage.sql` (buckets), `tipos.ts` (Zod v4: mensaje entrante, aviso, tarjeta, bot, plantilla de alerta, menú) y `prioridad.ts` (fórmula y prioridad por comunidad). La versión anterior está en `v0.1/`.
 Cambios a estos archivos solo con aviso en el grupo y una línea en `decisiones.md`.
@@ -94,6 +94,13 @@ Migración para proyectos con v0.2: `contratos/migraciones/2026-11-21_tarjetas_v
 
 24. `construirMensajeAlerta` acepta `tarjeta: null`: el mensaje sale sin "Qué hacer" y la API de aprobación rechaza la alerta hasta que la tarjeta de la regla sea publicable.
 25. Panel y cron: `lib/panel-auth.ts` (`usuarioPanel` con `PANEL_USERS` en basic auth, `esCron` con `Authorization: Bearer <CRON_SECRET>`). Sin dependencias de Node, para usarlo también en `proxy.ts`.
+
+## Cambios v0.4 (dom 22/11, tarjetas completas y fuentes)
+Migración: `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` (no borra filas; se puede ejecutar más de una vez).
+26. `Tarjeta` / `lessons`: `por_que` `{texto, fuente}`, `evitar` (0 a 2 `{texto, fuente}`) y `pedir_ayuda` `{texto, fuente|null}`, todos **opcionales**. `steps`/`step_sources`: de 3 a 5, mismo largo. `step_image_paths`: hasta 5.
+27. `SalidaBot` tarjeta: `pasos` es una lista de 3 a 5 y se agrega `urlCompleta` (opcional, "Ver tarjeta completa").
+28. `verified_hash` = `huellaVerificacion`: incluye las secciones v0.4 solo si existen (las tarjetas v0.3 conservan su huella).
+29. Fuentes oficiales: `data/fuentes.json` y `lib/fuentes.ts` (`listarFuentes`, `fuentesDeTarjeta`, `fuentesDeDoc`). Una fuente con `url: null` no se enlaza.
 
 ## Pendiente de decidir
 - Pesos de `prioridad.ts` (son de demo).

@@ -157,6 +157,14 @@
 - **Un solo tema claro** (`color-scheme: only light`): el modo oscuro de `globals.css` era la causa del texto ilegible. Tokens de color en `app/globals.css` y `components/ui/tokens.ts`; `tests/contraste.test.ts` exige texto ≥ 4,5:1 y gráficos ≥ 3:1.
 - **Fuentes:** Inter (texto) y Fraunces (títulos), con `next/font`. Componentes compartidos en `components/ui/` (uso en `docs/estado-interfaz.md`).
 
+## Tarjetas v0.4 y lista de fuentes (dom 22/11, 03:00 · Agente SERVIDOR)
+- **Contrato v0.4 (`contratos/tipos.ts`):** `Tarjeta` agrega `por_que` y `evitar` (0 a 2), cada uno `{texto, fuente:{doc, page}}`, y `pedir_ayuda` `{texto, fuente|null}`. **Todo opcional**: las 6 tarjetas actuales siguen valiendo sin tocarlas. `steps` y `step_sources` pasan de 3 exactos a **3–5** (mismo largo). Sin `pedir_ayuda` se muestra `PEDIR_AYUDA_FIJO` (`textoPedirAyuda(t)`).
+- **`SalidaBot` tarjeta:** `pasos` pasa de tupla de 3 a lista de 3–5; nuevo `urlCompleta` ("Ver tarjeta completa" → `/tarjetas/<id>`), que Telegram y WhatsApp ya muestran.
+- **Huellas:** las secciones v0.4 entran en `huellaVerificacion` (la de `verified_hash`) y en `huellaTarjeta` (PNG) **solo si la tarjeta las trae**; así las 6 siguen verificadas y con su PNG y audio. El audio sigue atado a `huellaContenido` (título, pasos y fuentes).
+- **Migración:** `contratos/migraciones/2026-11-22_tarjetas_v0.4.sql` (la aplica Jhonatan). Mientras tanto la app lee `lessons` con `select("*")` y el seed solo envía las columnas v0.4 si alguna tarjeta las trae.
+- **Fuentes:** `data/fuentes.json` + `lib/fuentes.ts` (puro). Cada fuente: institución, título, año, enlace al original, tarjetas que la usan y fecha de consulta. Una prueba exige que toda cita de toda tarjeta corresponda a una fuente y que la lista de tarjetas coincida. FAO TCP/RLA/3217: `fao.org/4/al930s/al930s.pdf` (completo, 61 p.). **CIPCA queda sin enlace** (`url: null`): el sitio no respondió; no se enlaza hasta abrirlo y leerlo.
+- **Imágenes:** pasos 2 y 3 de `sequia-antes_familia-01` (lote 2, aprobadas) subidos a Storage y PNG reexportado.
+
 ## Pendientes
 - ⚠️ **RECORDATORIO — tarjetas "para la demo" (sáb 21/11):** las 6 están en `verificada` por "Jhonatan", pero el cotejo lo hizo el agente de tarjetas, sin el PDF de CIPCA, y se cambiaron 4 pasos y 1 página. **Corregir y verificar a mano:** ver `docs/RECORDATORIO-tarjetas-demo.md`.
 - **Ilustraciones de las tarjetas** (A las está generando): se discuten cuando estén listas. Regla vigente: son decorativas, sin texto con consejos, y se marcan "Ilustración generada con IA".
