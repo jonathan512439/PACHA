@@ -25,7 +25,9 @@
   - **Cambio respecto al plan:** CARTO Positron ahora exige clave (devuelve "API KEY REQUIRED"). Uso los mosaicos de OpenStreetMap con un filtro gris suave, con su atribución.
   - Cálculos de «Sin agua, a la vista» en `lib/visibilidad-calculo.ts` (puro, `tests/visibilidad.test.ts`) y consultas en `lib/visibilidad.ts`. El contador sigue subiendo hasta que la comunidad confirma que llegó la ayuda.
 
-**En curso:** bloque 5, la ficha pública `/comunidad/[id]` (el mapa ya enlaza ahí). Luego las tarjetas (bloque 4), cuando llegue H2.
+- **Bloque 5 (parte 1) · Ficha pública `/comunidad/[id]`** (en `main`): contador de días sin agua o forraje, línea de tiempo (reportó → confirmó → entrega → la comunidad respondió), prioridad con su puesto y desglose, tiempo de respuesta y "Compartir por WhatsApp" (`wa.me`) con un texto que solo dice hechos confirmados y lleva [EJEMPLO] si corresponde. Sin nombres ni teléfonos.
+
+**En curso:** bloque 4, tarjetas v0.4 (`/tarjetas` en cuadrícula, `/tarjetas/[id]` con por qué, evita, pide ayuda y fuentes) y `/fuentes`. Después: `/resumen` y el contador en la portada.
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.

@@ -131,3 +131,85 @@ export function textoEntrega(e: Pick<EntregaVis, "kind" | "quantity" | "unit">):
 }
 
 export const textoRespuesta = (v: boolean | null) => (v === true ? "Llegó" : v === false ? "No llegó" : "Sin respuesta");
+
+/* ---------------------- Ficha pública y rendición de cuentas ---------------------- */
+
+export type Evento = {
+  fecha: string;
+  tipo: "reporto" | "confirmo" | "entrega" | "respuesta";
+  texto: string;
+  /** Solo en "respuesta": lo que dijo la comunidad. */
+  llego?: boolean;
+};
+
+const PROBLEMA: Record<TipoProblema, string> = { agua: "falta de agua", forraje: "falta de forraje", dano: "daños", otro: "un problema" };
+
+/** Línea de tiempo pública: reportó → confirmó → entrega registrada → la comunidad respondió. Orden cronológico. */
+export function lineaDeTiempo(reportes: ReporteVis[], entregas: EntregaVis[], etiquetaFactor: (f: string) => string = (f) => f): Evento[] {
+  const ev: Evento[] = [];
+  for (const r of reportes) {
+    const detalle = [r.factor ? etiquetaFactor(r.factor).toLowerCase() : null, r.dias != null ? `${r.dias} ${r.dias === 1 ? "día" : "días"} sin recurso` : null, r.familias != null ? `${r.familias} familias` : null]
+      .filter(Boolean)
+      .join(" · ");
+    ev.push({ fecha: r.created_at, tipo: "reporto", texto: `La comunidad reportó ${PROBLEMA[r.type]}${detalle ? ` (${detalle})` : ""}.` });
+    if (r.confirmed_at) ev.push({ fecha: r.confirmed_at, tipo: "confirmo", texto: "La comunidad confirmó el reporte. Entró a la prioridad pública." });
+  }
+  for (const e of entregas) {
+    ev.push({ fecha: e.delivered_at, tipo: "entrega", texto: `Entrega registrada: ${textoEntrega(e)}.` });
+    if (e.confirmed_by_community !== null)
+      ev.push({
+        fecha: e.confirmed_at ?? e.delivered_at,
+        tipo: "respuesta",
+        llego: e.confirmed_by_community,
+        texto: e.confirmed_by_community ? "La comunidad confirmó que la entrega llegó." : "La comunidad dijo que la entrega no llegó.",
+      });
+  }
+  return ev.sort((a, b) => a.fecha.localeCompare(b.fecha));
+}
+
+export type TiemposRespuesta = {
+  /** Horas desde el reporte hasta la entrega (promedio de las entregas con reporte asociado). */
+  reporteAEntrega: number | null;
+  /** Horas desde la entrega hasta que la comunidad respondió. */
+  entregaARespuesta: number | null;
+  entregasMedidas: number;
+};
+
+const HORA = 3_600_000;
+const promedio = (xs: number[]) => (xs.length ? Math.round((xs.reduce((s, x) => s + x, 0) / xs.length) * 10) / 10 : null);
+
+/** Tiempo de respuesta público (rendición de cuentas). Solo mide entregas enlazadas a su reporte. */
+export function tiemposRespuesta(reportes: Pick<ReporteVis, "id" | "created_at">[], entregas: EntregaVis[]): TiemposRespuesta {
+  const porId = new Map(reportes.map((r) => [r.id, r]));
+  const aEntrega: number[] = [];
+  const aRespuesta: number[] = [];
+  for (const e of entregas) {
+    const r = e.report_id ? porId.get(e.report_id) : undefined;
+    if (r) aEntrega.push(Math.max(0, (new Date(e.delivered_at).getTime() - new Date(r.created_at).getTime()) / HORA));
+    if (e.confirmed_by_community !== null && e.confirmed_at)
+      aRespuesta.push(Math.max(0, (new Date(e.confirmed_at).getTime() - new Date(e.delivered_at).getTime()) / HORA));
+  }
+  return { reporteAEntrega: promedio(aEntrega), entregaARespuesta: promedio(aRespuesta), entregasMedidas: aEntrega.length };
+}
+
+/** "20 h" · "2 días y 3 h" */
+export function textoHoras(h: number): string {
+  if (h < 1) return "menos de 1 h";
+  if (h < 48) return `${Math.round(h)} h`;
+  const d = Math.floor(h / 24);
+  const r = Math.round(h - d * 24);
+  return r ? `${d} días y ${r} h` : `${d} días`;
+}
+
+/**
+ * Texto para compartir por WhatsApp: solo hechos confirmados, sin exagerar.
+ * "Kantuta Pampa lleva 6 días sin agua (40 familias). Datos confirmados por la comunidad: <enlace>"
+ */
+export function textoCompartir(p: { nombre: string; ejemplo: boolean; vis: VisibilidadComunidad; url: string }): string {
+  const c = p.vis.sinAgua ?? p.vis.sinForraje;
+  const pre = p.ejemplo ? "[EJEMPLO] " : "";
+  if (!c) return `${pre}${p.nombre}: ficha pública con sus reportes y entregas. ${p.url}`;
+  const familias = c.familias != null ? ` (${c.familias} familias)` : "";
+  const entrega = p.vis.sinEntrega ? " Sin entrega todavía." : "";
+  return `${pre}${p.nombre} lleva ${textoContador(c)}${familias}.${entrega} Datos confirmados por la comunidad: ${p.url}`;
+}

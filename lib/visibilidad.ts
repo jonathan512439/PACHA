@@ -43,3 +43,14 @@ export async function comunidadesVisibles(ahora = new Date()): Promise<Comunidad
   const vis = visibilidadPorComunidad(reportes, entregas, ahora);
   return comunidades.map((c) => ({ ...c, vis: vis.get(c.id) ?? VACIA }));
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Ficha pública de una comunidad: prioridad, contador, reportes y entregas (sin datos personales). null si no existe. */
+export async function fichaComunidad(id: string, ahora = new Date()) {
+  if (!UUID.test(id)) return null;
+  const [comunidades, { reportes, entregas }] = await Promise.all([comunidadesVisibles(ahora), reportesYEntregas(id)]);
+  const c = comunidades.find((x) => x.id === id);
+  if (!c) return null;
+  return { comunidad: c, puesto: comunidades.indexOf(c) + 1, total: comunidades.length, reportes, entregas };
+}

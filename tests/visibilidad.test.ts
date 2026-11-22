@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  lineaDeTiempo,
+  textoCompartir,
   textoContador,
+  textoHoras,
+  tiemposRespuesta,
   textoEntrega,
   visibilidadComunidad,
   visibilidadPorComunidad,
@@ -68,5 +72,37 @@ describe("«Sin agua, a la vista»", () => {
   it("describe la entrega en palabras", () => {
     expect(textoEntrega({ kind: "cisterna", quantity: 1, unit: "cisternas" })).toBe("1 cisterna de agua");
     expect(textoEntrega({ kind: "forraje", quantity: 1500, unit: "kg" })).toBe("1.500 kg de forraje");
+  });
+});
+
+describe("ficha pública: línea de tiempo, tiempos y texto para compartir", () => {
+  it("ordena los hechos y no incluye nada personal", () => {
+    const ev = lineaDeTiempo(
+      [rep()],
+      [ent({ confirmed_by_community: true, confirmed_at: "2026-11-21T18:00:00Z" })],
+      (f) => (f === "pozo_o_vertiente_seca" ? "Pozo o vertiente seca" : f),
+    );
+    expect(ev.map((e) => e.tipo)).toEqual(["reporto", "confirmo", "entrega", "respuesta"]);
+    expect(ev[0].texto).toBe("La comunidad reportó falta de agua (pozo o vertiente seca · 4 días sin recurso · 40 familias).");
+    expect(ev[2].texto).toBe("Entrega registrada: 2 cisternas de agua.");
+    expect(ev[3]).toMatchObject({ llego: true });
+  });
+
+  it("mide el tiempo de respuesta solo con entregas enlazadas a su reporte", () => {
+    const t = tiemposRespuesta([rep()], [ent({ confirmed_by_community: false, confirmed_at: "2026-11-21T12:00:00Z" }), ent({ id: "e2", report_id: null })]);
+    expect(t).toEqual({ reporteAEntrega: 23, entregaARespuesta: 3, entregasMedidas: 1 });
+    expect(textoHoras(23)).toBe("23 h");
+    expect(textoHoras(75)).toBe("3 días y 3 h");
+    expect(tiemposRespuesta([], []).reporteAEntrega).toBeNull();
+  });
+
+  it("el texto para compartir describe hechos confirmados y marca lo de ejemplo", () => {
+    const vis = visibilidadComunidad([rep()], [], ahora);
+    expect(textoCompartir({ nombre: "Kantuta Pampa", ejemplo: true, vis, url: "https://x/c/1" })).toBe(
+      "[EJEMPLO] Kantuta Pampa lleva 6 días sin agua (40 familias). Sin entrega todavía. Datos confirmados por la comunidad: https://x/c/1",
+    );
+    expect(textoCompartir({ nombre: "Sora", ejemplo: false, vis: visibilidadComunidad([], [], ahora), url: "u" })).toBe(
+      "Sora: ficha pública con sus reportes y entregas. u",
+    );
   });
 });
