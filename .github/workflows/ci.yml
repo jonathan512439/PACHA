@@ -14,6 +14,8 @@ jobs:
       - run: npm ci
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+      # Tipos de rutas de Next 16 (PageProps, LayoutProps, RouteContext): sin esto tsc falla en una copia limpia.
+      - run: npx next typegen
       - run: npm run typecheck
       - run: npm test
       # Valida el JSON de tarjetas con el contrato (sin tocar la base: no hay secretos en CI)
