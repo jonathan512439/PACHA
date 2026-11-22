@@ -2,7 +2,7 @@ import Link from "next/link";
 import { nivelAlerta, type NivelSenamhi, type Riesgo } from "@/contratos/tipos";
 import { Aviso } from "@/components/ui/Aviso";
 import { hoyBolivia, periodo } from "@/components/ui/formato";
-import type { AlertaPublica } from "@/lib/datos-publicos";
+import type { AlertaPublica, OrigenAlerta } from "@/lib/datos-publicos";
 
 const AMENAZA: Record<string, string> = { helada: "helada", sequia: "sequía", nevada: "nevada" };
 
@@ -28,7 +28,7 @@ export function citaLegible(cita: string): string {
 const CLASES_ENLACE = "inline-flex min-h-10 items-center";
 
 /** Banda del aviso oficial vigente, arriba de la portada. */
-export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPublica & { fuente_url: string | null }) | null; hoy?: string }) {
+export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPublica & Partial<OrigenAlerta>) | null; hoy?: string }) {
   if (!alerta) {
     return (
       <Aviso nivel="info" titulo="No hay avisos vigentes del Senamhi.">
@@ -40,11 +40,14 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
   const amenaza = AMENAZA[alerta.hazard] ?? alerta.hazard;
   const nivel = vigente ? nivelBanda(alerta) : "info";
   const fuerte = nivel === "roja" || nivel === "naranja";
-  const titulo = fuerte
+  const base = fuerte
     ? `${amenaza.toUpperCase()}${nivel === "roja" && alerta.hazard !== "sequia" ? " FUERTE" : ""}`
     : vigente
       ? `Aviso de ${amenaza} del Senamhi`
       : `Último aviso de ${amenaza} del Senamhi (ya terminó)`;
+  // Lo de ejemplo siempre se dice: un simulacro nunca se muestra como una emergencia real.
+  const titulo = alerta.simulacro ? `${base} · SIMULACRO` : base;
+  const documento = alerta.comunicado ? "comunicado" : "boletín agrometeorológico decenal";
 
   return (
     <Aviso
@@ -56,19 +59,24 @@ export function BandaAviso({ alerta, hoy = hoyBolivia() }: { alerta: (AlertaPubl
           {alerta.lesson_id && <Link href={`/tarjetas/${alerta.lesson_id}`} className={CLASES_ENLACE}>Qué hacer</Link>}
           {alerta.fuente_url && (
             <a href={alerta.fuente_url} target="_blank" rel="noopener noreferrer" className={CLASES_ENLACE}>
-              Boletín del Senamhi (PDF)<span className="sr-only">, abre en otra pestaña</span>
+              {alerta.comunicado ? "Comunicado original" : "Boletín del Senamhi (PDF)"}<span className="sr-only">, abre en otra pestaña</span>
             </a>
           )}
         </span>
       }
     >
+      {alerta.simulacro && (
+        <p className="mb-1 inline-block rounded bg-white px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-tinta">
+          Simulacro · EJEMPLO: no es una emergencia real
+        </p>
+      )}
       <p className="font-semibold">
         {alerta.zona ?? "Altiplano"} · {periodo(alerta.valid_from, alerta.valid_to)}
         {alerta.risk_level && <> · Riesgo {alerta.risk_level.toUpperCase()} según el Senamhi</>}
       </p>
-      <p>El boletín dice: “{citaLegible(alerta.cita_evento)}”</p>
+      <p>{alerta.comunicado ? "El comunicado dice" : "El boletín dice"}: “{citaLegible(alerta.cita_evento)}”</p>
       {alerta.cita_riesgo && <p>Riesgo: “{citaLegible(alerta.cita_riesgo)}”</p>}
-      <p className="text-xs opacity-95">Fuente: Senamhi, boletín agrometeorológico decenal.</p>
+      <p className="text-xs opacity-95">Fuente: Senamhi, {documento}{alerta.simulacro ? " (usado como simulacro)" : ""}.</p>
     </Aviso>
   );
 }

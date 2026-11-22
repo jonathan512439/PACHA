@@ -49,15 +49,30 @@ export type AlertaPublica = {
   senamhi_level?: string | null;
 };
 
-/** Última alerta ENVIADA (la que se muestra en el mapa), con el enlace al PDF original del Senamhi. */
-export async function alertaActiva(): Promise<(AlertaPublica & { fuente_url: string | null }) | null> {
+/** Datos del documento de origen de la alerta: enlace, si es simulacro (EJEMPLO) y si es un comunicado cargado a mano. */
+export type OrigenAlerta = { fuente_url: string | null; simulacro: boolean; comunicado: boolean };
+
+/**
+ * Última alerta ENVIADA (la que se muestra en el mapa), con el enlace al original del Senamhi.
+ * `simulacro`: viene de un boletín o comunicado marcado como ejemplo; la web lo dice siempre.
+ * `comunicado`: cargado a mano en el panel (no es el boletín decenal en PDF).
+ */
+export async function alertaActiva(): Promise<(AlertaPublica & OrigenAlerta) | null> {
   const { data, error } = await db().from("alerts")
-    .select("id, hazard, zona, risk_level, senamhi_level, cita_evento, cita_riesgo, valid_from, valid_to, sent_at, message_text, lesson_id, bulletins(source_url)")
+    .select("id, hazard, zona, risk_level, senamhi_level, cita_evento, cita_riesgo, valid_from, valid_to, sent_at, message_text, lesson_id, bulletins(source_url, is_example, pdf_path)")
     .eq("status", "enviada").order("sent_at", { ascending: false }).limit(1).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  const { bulletins, ...alerta } = data as unknown as AlertaPublica & { bulletins: { source_url: string | null } | null };
-  return { ...alerta, fuente_url: bulletins?.source_url ?? null };
+  const { bulletins: b, ...alerta } = data as unknown as AlertaPublica & {
+    bulletins: { source_url: string | null; is_example: boolean | null; pdf_path: string | null } | null;
+  };
+  return {
+    ...alerta,
+    fuente_url: b?.source_url ?? null,
+    simulacro: b?.is_example === true,
+    // Mismo prefijo que PREFIJO_MANUAL de lib/boletin.ts (no se importa: arrastraría Gemini y los canales a la web pública).
+    comunicado: !!b?.pdf_path?.startsWith("manual-texto/"),
+  };
 }
 
 /** Cifras del ciclo de la portada: tarjetas verificadas, reportes activos y entregas confirmadas por la comunidad. */

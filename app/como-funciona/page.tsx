@@ -51,7 +51,7 @@ async function Pasos() {
   return (
     <Ciclo
       datos={{
-        aviso: a ? { vigente, detalle: `${a.hazard === "sequia" ? "Sequía" : a.hazard === "nevada" ? "Nevada" : "Helada"} · ${periodo(a.valid_from, a.valid_to)}` } : null,
+        aviso: a ? { vigente, detalle: `${a.simulacro ? "Simulacro · " : ""}${a.hazard === "sequia" ? "Sequía" : a.hazard === "nevada" ? "Nevada" : "Helada"} · ${periodo(a.valid_from, a.valid_to)}` } : null,
         ...r,
         comunidadesConReporte: cs.filter((c) => c.prioridad.estado === "activa").length,
         ahora: new Date(),

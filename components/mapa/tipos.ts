@@ -24,4 +24,4 @@ export type PuntoMapaVivo = {
 };
 
 /** Aviso vigente para la banda superior del mapa (null si no hay). */
-export type AvisoMapa = { nivel: "roja" | "naranja" | "info"; amenaza: string; zona: string; fechas: string } | null;
+export type AvisoMapa = { nivel: "roja" | "naranja" | "info"; amenaza: string; zona: string; fechas: string; simulacro?: boolean } | null;

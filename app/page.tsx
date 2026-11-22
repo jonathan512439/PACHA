@@ -83,7 +83,7 @@ async function MapaYRanking() {
   });
   const aviso: AvisoMapa =
     a && a.valid_to >= hoyBolivia()
-      ? { nivel: nivelBanda(a), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: periodo(a.valid_from, a.valid_to) }
+      ? { nivel: nivelBanda(a), amenaza: AMENAZA[a.hazard] ?? a.hazard, zona: a.zona ?? "Altiplano", fechas: periodo(a.valid_from, a.valid_to), simulacro: a.simulacro }
       : null;
   return (
     <>

@@ -76,6 +76,10 @@ TERMINADO: 22/11 10:05
   - Un aviso de un solo día decía «22 al 22 de noviembre». Ahora dice «22 de noviembre de 2026» (helper `periodo` en `components/ui/formato.ts`), en la banda, el mapa, «Cómo funciona» y Panel › Alertas.
   - La cita del boletín cortada a 200 caracteres terminaba a mitad de palabra. Ahora termina en la última palabra completa con «…».
   - «Qué hacer», «Boletín del Senamhi», «Cómo se calcula» e «Imprimir» miden 40 px. La etiqueta de la alerta sobre el mapa pasa a dos líneas en vez de cortarse.
+- **Simulacro marcado en la web pública (revisión previa al pitch).** Una alerta que viene de un boletín o comunicado marcado como simulacro (`bulletins.is_example`) antes se mostraba en la portada como «ALERTA ROJA · NEVADA FUERTE», sin aviso. Ahora:
+  - la banda dice «… · SIMULACRO» y «Simulacro · EJEMPLO: no es una emergencia real»;
+  - el mapa dice «SIMULACRO · ALERTA ROJA…» y «Cómo funciona», «Simulacro · Nevada…».
+  - Un comunicado cargado a mano ya no se presenta como «boletín agrometeorológico decenal»: dice «comunicado» y el enlace, «Comunicado original».
 
 ---
 

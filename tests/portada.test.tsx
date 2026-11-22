@@ -46,6 +46,18 @@ describe("banda del aviso en la portada", () => {
     expect(citaLegible("Se prevén heladas en el altiplano")).toBe("Se prevén heladas en el altiplano");
   });
 
+  it("un simulacro siempre lo dice (EJEMPLO) y un comunicado no se presenta como boletín decenal", () => {
+    const html = renderToStaticMarkup(<BandaAviso alerta={alerta({ hazard: "nevada", senamhi_level: "rojo", simulacro: true, comunicado: true })} hoy="2026-11-22" />);
+    expect(html).toContain("NEVADA FUERTE · SIMULACRO");
+    expect(html).toContain("no es una emergencia real");
+    expect(html).toContain("El comunicado dice");
+    expect(html).toContain("Comunicado original");
+    expect(html).not.toContain("boletín agrometeorológico decenal");
+    const real = renderToStaticMarkup(<BandaAviso alerta={alerta()} hoy="2026-11-22" />);
+    expect(real).not.toContain("SIMULACRO");
+    expect(real).toContain("boletín agrometeorológico decenal");
+  });
+
   it("riesgo medio: ALERTA NARANJA · HELADA (sin «FUERTE»)", () => {
     const html = renderToStaticMarkup(<BandaAviso alerta={alerta({ risk_level: "medio" })} hoy="2026-11-22" />);
     expect(html).toContain("ALERTA NARANJA · HELADA");
