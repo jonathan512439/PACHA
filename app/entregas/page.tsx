@@ -1,22 +1,37 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { connection } from "next/server";
+import { ImageOff } from "lucide-react";
 import { entregasPublicas } from "@/lib/datos-publicos";
+import { textoEntrega } from "@/lib/visibilidad-calculo";
 import RefrescoAuto from "@/components/RefrescoAuto";
+import { Insignia } from "@/components/ui/Insignia";
+import { Vacio } from "@/components/ui/Vacio";
+import { fechaHora } from "@/components/ui/formato";
 
-export const metadata: Metadata = { title: "Entregas" };
+export const metadata: Metadata = {
+  title: "Entregas",
+  description: "Cada cisterna o entrega de forraje con foto, cantidad y la respuesta de la comunidad: llegó o no llegó.",
+};
 
-const fecha = (iso: string) => new Date(iso).toLocaleString("es-BO", { timeZone: "America/La_Paz", dateStyle: "medium", timeStyle: "short" });
+const RESPUESTA = {
+  llego: { tipo: "llego", texto: "La comunidad confirmó que llegó" },
+  "no-llego": { tipo: "no-llego", texto: "La comunidad dice que NO llegó" },
+  "sin-respuesta": { tipo: "sin-respuesta", texto: "Sin respuesta de la comunidad" },
+} as const;
 
 export default function Entregas() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 space-y-4">
-      <h1 className="text-2xl font-bold">Entregas</h1>
-      <p className="text-stone-600">
-        Cada cisterna o entrega de forraje queda registrada con fecha, foto y la prioridad del reporte que la originó.
-        La comunidad confirma por el bot si llegó.
-      </p>
-      <Suspense fallback={<p className="text-stone-500">Cargando entregas…</p>}>
+    <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:py-8">
+      <header className="max-w-prose space-y-2">
+        <h1 className="text-4xl font-semibold">Entregas</h1>
+        <p className="text-lg text-tinta-2">
+          Cada cisterna o entrega de forraje queda registrada con fecha, foto y la prioridad del reporte que la originó. La comunidad responde por el
+          bot si llegó o no.
+        </p>
+      </header>
+      <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-superficie-2" aria-label="Cargando las entregas" />}>
         <Lista />
       </Suspense>
     </main>
@@ -26,34 +41,59 @@ export default function Entregas() {
 async function Lista() {
   await connection();
   const entregas = await entregasPublicas();
-  if (entregas.length === 0) return <p className="text-stone-500">Todavía no hay entregas registradas.</p>;
+  if (entregas.length === 0) return <Vacio titulo="Todavía no hay entregas registradas.">Cuando la técnica registre una, aparece aquí con su foto.</Vacio>;
+  const cuenta = {
+    llego: entregas.filter((e) => e.confirmed_by_community === true).length,
+    noLlego: entregas.filter((e) => e.confirmed_by_community === false).length,
+    sin: entregas.filter((e) => e.confirmed_by_community === null).length,
+  };
   return (
     <>
       <RefrescoAuto segundos={20} />
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {entregas.map((e) => (
-          <li key={e.id} className="rounded-lg border border-stone-200 bg-white overflow-hidden">
-            {e.fotoUrl ? (
-              <div className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element -- imagen pública de Supabase Storage */}
-                <img src={e.fotoUrl} alt={`Entrega en ${e.comunidad}`} className="h-40 w-full object-cover" />
-                {e.is_example && <span className="absolute left-2 top-2 rounded bg-amber-100 px-1.5 text-[10px] font-semibold text-amber-900">FOTO DE EJEMPLO</span>}
+      <p className="flex flex-wrap items-center gap-2 text-sm text-tinta">
+        <span className="cifras font-semibold">{entregas.length} entregas:</span>
+        <Insignia tipo="llego">{cuenta.llego} {cuenta.llego === 1 ? "llegó" : "llegaron"}</Insignia>
+        <Insignia tipo="no-llego">{cuenta.noLlego} no {cuenta.noLlego === 1 ? "llegó" : "llegaron"}</Insignia>
+        <Insignia tipo="sin-respuesta">{cuenta.sin} sin respuesta</Insignia>
+      </p>
+      <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {entregas.map((e) => {
+          const r = RESPUESTA[e.confirmed_by_community === true ? "llego" : e.confirmed_by_community === false ? "no-llego" : "sin-respuesta"];
+          return (
+            <li key={e.id} className="flex flex-col overflow-hidden rounded-xl border border-borde bg-superficie shadow-suave">
+              <div className={e.fotoUrl ? "relative aspect-[4/3] bg-superficie-2" : "relative h-16 bg-superficie-2"}>
+                {e.fotoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- imagen pública de Supabase Storage
+                  <img src={e.fotoUrl} alt={`Foto de la entrega en ${e.comunidad}`} loading="lazy" className="size-full object-cover" />
+                ) : (
+                  <div className="flex size-full items-center justify-center gap-2 text-sm text-tinta-2">
+                    <ImageOff aria-hidden="true" className="size-5" />
+                    Sin foto
+                  </div>
+                )}
+                {e.is_example && e.fotoUrl && <Insignia tipo="ejemplo" className="absolute left-2 top-2">FOTO DE EJEMPLO</Insignia>}
               </div>
-            ) : <div className="h-40 bg-stone-100 grid place-items-center text-sm text-stone-500">Sin foto</div>}
-            <div className="p-3 space-y-1 text-sm">
-              <p className="font-semibold text-base">
-                {e.kind === "cisterna" ? `${e.quantity} ${e.quantity === 1 ? "cisterna" : "cisternas"} de agua` : `${e.quantity} kg de forraje`}
-              </p>
-              <p>{e.comunidad} {e.is_example && <span className="rounded bg-amber-100 px-1.5 text-[10px] font-semibold text-amber-900">EJEMPLO</span>}</p>
-              <p className="text-stone-500">{fecha(e.delivered_at)}</p>
-              {e.prioridadOrigen !== null && <p>Prioridad del reporte: <b>{e.prioridadOrigen}</b></p>}
-              <p className={e.confirmed_by_community === true ? "text-emerald-700 font-semibold" : e.confirmed_by_community === false ? "text-red-700 font-semibold" : "text-stone-500"}>
-                {e.confirmed_by_community === true ? "✅ La comunidad confirmó que llegó" : e.confirmed_by_community === false ? "❌ La comunidad dice que NO llegó" : "⏳ Sin respuesta de la comunidad"}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
+              <div className="flex flex-1 flex-col gap-2 p-4 text-sm">
+                <p className="font-titulo text-xl font-semibold leading-snug">{textoEntrega(e)}</p>
+                <p className="flex flex-wrap items-center gap-1.5">
+                  <Link href={`/comunidad/${e.community_id}`} className="font-semibold text-marca underline">{e.comunidad}</Link>
+                  {e.is_example && <Insignia tipo="ejemplo" />}
+                </p>
+                <p className="cifras text-tinta-2">Entregada el {fechaHora(e.delivered_at)}</p>
+                {e.prioridadOrigen !== null && (
+                  <p className="text-tinta-2">Prioridad del reporte: <b className="cifras text-tinta">{String(e.prioridadOrigen).replace(".", ",")}</b></p>
+                )}
+                <div className="mt-auto border-t border-borde pt-3">
+                  <Insignia tipo={r.tipo} className="px-2.5 py-1 text-sm">{r.texto}</Insignia>
+                  {e.confirmed_at && e.confirmed_by_community !== null && (
+                    <p className="cifras mt-1 text-xs text-tinta-2">Respondió el {fechaHora(e.confirmed_at)}</p>
+                  )}
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </>
   );
 }

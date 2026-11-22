@@ -1,5 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { Mic, SendHorizontal, Square, Volume2 } from "lucide-react";
+import { Insignia } from "@/components/ui/Insignia";
+import { clasesBoton } from "@/components/ui/Boton";
 import type { BotWebRequest, SalidaBot } from "@/contratos/tipos";
 
 /*
@@ -70,47 +74,56 @@ export default function Chat() {
 
   const vacio = mensajes.length === 0;
   return (
-    <div className="flex flex-col rounded-xl border border-stone-300 bg-white h-[70vh] min-h-[480px]">
-      <div className="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
+    <div className="flex h-[70vh] min-h-[480px] flex-col overflow-hidden rounded-xl border border-borde bg-superficie shadow-suave">
+      <div className="flex-1 space-y-3 overflow-y-auto bg-fondo p-4" aria-live="polite">
         {vacio && (
-          <div className="text-center text-stone-600 mt-10 space-y-3">
+          <div className="mx-auto mt-8 max-w-sm space-y-4 text-center text-tinta">
             <p>Es el mismo bot que en Telegram y WhatsApp. Puedes escribir, tocar botones o mandar un audio.</p>
-            <button onClick={() => enviar({ tipo: "texto", texto: "hola" }, "hola")} className="rounded-lg bg-emerald-800 px-5 py-2 text-white font-semibold">
+            <button onClick={() => enviar({ tipo: "texto", texto: "hola" }, "hola")} className={clasesBoton("primario", "lg")}>
               Empezar
             </button>
-            <p className="text-xs">Al registrarte puedes elegir la <b>Comunidad de prueba</b>. Lo que reportes aparece en el mapa.</p>
+            <p className="text-sm text-tinta-2">Al registrarte puedes elegir la <b className="text-tinta">Comunidad de prueba</b>. Lo que reportes aparece en el mapa.</p>
           </div>
         )}
         {mensajes.map((m) => m.de === "persona"
-          ? <div key={m.id} className="ml-auto max-w-[80%] w-fit rounded-2xl rounded-br-sm bg-emerald-700 px-3 py-2 text-white">{m.texto}</div>
+          ? <div key={m.id} className="ml-auto w-fit max-w-[80%] whitespace-pre-line rounded-2xl rounded-br-sm bg-marca px-3.5 py-2 text-white">{m.texto}</div>
           : <Burbuja key={m.id} s={m.salida} tocar={tocar} />)}
-        {enviando && <div className="w-fit rounded-2xl bg-stone-100 px-3 py-2 text-stone-500">escribiendo…</div>}
+        {enviando && <div className="w-fit rounded-2xl border border-borde bg-superficie px-3.5 py-2 text-tinta-2">escribiendo…</div>}
         <div ref={fin} />
       </div>
-      <form className="flex gap-2 border-t border-stone-200 p-3"
+      <form className="flex gap-2 border-t border-borde bg-superficie p-3"
         onSubmit={(e) => { e.preventDefault(); const t = texto.trim(); if (t && !enviando) { setTexto(""); enviar({ tipo: "texto", texto: t }, t); } }}>
         <input value={texto} onChange={(e) => setTexto(e.target.value)} maxLength={1000} placeholder="Escribe un mensaje…" aria-label="Mensaje"
-          className="flex-1 rounded-lg border border-stone-300 px-3 py-2" disabled={grabando} />
+          className="min-h-11 min-w-0 flex-1 rounded-lg border border-borde-fuerte bg-superficie px-3 py-2 text-tinta placeholder:text-tinta-2" disabled={grabando} />
         <button type="button" onClick={grabar} disabled={enviando}
-          className={`rounded-lg px-3 py-2 font-semibold ${grabando ? "bg-red-600 text-white" : "bg-stone-200"}`}
-          aria-label={grabando ? "Detener grabación" : "Grabar audio"}>
-          {grabando ? `⏹ ${segundos}s` : "🎤"}
+          className={grabando ? clasesBoton("peligro", "md", "cifras") : clasesBoton("secundario", "md")}
+          aria-label={grabando ? `Detener grabación (${segundos} s)` : "Grabar audio"}>
+          {grabando ? <><Square aria-hidden="true" className="size-4" />{segundos} s</> : <Mic aria-hidden="true" className="size-5" />}
         </button>
-        <button type="submit" disabled={enviando || grabando || !texto.trim()} className="rounded-lg bg-emerald-800 px-4 py-2 text-white font-semibold disabled:opacity-50">
-          Enviar
+        <button type="submit" disabled={enviando || grabando || !texto.trim()} className={clasesBoton("primario", "md")} aria-label="Enviar">
+          <SendHorizontal aria-hidden="true" className="size-5" />
+          <span className="hidden sm:inline">Enviar</span>
         </button>
       </form>
     </div>
   );
 }
 
+/** "Ver tarjeta completa" en la misma web, aunque el bot mande la URL absoluta de producción. */
+const rutaLocal = (url: string) => { try { return new URL(url).pathname; } catch { return url; } };
+
 function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: string) => void }) {
-  const caja = "max-w-[85%] w-fit rounded-2xl rounded-bl-sm bg-stone-100 px-3 py-2";
+  const caja = "w-fit max-w-[85%] rounded-2xl rounded-bl-sm border border-borde bg-superficie px-3.5 py-2 text-tinta";
   switch (s.tipo) {
     case "texto":
       return <div className={`${caja} whitespace-pre-line`}>{s.texto}</div>;
     case "audio":
-      return <div className={caja}><audio controls src={s.mp3Url ?? s.oggUrl} className="max-w-full" /><p className="text-xs text-stone-500">Voz sintética</p></div>;
+      return (
+        <div className={caja}>
+          <audio controls src={s.mp3Url ?? s.oggUrl} className="max-w-full" />
+          <p className="mt-1 flex items-center gap-1 text-xs text-tinta-2"><Volume2 aria-hidden="true" className="size-3.5" />Audio con voz sintética</p>
+        </div>
+      );
     case "botones":
     case "lista": {
       const opciones = s.tipo === "botones" ? s.botones : s.filas;
@@ -119,7 +132,8 @@ function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: strin
           <p className="whitespace-pre-line">{s.texto}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {opciones.map((o) => (
-              <button key={o.id} onClick={() => tocar(o.id, o.titulo)} className="rounded-full border border-emerald-700 bg-white px-3 py-1 text-sm text-emerald-800 hover:bg-emerald-50">
+              <button key={o.id} onClick={() => tocar(o.id, o.titulo)}
+                className="min-h-11 rounded-full border border-marca bg-superficie px-4 text-[15px] font-medium text-marca hover:bg-marca-suave">
                 {o.titulo}
               </button>
             ))}
@@ -127,19 +141,36 @@ function Burbuja({ s, tocar }: { s: SalidaBot; tocar: (id: string, titulo: strin
         </div>
       );
     }
-    case "tarjeta":
+    case "tarjeta": {
+      const borrador = s.etiquetaEstado.startsWith("BORRADOR");
       return (
-        <article className="max-w-[85%] rounded-xl border border-stone-300 bg-white overflow-hidden">
+        <article className="w-full max-w-[85%] overflow-hidden rounded-xl border border-borde bg-superficie shadow-suave sm:max-w-md">
           {/* eslint-disable-next-line @next/next/no-img-element -- imagen pública de Supabase Storage */}
-          {s.imagenUrl && <img src={s.imagenUrl} alt="" className="w-full max-h-60 object-cover" />}
-          <div className="p-3 space-y-2">
-            <h3 className="font-bold">{s.titulo}</h3>
-            <ol className="list-decimal ml-5 space-y-1">{s.pasos.map((p, i) => <li key={i}>{p}</li>)}</ol>
-            <p className="text-xs text-stone-600">Fuente: {s.fuente}</p>
-            <p className={`text-xs font-semibold ${s.etiquetaEstado.startsWith("BORRADOR") ? "text-red-700" : "text-emerald-800"}`}>{s.etiquetaEstado}</p>
-            {(s.audioMp3Url ?? s.audioOggUrl) && <><audio controls src={s.audioMp3Url ?? s.audioOggUrl} className="w-full" /><p className="text-xs text-stone-500">🔊 Audio con voz sintética</p></>}
+          {s.imagenUrl && <img src={s.imagenUrl} alt="" className="aspect-[16/9] w-full object-cover" />}
+          <div className="space-y-3 p-4">
+            <h3 className="text-lg font-semibold leading-snug">{s.titulo}</h3>
+            <ol className="space-y-2">
+              {s.pasos.map((p, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="cifras font-titulo text-2xl font-semibold leading-none text-acento" aria-hidden="true">{i + 1}</span>
+                  <span className="pt-0.5 text-[15px] font-medium">{p}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="border-t border-borde pt-2 text-xs text-tinta-2"><b className="text-tinta">Fuente:</b> {s.fuente}</p>
+            <Insignia tipo={borrador ? "borrador" : "verificada"}>{s.etiquetaEstado}</Insignia>
+            {(s.audioMp3Url ?? s.audioOggUrl) && (
+              <div>
+                <audio controls src={s.audioMp3Url ?? s.audioOggUrl} className="w-full" />
+                <p className="mt-1 flex items-center gap-1 text-xs text-tinta-2"><Volume2 aria-hidden="true" className="size-3.5" />Audio con voz sintética</p>
+              </div>
+            )}
+            {s.urlCompleta && (
+              <Link href={rutaLocal(s.urlCompleta)} className="inline-block text-sm font-semibold text-marca underline">Ver tarjeta completa</Link>
+            )}
           </div>
         </article>
       );
+    }
   }
 }

@@ -87,16 +87,18 @@ export async function alertaPorId(id: string): Promise<AlertaPublica | null> {
 export type EntregaPublica = {
   id: string; kind: string; quantity: number; unit: string; delivered_at: string; is_example: boolean;
   confirmed_by_community: boolean | null; fotoUrl: string | null; comunidad: string; prioridadOrigen: number | null;
+  community_id: string; confirmed_at: string | null;
 };
 
 export async function entregasPublicas(): Promise<EntregaPublica[]> {
   const { data, error } = await db().from("deliveries")
-    .select("id, kind, quantity, unit, delivered_at, is_example, confirmed_by_community, photo_path, communities(name), reports(priority_score)")
+    .select("id, community_id, kind, quantity, unit, delivered_at, is_example, confirmed_by_community, confirmed_at, photo_path, communities(name), reports(priority_score)")
     .order("delivered_at", { ascending: false }).limit(100);
   if (error) throw new Error(error.message);
   return (data ?? []).map((d) => ({
     id: d.id as string, kind: d.kind as string, quantity: Number(d.quantity), unit: d.unit as string,
     delivered_at: d.delivered_at as string, is_example: d.is_example as boolean,
+    community_id: d.community_id as string, confirmed_at: (d.confirmed_at as string | null) ?? null,
     confirmed_by_community: d.confirmed_by_community as boolean | null,
     fotoUrl: d.photo_path ? db().storage.from("entregas").getPublicUrl(d.photo_path as string).data.publicUrl : null,
     comunidad: (d.communities as unknown as { name: string } | null)?.name ?? "—",

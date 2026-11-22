@@ -124,7 +124,7 @@ export function textoContador(c: Contador): string {
 }
 
 /** "2 cisternas" · "300 kg de forraje" */
-export function textoEntrega(e: Pick<EntregaVis, "kind" | "quantity" | "unit">): string {
+export function textoEntrega(e: { kind: string; quantity: number; unit: string }): string {
   const q = new Intl.NumberFormat("es-BO").format(e.quantity);
   if (e.unit === "kg") return `${q} kg de forraje`;
   return `${q} ${e.quantity === 1 ? "cisterna" : "cisternas"} de agua`;

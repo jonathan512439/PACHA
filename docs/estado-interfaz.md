@@ -39,7 +39,13 @@
   - Portada: sección «Sin agua, a la vista», con una tarjeta por comunidad y recurso ordenada por días, el estado de la entrega y el enlace a su ficha.
   - `/resumen`: resumen imprimible para autoridades y prensa. Muestra comunidades sin agua o forraje, días acumulados, familias, pendientes, entregas de 7 días (llegó / no llegó / sin respuesta), tiempo de respuesta promedio y una tabla por comunidad, con EJEMPLO y fuentes. Botón "Imprimir o guardar en PDF".
 
-**En curso:** bloque 6: `/entregas`, `/probar` (con `urlCompleta`, "Ver tarjeta completa") y `/suscribirse`.
+- **Bloque 6** (en `main`):
+  - `/entregas`: tarjetas con foto (o una franja "Sin foto"), cantidad, comunidad con enlace a su ficha, fecha, prioridad del reporte y la respuesta de la comunidad bien visible (Llegó · No llegó · Sin respuesta), con totales arriba.
+  - `/probar`: chat con burbujas de alto contraste, botones de 44 px, íconos de micrófono y enviar, y la tarjeta como en la web, con **"Ver tarjeta completa"** (`urlCompleta`, abierta en la misma web).
+  - `/suscribirse`: 3 pasos, QR grandes en tinta, "Qué recibes".
+  - ⚠️ Al revisar `/probar` toqué "Empezar" una vez: el bot creó **un suscriptor web anónimo en estado "nuevo"** (sin datos personales). No lo borré, porque no escribo en Supabase. Se va con "Reiniciar demo".
+
+**En curso:** bloque 7, el estilo del panel (`/panel`, `/panel/reportes`, `/panel/alertas`; solo JSX y clases).
 
 **Necesito de SERVIDOR o de Jhonatan:**
 - H2 (tipo `Tarjeta` v0.4 y `lib/fuentes.ts`) para `/tarjetas/[id]` y `/fuentes`.
